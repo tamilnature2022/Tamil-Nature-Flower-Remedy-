@@ -32,74 +32,16 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11076708
-          packages: 'platform-tools'
 
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Extract Android project
-        shell: bash
-        run: |
-          mkdir -p source
-          ZIP_FILE=$(find . -maxdepth 1 -iname '*.zip' -type f | head -n 1)
-
-          if [ -z "$ZIP_FILE" ]; then
-            echo "Source ZIP not found"
-            exit 1
-          fi
-
-          unzip -q "$ZIP_FILE" -d source
-          SETTINGS_FILE=$(find source -name settings.gradle.kts -print -quit)
-
-          if [ -z "$SETTINGS_FILE" ]; then
-            echo "settings.gradle.kts not found"
-            exit 1
-          fi
-
-          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
-      - name: Align Java and Kotlin targets
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-
-          project = Path(os.environ["PROJECT_DIR"])
-          gradle_file = project / "app" / "build.gradle.kts"
-          content = gradle_file.read_text()
-
-          settings = """
-              compileOptions {
-                  sourceCompatibility = JavaVersion.VERSION_17
-                  targetCompatibility = JavaVersion.VERSION_17
-              }
-
-              kotlinOptions {
-                  jvmTarget = "17"
-              }
-          """
-
-          if "compileOptions {" not in content:
-              content = content.replace(
-                  "android {",
-                  "android {\n" + settings,
-                  1
-              )
-
-          gradle_file.write_text(content)
-          print("Java and Kotlin targets set to 17")
-          PY
-
       - name: Build APK
-        run: gradle -p "$PROJECT_DIR" --no-daemon assembleDebug
+        run: gradle --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: TamilNatureShanmugam-APK
-          path: source/**/app/build/outputs/apk/debug/app-debug.apk
+          name: TamilNatureShanmugavel-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
