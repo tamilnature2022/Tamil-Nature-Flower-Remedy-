@@ -97,47 +97,123 @@ document.addEventListener("input", function(event) {
 }, true);
 
 function updateProgress(){
-  const qNames = new Set(Array.from(document.querySelectorAll('#questionnaire input[type=radio]:checked')).map(el=>el.name));
-  const pNames = new Set(Array.from(document.querySelectorAll('#pssQuestions input[type=radio]:checked')).map(el=>el.name));
-  $('progress').textContent = `${qNames.size}/77 answered`;
-  $('pssProgress').textContent = `${pNames.size}/10 answered`;
+  
+function updateProgress() {
+  const qAnswered = document.querySelectorAll(
+    '#questionnaire input[type="radio"]:checked'
+  ).length;
+
+  const pAnswered = document.querySelectorAll(
+    '#pssQuestions input[type="radio"]:checked'
+  ).length;
+
+  const progress = document.getElementById("progress");
+  const pssProgress = document.getElementById("pssProgress");
+
+  if (progress) progress.textContent = qAnswered + "/77 answered";
+  if (pssProgress) pssProgress.textContent = pAnswered + "/10 answered";
 }
-function getAnswers(){let a={};document.querySelectorAll('#questionnaire input[type=radio]:checked').forEach(el=>a[el.dataset.qid]=Number(el.value));return a;}
-function getPssAnswers(){let a={};document.querySelectorAll('#pssQuestions input[type=radio]:checked').forEach(el=>a[el.dataset.pss]=Number(el.value));return a;}
-function makeReport(){const answers=getAnswers(),pssAnswers=getPssAnswers(),categories=[];for(const c of CAT77){const items=QUESTION_BANK.filter(q=>q.category===c.id),vals=items.filter(q=>answers[q.id]!==undefined).map(q=>answers[q.id]),total=vals.reduce((a,b)=>a+b,0),max=vals.length*4;const remedies=[...new Set(items.map(q=>q.remedy))].map(name=>{const qs=items.filter(q=>q.remedy===name),v=qs.filter(q=>answers[q.id]!==undefined).map(q=>answers[q.id]),sum=v.reduce((a,b)=>a+b,0),r=REMEDIES.find(x=>x[1]===name);return {name,ta:r?.[2]||'',answered:v.length,total:sum,max:v.length*4,pct:v.length?Math.round(sum/(v.length*4)*100):null,qids:qs.map(q=>q.id)};});categories.push({id:c.id,name:c.en,ta:c.ta,answered:vals.length,total,max,pct:max?Math.round(total/max*100):null,remedies});}
-const remedyScores=REMEDIES.map(r=>{const qs=QUESTION_BANK.filter(q=>q.remedy===r[1]),v=qs.filter(q=>answers[q.id]!==undefined).map(q=>answers[q.id]),sum=v.reduce((a,b)=>a+b,0);return {name:r[1],ta:r[2],answered:v.length,total:sum,max:v.length*4,pct:v.length?Math.round(sum/(v.length*4)*100):null};}).filter(x=>x.answered).sort((a,b)=>b.pct-a.pct);
-let pssRaw=Object.values(pssAnswers),pssScored=0;for(let i=1;i<=10;i++){if(pssAnswers[i]!==undefined)pssScored+=( [4,5,7,8].includes(i) ? 4-pssAnswers[i] : pssAnswers[i]);}
-return {version:'0.2',participantId:$('pid').value.trim()||'TNS-'+Date.now().toString().slice(-6),name:$('pname').value.trim(),age:$('age').value,assessor:$('assessor').value.trim(),date:$('date').value||new Date().toISOString().slice(0,10),notes:$('notes').value.trim(),createdAt:new Date().toISOString(),answers,pssAnswers,pss:{answered:pssRaw.length,total:pssRaw.length===10?pssScored:null,partialScore:pssScored,reverseItems:[4,5,7,8]},categories,remedyScores,top3:remedyScores.slice(0,3)};}
-function reportHTML(r){const total=r.categories.reduce((n,c)=>n+c.answered,0),pss=r.pss||{answered:0,total:null},remedyScores=r.remedyScores||[],top3=r.top3||[];let h=`<div class="report-head"><h2>TamilNatureShanmugam — Assessment Report</h2><p>மலர் மருந்து மதிப்பீடு + PSS-10 மனஅழுத்த மதிப்பீடு</p><div class="grid"><div><b>ID:</b> ${esc(r.participantId)}</div><div><b>Name:</b> ${esc(r.name||'Not provided')}</div><div><b>Age:</b> ${esc(r.age||'—')}</div><div><b>Date:</b> ${esc(r.date)}</div><div><b>Assessor:</b> ${esc(r.assessor||'—')}</div><div><b>Screening:</b> ${total}/77</div></div></div><div class="notice">This is an educational self-reflection screening prototype, not a validated diagnostic instrument or a prescription. Scores do not establish treatment efficacy. / இது கல்வி மற்றும் சுயபரிசீலனைக்கான ஆரம்பகட்ட மதிப்பீடு மட்டுமே; நோயறிதலோ மருந்து பரிந்துரையோ அல்ல.</div><h3>7 Emotional Categories · 7 உணர்ச்சி பிரிவுகள்</h3><div class="grid">`;
-r.categories.forEach(c=>{h+=`<div class="scorebox"><b>${esc(c.name)}</b><div class="muted">${esc(c.ta)}</div><strong>${c.pct===null?'—':c.pct+'%'}</strong><div class="bar"><div style="width:${c.pct||0}%"></div></div><span class="small">${c.total}/${c.max} points · ${c.answered}/${QUESTION_BANK.filter(q=>q.category===c.id).length} answered</span></div>`});h+='</div><h3>Top 3 Remedy Screening Signals · முதன்மை 3 மதிப்பீட்டு சுட்டிகள்</h3><ol>';if(top3.length){top3.forEach(m=>h+=`<li><b>${esc(m.name)}</b> (${esc(m.ta)}) — ${m.pct}% · ${m.total}/${m.max}</li>`)}else h+='<li>No answered remedy questions</li>';h+='</ol><h3>Remedy-wise Scores · மருந்து வாரியான மதிப்பெண்கள்</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Answered</th><th>Score</th><th>%</th></tr></thead><tbody>';remedyScores.forEach(m=>h+=`<tr><td>${esc(m.name)} · ${esc(m.ta)}</td><td>${m.answered}</td><td>${m.total}/${m.max}</td><td>${m.pct}%</td></tr>`);h+='</tbody></table><h3>PSS-10 Stress Assessment · மனஅழுத்த மதிப்பீடு</h3>';h+=pss.answered===10?`<p><b>PSS-10 Total: ${pss.total}/40</b></p>`:`<p>${pss.answered}/10 answered. Complete all 10 items for a total score. / மொத்த மதிப்பெண் பெற 10 கேள்விகளுக்கும் பதிலளிக்கவும்.</p>`;h+='<p class="muted small">PSS-10 reverse-scored items: 4, 5, 7, 8. PSS-10 is a measure of perceived stress, not a diagnosis.</p><h3>Notes / குறிப்புகள்</h3><p>'+esc(r.notes||'—')+'</p><p class="muted small">77-question remedy mapping and scoring are a research draft and require expert review, pilot testing and validation before clinical or research claims. Higher percentages show stronger endorsement of the mapped statements only.</p>';return h;}
-function score(){updateProgress();const r=makeReport(),n=r.categories.reduce((a,c)=>a+c.answered,0);if(!n&&!r.pss.answered){alert('Please answer at least one item. / குறைந்தது ஒரு கேள்விக்குப் பதிலளிக்கவும்.');return;}lastReport=r;$('reportContent').innerHTML=reportHTML(r);$('report').classList.remove('hidden');$('report').scrollIntoView({behavior:'smooth'});}
-function localRead(){try{return JSON.parse(localStorage.getItem("tns_bach_records_v4")||"[]")}catch(e){return []}}function localWrite(a){localStorage.setItem("tns_bach_records_v4",JSON.stringify(a))}
-async function save(){if(!lastReport)score();if(!lastReport)return;if(cloudReady&&user){let {error}=await supabase.from("bach_screening_records").upsert({participant_id:lastReport.participantId,assessment_date:lastReport.date,participant_name:lastReport.name,report:lastReport,updated_at:new Date().toISOString()},{onConflict:"user_id,participant_id,assessment_date"});if(error){alert("Cloud save failed: "+error.message);return;}alert("Saved to your signed-in cloud account.");}else{let a=localRead(),i=a.findIndex(x=>x.participantId===lastReport.participantId&&x.date===lastReport.date);if(i>=0)a[i]=lastReport;else a.unshift(lastReport);localWrite(a);alert("Saved on this browser only. Configure cloud login for shared records.");}loadRecords();}
-async function loadRecords(){let list;if(cloudReady&&user){let {data,error}=await supabase.from("bach_screening_records").select("participant_id,assessment_date,participant_name,report,created_at").order("created_at",{ascending:false});if(error){$("recordsList").innerHTML=`<p class="err">${esc(error.message)}</p>`;return;}list=(data||[]).map(x=>x.report);$("recordMode").textContent="Cloud mode: records are private to your signed-in account."; }else{list=localRead();$("recordMode").textContent="Local mode: records exist only in this browser/device; no cross-device sync."}
-$("recordsList").innerHTML=list.length?list.map((r,i)=>`<div class="record"><b>${esc(r.name||"Unnamed participant")}</b> <span class="pill">${esc(r.participantId)}</span><div class="muted">${esc(r.date)} · ${r.categories.reduce((a,c)=>a+c.answered,0)}/77 answered · PSS ${r.pss?.answered??0}/10</div><div class="grid">${r.categories.map(c=>`<div>${c.name}: <b>${c.pct===null?"—":c.pct+"%"}</b></div>`).join("")}</div><div class="actions"><button class="secondary" onclick="viewRecord(${i})">View</button>${cloudReady&&user?`<button class="danger" onclick="deleteCloudRecord('${esc(r.participantId)}','${esc(r.date)}')">Delete</button>`:`<button class="danger" onclick="deleteLocalRecord(${i})">Delete</button>`}</div></div>`).join(""):"<p class='muted'>No saved records.</p>";window._records=list;}
-window.viewRecord=i=>{let r=(window._records||[])[i];if(!r)return;lastReport=r;$('pid').value=r.participantId;$('pname').value=r.name||'';$('age').value=r.age||'';$('assessor').value=r.assessor||'';$('date').value=r.date;$('notes').value=r.notes||'';makeQuestionnaire();if(r.answers){Object.entries(r.answers).forEach(([id,v])=>{let el=document.querySelector(`#questionnaire input[name="${id}"][value="${v}"]`);if(el)el.checked=true;});}if(r.pssAnswers){Object.entries(r.pssAnswers).forEach(([id,v])=>{let el=document.querySelector(`#pssQuestions input[name="pss-${id}"][value="${v}"]`);if(el)el.checked=true;});}updateProgress();$('reportContent').innerHTML=reportHTML(r);$('report').classList.remove('hidden');showTab('assessment');};
-window.deleteLocalRecord=i=>{if(confirm("Delete this saved record?")){let a=localRead();a.splice(i,1);localWrite(a);loadRecords()}};
-window.deleteCloudRecord=async(id,date)=>{if(!confirm("Delete this cloud record?"))return;let {error}=await supabase.from("bach_screening_records").delete().eq("participant_id",id).eq("assessment_date",date);if(error)alert(error.message);else loadRecords()};
-function downloadBlob(blob,name){let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
-function exportCurrent(){if(!lastReport){alert('Calculate a report first.');return;}let rows=[['Participant ID','Name','Date','Category','Answered','Score','Percent','PSS answered','PSS total','Remedy','Remedy score','Remedy percent']];lastReport.categories.forEach(c=>rows.push([lastReport.participantId,lastReport.name,lastReport.date,c.name,c.answered,c.total,c.pct,lastReport.pss?.answered??0,lastReport.pss?.total??'', '', '', '']));(lastReport.remedyScores||[]).forEach(m=>rows.push([lastReport.participantId,lastReport.name,lastReport.date,'Remedy',m.answered,m.total,m.pct,lastReport.pss?.answered??0,lastReport.pss?.total??'',m.name,m.total,m.pct]));downloadBlob(new Blob(['\uFEFF'+rows.map(r=>r.map(csv).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'TamilNatureShanmugam-report-'+lastReport.participantId+'.csv')}
-function csv(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
-async function exportAll(){let list;if(cloudReady&&user){let {data,error}=await supabase.from('bach_screening_records').select('report');if(error){alert(error.message);return;}list=(data||[]).map(x=>x.report);}else list=localRead();let rows=[['Participant ID','Name','Date','Category','Answered','Score','Percent','PSS answered','PSS total','Remedy','Remedy score','Remedy percent']];list.forEach(r=>{r.categories.forEach(c=>rows.push([r.participantId,r.name,r.date,c.name,c.answered,c.total,c.pct,r.pss?.answered??'',r.pss?.total??'','','','']));(r.remedyScores||[]).forEach(m=>rows.push([r.participantId,r.name,r.date,'Remedy',m.answered,m.total,m.pct,r.pss?.answered??'',r.pss?.total??'',m.name,m.total,m.pct]));});downloadBlob(new Blob(['\uFEFF'+rows.map(r=>r.map(csv).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'TamilNatureShanmugam-records.csv')}
-function backup(){downloadBlob(new Blob([JSON.stringify(localRead(),null,2)],{type:"application/json"}),"TamilNatureShanmugam-local-backup.json")}
-window.showTab = function(id){
-  const allowed = ["assessment", "records", "settings"];
-  if (!allowed.includes(id)) return;
-  document.querySelectorAll("section[id]").forEach(section => section.classList.add("hidden"));
-  const target = document.getElementById(id);
-  if (target) target.classList.remove("hidden");
-  document.querySelectorAll(".tab").forEach(button => button.classList.toggle("active", button.dataset.tab === id));
-  if (id === "records") loadRecords();
-  if (id === "settings") {
-    const savedUrl = localStorage.getItem("tns_sb_url") || "";
-    const savedKey = localStorage.getItem("tns_sb_key") || "";
-    if (!$("supabaseUrl").value) $("supabaseUrl").value = savedUrl;
-    if (!$("supabaseKey").value) $("supabaseKey").value = savedKey;
+
+function getAnswers() {
+  const answers = {};
+  document.querySelectorAll(
+    '#questionnaire input[type="radio"]:checked'
+  ).forEach(el => {
+    answers[el.dataset.qid] = Number(el.value);
+  });
+  return answers;
+}
+
+function getPssAnswers() {
+  const answers = {};
+  document.querySelectorAll(
+    '#pssQuestions input[type="radio"]:checked'
+  ).forEach(el => {
+    answers[el.dataset.pss] = Number(el.value);
+  });
+  return answers;
+}
+
+function localRead() {
+  try {
+    const data = localStorage.getItem("tns_bach_records_v4");
+    const records = JSON.parse(data || "[]");
+    return Array.isArray(records) ? records : [];
+  } catch (error) {
+    console.error("Read error:", error);
+    return [];
   }
-};
+}
+
+function localWrite(records) {
+  try {
+    localStorage.setItem(
+      "tns_bach_records_v4",
+      JSON.stringify(records)
+    );
+    return true;
+  } catch (error) {
+    alert("Save failed: " + error.message);
+    return false;
+  }
+}
+
+function score() {
+  updateProgress();
+
+  try {
+    const report = makeReport();
+
+    const answered =
+      Object.keys(report.answers).length +
+      Object.keys(report.pssAnswers).length;
+
+    if (answered === 0) {
+      alert("Please answer at least one question.");
+      return false;
+    }
+
+    lastReport = report;
+
+    document.getElementById("reportContent").innerHTML =
+      reportHTML(report);
+
+    document.getElementById("report").classList.remove("hidden");
+
+    return true;
+
+  } catch (error) {
+    alert("Report error: " + error.message);
+    console.error(error);
+    return false;
+  }
+}
+
+async function save() {
+  if (!lastReport) {
+    const success = score();
+    if (!success) return;
+  }
+
+  const records = localRead();
+
+  const index = records.findIndex(record =>
+    record.participantId === lastReport.participantId &&
+    record.date === lastReport.date
+  );
+
+  if (index >= 0) {
+    records[index] = lastReport;
+  } else {
+    records.unshift(lastReport);
+  }
+
+  if (localWrite(records)) {
+    alert("Record saved successfully on this device.");
+    loadRecords();
+  }
+}
+
 async function connect(){
   const url=$("supabaseUrl").value.trim().replace(/\/+$/,"");
   const key=$("supabaseKey").value.trim();
