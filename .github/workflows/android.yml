@@ -51,7 +51,6 @@ jobs:
           fi
 
           unzip -q "$ZIP_FILE" -d source
-
           SETTINGS_FILE=$(find source -name settings.gradle.kts -print -quit)
 
           if [ -z "$SETTINGS_FILE" ]; then
@@ -71,10 +70,9 @@ jobs:
 
           project = Path(os.environ["PROJECT_DIR"])
           gradle_file = project / "app" / "build.gradle.kts"
-
           content = gradle_file.read_text()
 
-          settings = '''
+          settings = """
               compileOptions {
                   sourceCompatibility = JavaVersion.VERSION_17
                   targetCompatibility = JavaVersion.VERSION_17
@@ -83,12 +81,12 @@ jobs:
               kotlinOptions {
                   jvmTarget = "17"
               }
-          '''
+          """
 
           if "compileOptions {" not in content:
               content = content.replace(
                   "android {",
-                  "android {\\n" + settings,
+                  "android {\n" + settings,
                   1
               )
 
