@@ -4,7 +4,9 @@ name: Build TamilNature Android APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
 
 permissions:
   contents: read
@@ -12,6 +14,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,20 +32,34 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11076708
+          packages: 'platform-tools'
 
-      - name: Install SDK
+      - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Extract Android project
+        shell: bash
         run: |
           mkdir -p source
           ZIP_FILE=$(find . -maxdepth 1 -iname '*.zip' -type f | head -n 1)
+
           if [ -z "$ZIP_FILE" ]; then
             echo "Source ZIP not found"
             exit 1
           fi
+
           unzip -q "$ZIP_FILE" -d source
-          PROJECT_DIR=$(dirname "$(find source -name settings.gradle.kts -print -quit)")
+
+          SETTINGS_FILE=$(find source -name settings.gradle.kts -print -quit)
+
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "settings.gradle.kts not found"
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Build APK
