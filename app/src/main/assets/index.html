@@ -365,5 +365,54 @@ restoreCloud();
   }
 })();
 </script>
+<script>
+(function () {
+  function updateCounters() {
+    const bach = new Set(
+      [...document.querySelectorAll(
+        '#questionnaire input[type="radio"]:checked'
+      )].map(x => x.name)
+    ).size;
 
+    const pss = new Set(
+      [...document.querySelectorAll(
+        '#pssQuestions input[type="radio"]:checked'
+      )].map(x => x.name)
+    ).size;
+
+    const progress = document.getElementById('progress');
+    const pssProgress = document.getElementById('pssProgress');
+    const status = document.getElementById('questionEngineStatus');
+
+    if (progress) {
+      progress.textContent = bach + '/77 answered';
+    }
+
+    if (pssProgress) {
+      pssProgress.textContent = pss + '/10 answered';
+    }
+
+    if (status) {
+      status.textContent =
+        'Question engine ready · 77 Bach questions + 10 PSS questions';
+    }
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target.matches('input[type="radio"]')) {
+      updateCounters();
+    }
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    if (e.target.matches('input[type="radio"]')) {
+      setTimeout(updateCounters, 50);
+    }
+  }, true);
+
+  window.updateProgress = updateCounters;
+
+  updateCounters();
+})();
+</script>
 </body></html>
