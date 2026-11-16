@@ -3,8 +3,16 @@
     <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:colorAccent">#315B45</item>
+
+        <!-- Status Bar -->
         <item name="android:statusBarColor">#244B38</item>
-        <item name="android:navigationBarColor">#183C2C</item>
         <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation Bar -->
+        <item name="android:navigationBarColor">#183C2C</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Android 15 Edge-to-Edge -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 </resources>
