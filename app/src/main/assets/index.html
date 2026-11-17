@@ -399,11 +399,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <div class="page-heading"><h1>Flower Remedy Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
 <div class="panel" id="assessmentClientPanel"><h2>Participant · பங்கேற்பாளர்</h2>
 <div class="actions" style="margin:0 0 12px"><button type="button" class="primary" id="addParticipantClient">＋ New Client / புதிய வாடிக்கையாளர்</button></div>
-<div class="field"><label for="participantSearch">Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும்</label>
-<input type="search" id="participantSearch" placeholder="Search client name or mobile / பெயர் அல்லது மொபைல் தேடுக" autocomplete="off">
-<select id="participantSelect" style="margin-top:8px"><option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option></select></div>
-<p class="muted" id="selectedClientInfo">Assessment தொடங்க Client Records-ல் உள்ள வாடிக்கையாளரைத் தேர்வு செய்யவும்.</p>
-<div class="actions" style="margin-top:12px">
+<div class="field" style="position:relative"><label for="participantSearch">Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும்</label>
+<input type="search" id="participantSearch" placeholder="Search and select client / பெயர் அல்லது மொபைல் தேடுக" autocomplete="off" aria-controls="participantSearchResults" aria-expanded="false">
+<div id="participantSearchResults" class="panel" style="display:none;position:absolute;z-index:30;left:0;right:0;top:100%;max-height:240px;overflow-y:auto;margin:4px 0;padding:6px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.14)"></div>
+<select id="participantSelect" style="display:none"><option value="">-- Select Client --</option></select></div>
+<p class="muted" id="selectedClientInfo">Assessment தொடங்க Client-ஐத் தேர்வு செய்யவும்.</p>
+<div class="actions" id="createTaskAction" style="margin-top:12px;display:none">
   <button type="button" class="primary" id="showCreateTaskFormBtn">＋ Create Task / புதிய மதிப்பீடு</button>
 </div>
 <div class="panel hidden" id="assessmentTaskFormPanel" style="margin-top:10px;background:#f8fbf8;display:none">
@@ -420,7 +421,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <button type="button" class="secondary" id="cancelCreateTaskFormBtn">Cancel / ரத்து</button>
   </div>
 </div>
-<div class="panel" id="assessmentTaskPanel" style="margin-top:14px;background:#f8fbf8">
+<div class="panel" id="assessmentTaskPanel" style="display:none;margin-top:14px;background:#f8fbf8">
   <div id="assessmentTaskList"><p class="muted">முதலில் Client-ஐத் தேர்வு செய்யவும்.</p></div>
   <div id="assessmentVisitList" style="margin-top:10px"></div>
 </div>
@@ -429,7 +430,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <span id="assessmentSessionStatus">Not started</span>
 </div>
 <input id="pid" type="hidden"><input id="pname" type="hidden"><input id="mobile" type="hidden"><input id="age" type="hidden">
-<p class="muted">Client details are taken from Client Records. Assessment answers and reports remain separate for each service. / வாடிக்கையாளர் விவரங்கள் Client Records-லிருந்து பெறப்படும். ஒவ்வொரு சேவையின் மதிப்பீடும் தனித்தனியாகச் சேமிக்கப்படும்.</p></div>
+</div>
 <div id="assessmentWorkspace" style="display:none">
 <div class="panel"><h2>Response scale · பதில் அளவுகோல்</h2><div class="grid"><div>0 — இல்லை / Not at all</div><div>1 — சிறிது / Slightly</div><div>2 — மிதமான அளவு / Moderately</div><div>3 — அதிகம் / A lot</div><div>4 — மிகவும் அதிகம் / Extremely</div></div><div class="actions" style="margin-top:12px"><button class="secondary" id="allUnanswered">Clear answers</button><span id="progress" class="muted">0/77 answered · Select one number under each question</span></div></div>
 <p id="questionEngineStatus" class="status muted">Questions prepared · PSS-10 first, then 77 Bach questions</p><div class="panel" id="pssPanel"><h2>PSS-10 Stress Assessment · மனஅழுத்த மதிப்பீடு</h2><p class="muted">கடந்த ஒரு மாதத்தில் உங்கள் அனுபவத்தை அடிப்படையாகக் கொண்டு பதிலளிக்கவும். / In the last month, answer based on your experience.</p><div class="grid"><div>0 — ஒருபோதும் இல்லை / Never</div><div>1 — கிட்டத்தட்ட இல்லை / Almost never</div><div>2 — சில நேரங்களில் / Sometimes</div><div>3 — அடிக்கடி / Fairly often</div><div>4 — மிகவும் அடிக்கடி / Very often</div></div><p id="pssProgress" class="muted">0/10 answered</p><div id="pssQuestions"><div class="prompt"><div class="prompt-text"><strong>PSS-1.</strong> கடந்த ஒரு மாதத்தில் எதிர்பாராத நிகழ்வால் எத்தனை முறை மனம் கலங்கினீர்கள்?<br><span class="muted">In the last month, how often have you been upset because of something that happened unexpectedly?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-1" value="0" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-1" value="1" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-1" value="2" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-1" value="3" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-1" value="4" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-2.</strong> உங்கள் வாழ்க்கையின் முக்கியமான விஷயங்களைக் கட்டுப்படுத்த முடியவில்லை என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt that you were unable to control the important things in your life?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-2" value="0" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-2" value="1" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-2" value="2" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-2" value="3" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-2" value="4" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-3.</strong> கடந்த ஒரு மாதத்தில் எத்தனை முறை பதற்றமாகவும் மனஅழுத்தத்துடனும் இருந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt nervous and stressed?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-3" value="0" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-3" value="1" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-3" value="2" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-3" value="3" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-3" value="4" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-4.</strong> உங்கள் தனிப்பட்ட பிரச்சினைகளைச் சமாளிக்கும் திறன் குறித்து எத்தனை முறை நம்பிக்கையுடன் இருந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt confident about your ability to handle your personal problems?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-4" value="0" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-4" value="1" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-4" value="2" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-4" value="3" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-4" value="4" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-5.</strong> விஷயங்கள் உங்கள் விருப்பப்படி நடக்கின்றன என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt that things were going your way?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-5" value="0" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-5" value="1" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-5" value="2" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-5" value="3" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-5" value="4" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-6.</strong> செய்ய வேண்டிய எல்லா விஷயங்களையும் சமாளிக்க முடியவில்லை என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you found that you could not cope with all the things that you had to do?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-6" value="0" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-6" value="1" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-6" value="2" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-6" value="3" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-6" value="4" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-7.</strong> உங்கள் வாழ்க்கையில் ஏற்படும் எரிச்சல்களை எத்தனை முறை கட்டுப்படுத்த முடிந்தது?<br><span class="muted">In the last month, how often have you been able to control irritations in your life?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-7" value="0" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-7" value="1" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-7" value="2" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-7" value="3" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-7" value="4" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-8.</strong> சூழ்நிலைகளைச் சிறப்பாகக் கையாள்கிறீர்கள் என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt that you were on top of things?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-8" value="0" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-8" value="1" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-8" value="2" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-8" value="3" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-8" value="4" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-9.</strong> உங்கள் கட்டுப்பாட்டிற்கு வெளியே நடந்த விஷயங்களால் எத்தனை முறை கோபமடைந்தீர்கள்?<br><span class="muted">In the last month, how often have you been angered because of things that happened outside of your control?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-9" value="0" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-9" value="1" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-9" value="2" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-9" value="3" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-9" value="4" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-10.</strong> சிரமங்கள் குவிந்து அவற்றைச் சமாளிக்க முடியாது என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt difficulties were piling up so high that you could not overcome them?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-10" value="0" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-10" value="1" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-10" value="2" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-10" value="3" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-10" value="4" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div></div></div>
@@ -887,6 +888,9 @@ function writeClients(rows) {
   try { localStorage.setItem(CLIENT_STORE_KEY, JSON.stringify(rows)); return true; }
   catch (e) { alert('Could not save client: ' + e.message); return false; }
 }
+window.addEventListener('storage', event => {
+  if (event.key === CLIENT_STORE_KEY) loadClientProfiles();
+});
 function resetClientForm() {
   const form = document.getElementById('clientForm');
   if (form) form.reset();
@@ -926,6 +930,11 @@ function loadClientProfiles() {
     participantSelect.innerHTML = '<option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option>' +
       clients.map(c => '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.id) + ')</option>').join('');
     if (clients.some(c => c.id === previous)) participantSelect.value = previous;
+    const searchBox = document.getElementById('participantSearch');
+    if (searchBox && participantSelect.value) {
+      const selected = clients.find(c => c.id === participantSelect.value);
+      if (selected) searchBox.value = selected.name;
+    }
   }
   const count = document.getElementById('clientCount');
   if (count) count.textContent = clients.length + ' client(s) · வாடிக்கையாளர்கள்';
@@ -962,6 +971,7 @@ function loadClientProfiles() {
   }));
 }
 document.addEventListener('DOMContentLoaded', () => {
+  loadClientProfiles();
   const add = document.getElementById('showClientForm');
   const participantAdd = document.getElementById('addParticipantClient');
   const participantSelect = document.getElementById('participantSelect');
@@ -973,22 +983,67 @@ document.addEventListener('DOMContentLoaded', () => {
     if (homeTab) { showTab('records'); document.getElementById('clientForm').classList.remove('hidden'); }
   });
   const participantSearch = document.getElementById('participantSearch');
+  const participantSearchResults = document.getElementById('participantSearchResults');
+  const createTaskAction = document.getElementById('createTaskAction');
+  const assessmentTaskPanel = document.getElementById('assessmentTaskPanel');
+
+  function renderParticipantOptions(term = '') {
+    if (!participantSearchResults) return;
+    const q = term.trim().toLocaleLowerCase();
+    const clients = readClients();
+    const filtered = q ? clients.filter(c =>
+      [c.name, c.place, c.mobile, c.id].some(v => String(v || '').toLocaleLowerCase().includes(q))
+    ) : clients;
+    participantSearchResults.innerHTML = '';
+    if (!filtered.length) {
+      participantSearchResults.innerHTML = '<div class="muted" style="padding:10px">No matching clients / வாடிக்கையாளர் இல்லை</div>';
+    } else {
+      filtered.forEach(c => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'secondary';
+        option.style.cssText = 'display:block;width:100%;text-align:left;margin:3px 0;padding:10px 12px';
+        option.textContent = c.name + ' · ' + (c.mobile || c.id);
+        option.addEventListener('click', () => {
+          participantSelect.value = c.id;
+          participantSearch.value = c.name;
+          participantSearchResults.style.display = 'none';
+          participantSearch.setAttribute('aria-expanded', 'false');
+          participantSelect.dispatchEvent(new Event('change', {bubbles:true}));
+        });
+        participantSearchResults.appendChild(option);
+      });
+    }
+    participantSearchResults.style.display = 'block';
+    participantSearch.setAttribute('aria-expanded', 'true');
+  }
+
   if (participantSearch && participantSelect) {
+    participantSearch.addEventListener('focus', () => renderParticipantOptions(participantSearch.value));
     participantSearch.addEventListener('input', () => {
-      const term = participantSearch.value.trim().toLocaleLowerCase();
-      const current = participantSelect.value;
-      const clients = readClients();
-      const filtered = term
-        ? clients.filter(c => [c.name, c.place, c.mobile, c.id].some(v => String(v || '').toLocaleLowerCase().includes(term)))
-        : clients;
-      participantSelect.innerHTML = '<option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option>' +
-        filtered.map(c => '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.id) + ')</option>').join('');
-      if (filtered.some(c => c.id === current)) participantSelect.value = current;
+      participantSelect.value = '';
+      if (createTaskAction) createTaskAction.style.display = 'none';
+      if (assessmentTaskPanel) assessmentTaskPanel.style.display = 'none';
+      renderParticipantOptions(participantSearch.value);
+    });
+    participantSearch.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && participantSearchResults) {
+        participantSearchResults.style.display = 'none';
+        participantSearch.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('click', event => {
+      if (!event.target.closest('#participantSearch') && !event.target.closest('#participantSearchResults')) {
+        if (participantSearchResults) participantSearchResults.style.display = 'none';
+        participantSearch.setAttribute('aria-expanded', 'false');
+      }
     });
   }
   if (participantSelect) participantSelect.addEventListener('change', () => {
     const c = readClients().find(x => x.id === participantSelect.value);
-    if (participantSearch) participantSearch.value = '';
+    if (participantSearch && c) participantSearch.value = c.name;
+    if (createTaskAction) createTaskAction.style.display = c ? 'block' : 'none';
+    if (assessmentTaskPanel) assessmentTaskPanel.style.display = c ? 'block' : 'none';
     assessmentStartedAt = null; assessmentEndedAt = null; lastReport = null;
     const startBtn = document.getElementById("startAssessmentBtn");
     if (startBtn) startBtn.disabled = false;
@@ -1066,16 +1121,29 @@ document.addEventListener('DOMContentLoaded', () => {
         createdAt: now, updatedAt: now});
     }
     if (writeClients(rows)) {
+      const savedClientId = editingClientId || rows[0].id;
       resetClientForm();
       form.classList.add('hidden');
+
+      // Refresh Client Records, native select and searchable client picker synchronously.
       loadClientProfiles();
-      const latest = readClients()[0];
-      if (latest && document.getElementById('participantSelect')) {
-        document.getElementById('participantSelect').value = latest.id;
-        document.getElementById('participantSelect').dispatchEvent(new Event('change'));
+      const savedClient = readClients().find(c => c.id === savedClientId);
+      if (savedClient && participantSelect) {
+        participantSelect.value = savedClient.id;
+        if (participantSearch) participantSearch.value = savedClient.name;
+        participantSelect.dispatchEvent(new Event('change', {bubbles:true}));
+        if (typeof renderParticipantOptions === 'function') {
+          renderParticipantOptions(savedClient.name);
+          if (participantSearchResults) participantSearchResults.style.display = 'none';
+          if (participantSearch) participantSearch.setAttribute('aria-expanded', 'false');
+        }
       }
-      alert('Client saved successfully. / வாடிக்கையாளர் பதிவு சேமிக்கப்பட்டது.');
-      if (document.getElementById('participantSelect') && document.getElementById('assessment')) showTab('assessment');
+
+      const status = document.getElementById('clientFormStatus');
+      if (status) status.textContent = 'Saved successfully / வெற்றிகரமாகச் சேமிக்கப்பட்டது';
+      if (typeof showTab === 'function') showTab('records');
+      const list = document.getElementById('clientList');
+      if (list) list.scrollIntoView({behavior:'instant', block:'start'});
     }
   });
 });
