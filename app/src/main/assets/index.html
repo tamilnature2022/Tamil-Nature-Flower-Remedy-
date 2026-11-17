@@ -187,10 +187,110 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* V39: hide Home navigation on the Home screen; show it inside modules as a return control */
 .tabs.no-print{display:none}
 
+
+/* V41: keep the app header and module Home control visible while content scrolls */
+.sticky-shell{position:sticky;top:0;z-index:100;background:var(--bg);padding-bottom:1px}
+.sticky-shell .app-header{position:relative;top:auto}
+.sticky-shell .tabs.no-print{position:relative;top:auto;z-index:101;margin-bottom:12px}
+@media(max-width:560px){.sticky-shell{padding-top:0}.sticky-shell .app-header{margin-top:38px}}
+
+
+/* V42: reduce oversized assessment answer tiles on mobile */
+@media(max-width:560px){
+  #questionnaire .scale, #pssQuestions .scale{
+    gap:6px;
+  }
+  #questionnaire .opt, #pssQuestions .opt{
+    min-height:72px;
+    padding:6px 5px;
+    font-size:.78rem;
+    line-height:1.25;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    white-space:normal;
+  }
+  #questionnaire .opt input, #pssQuestions .opt input{
+    margin:0 0 3px 0;
+    flex:0 0 auto;
+  }
+  #questionnaire .opt:last-child:nth-child(odd),
+  #pssQuestions .opt:last-child:nth-child(odd){
+    min-height:64px;
+  }
+}
+@media(max-width:360px){
+  #questionnaire .opt, #pssQuestions .opt{
+    min-height:66px;
+    padding:5px 4px;
+    font-size:.74rem;
+  }
+}
+
+
+/* V43: show all five assessment answers in one horizontal row on phones */
+@media(max-width:560px){
+  #questionnaire .scale, #pssQuestions .scale{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:4px;
+    align-items:stretch;
+  }
+  #questionnaire .opt, #pssQuestions .opt{
+    grid-column:auto !important;
+    min-width:0;
+    min-height:76px;
+    padding:5px 2px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:3px;
+    font-size:.64rem;
+    line-height:1.2;
+    overflow-wrap:anywhere;
+    text-align:center;
+  }
+  #questionnaire .opt input, #pssQuestions .opt input{
+    margin:0 0 2px;
+    width:15px;
+    height:15px;
+    flex:0 0 auto;
+  }
+}
+@media(max-width:380px){
+  #questionnaire .opt, #pssQuestions .opt{
+    min-height:82px;
+    padding:4px 1px;
+    font-size:.58rem;
+  }
+}
+
+
+/* V44: preserve Tamil words while keeping the five answer choices in one row */
+@media(max-width:560px){
+  #questionnaire .opt, #pssQuestions .opt{
+    word-break:keep-all;
+    overflow-wrap:normal;
+    hyphens:none;
+    font-size:.60rem;
+    line-height:1.25;
+    padding-left:1px;
+    padding-right:1px;
+  }
+}
+@media(max-width:380px){
+  #questionnaire .opt, #pssQuestions .opt{
+    font-size:.54rem;
+  }
+}
 </style></head>
 <body><main>
+<div class="sticky-shell">
 <header class="app-header"><div class="app-header-title">TAMIL NATURE <span>FLOWER REMEDY</span></div><div class="app-header-subtitle">மலர் மருந்து மதிப்பீடு மற்றும் ஆய்வு செயலி</div></header>
 <nav class="tabs no-print" aria-label="Main navigation"><button type="button" class="tab active" data-tab="home" onclick="return showTab('home')">Home · முகப்பு</button></nav>
+</div>
 
 <section id="home" class="page-section">
   <div class="home-grid">
