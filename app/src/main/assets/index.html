@@ -355,6 +355,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #questionnaire .prompt-text .muted.small{
   font-weight:400;
 }
+
+/* V68: in-app task detail and assessment screens */
+#assessment.tn-task-detail-mode > #assessmentClientPanel { display:none !important; }
+#assessment.tn-task-detail-mode > #assessmentTaskPanel {
+  min-height: calc(100vh - 190px);
+  margin-top: 0 !important;
+  background: #fff !important;
+}
+#assessment.tn-task-detail-mode > #assessmentTaskPanel #assessmentVisitList {
+  min-height: 55vh;
+}
+#assessment.tn-visit-workspace-mode > #assessmentClientPanel,
+#assessment.tn-visit-workspace-mode > #assessmentTaskPanel { display:none !important; }
+#assessment.tn-visit-workspace-mode > #assessmentWorkspace { display:block !important; }
+#tnVisitBackToTaskBtn { margin-bottom:14px; width:100%; }
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -382,7 +397,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 <section id="assessment" class="page-section">
 <div class="page-heading"><h1>Flower Remedy Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
-<div class="panel"><h2>Participant · பங்கேற்பாளர்</h2>
+<div class="panel" id="assessmentClientPanel"><h2>Participant · பங்கேற்பாளர்</h2>
 <div class="field"><label for="participantSelect">Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும்</label>
 <select id="participantSelect"><option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option></select></div>
 <div class="actions" style="margin-top:10px"><button type="button" class="primary" id="addParticipantClient">＋ New Client / புதிய வாடிக்கையாளர்</button></div>
@@ -966,7 +981,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mobile').value = c ? c.mobile || '' : '';
     document.getElementById('age').value = c ? c.age || '' : '';
     const info = document.getElementById('selectedClientInfo');
-    if (info) info.textContent = c ? ('Selected: ' + c.name + ' · Client ID: ' + c.id) : 'Assessment தொடங்க வாடிக்கையாளரைத் தேர்வு செய்யவும்.';
+    if (info) {
+      info.style.whiteSpace = 'pre-line';
+      info.textContent = c
+        ? ('Client ID: ' + c.id + '\\nName: ' + c.name + '\\nMobile: ' + (c.mobile || ''))
+        : 'Assessment தொடங்க வாடிக்கையாளரைத் தேர்வு செய்யவும்.';
+    }
     // V62: render the selected client's saved tasks only after pid is populated.
     if (typeof tnRenderTasks === 'function') tnRenderTasks();
   });
@@ -1192,6 +1212,12 @@ function tnRestoreVisit(v) {
   }
 }
 let tnTaskDetailOpen = false;
+function tnSetAssessmentScreen(mode) {
+  const page = document.getElementById('assessment');
+  if (!page) return;
+  page.classList.toggle('tn-task-detail-mode', mode === 'task');
+  page.classList.toggle('tn-visit-workspace-mode', mode === 'visit');
+}
 function tnRenderTasks() {
   const host = document.getElementById('assessmentTaskList');
   const visitsHost = document.getElementById('assessmentVisitList');
@@ -1216,6 +1242,8 @@ function tnOpenTask(taskId) {
   if (!t) return;
   currentAssessmentTaskId = t.id; currentAssessmentTaskName = t.name;
   tnTaskDetailOpen = true;
+  tnSetAssessmentScreen('task');
+  const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
   const host = document.getElementById('assessmentTaskList');
   if (host) host.style.display = 'none';
   tnShowVisits(t.id);
@@ -1231,6 +1259,7 @@ function tnShowVisits(taskId) {
   document.getElementById('tnBackToTasksBtn').addEventListener('click', () => {
     tnTaskDetailOpen = false; currentAssessmentTaskId = null; currentAssessmentTaskName = '';
     currentAssessmentNo = null; currentAssessmentVisitId = null;
+    tnSetAssessmentScreen('list');
     const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
     tnClearAnswers(); tnRenderTasks();
   });
@@ -1245,6 +1274,7 @@ function tnCreateVisit(taskId) {
   t.visits.push(v);
   if (tnWriteTasks(rows)) {
     currentAssessmentTaskId = t.id; currentAssessmentTaskName = t.name; tnTaskDetailOpen = true;
+    tnSetAssessmentScreen('task');
     currentAssessmentNo = null; currentAssessmentVisitId = null;
     const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
     tnClearAnswers(); tnShowVisits(taskId);
@@ -1274,9 +1304,28 @@ function tnSelectVisit(taskId, visitId) {
   const sessionStatus = document.getElementById('assessmentSessionStatus');
   if (sessionStatus) sessionStatus.textContent = v.status === 'completed' ? 'Completed / முடிக்கப்பட்டது' : 'In Progress / நடைபெறுகிறது';
   const workspace = document.getElementById('assessmentWorkspace');
-  if (workspace) workspace.style.display = 'block';
+  if (workspace) {
+    workspace.style.display = 'block';
+    tnSetAssessmentScreen('visit');
+    let back = document.getElementById('tnVisitBackToTaskBtn');
+    if (!back) {
+      back = document.createElement('button');
+      back.type = 'button';
+      back.id = 'tnVisitBackToTaskBtn';
+      back.className = 'secondary';
+      back.textContent = '← Back to Task Details / பிரச்சனை விவரங்களுக்கு';
+      workspace.insertBefore(back, workspace.firstChild);
+      back.addEventListener('click', () => {
+        const ws = document.getElementById('assessmentWorkspace');
+        if (ws) ws.style.display = 'none';
+        tnSetAssessmentScreen('task');
+        tnShowVisits(taskId);
+        window.scrollTo({top:0,behavior:'smooth'});
+      });
+    }
+  }
   tnShowVisits(taskId);
-  document.getElementById('questionnaire').scrollIntoView({behavior:'smooth',block:'start'});
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function tnUpdateCurrentVisit(status, report) {
   if (!currentAssessmentTaskId || !currentAssessmentVisitId) return;
@@ -1330,6 +1379,7 @@ const tnParticipant = document.getElementById('participantSelect');
 if (tnParticipant) tnParticipant.addEventListener('change', () => {
   tnToggleTaskForm(false);
   currentAssessmentTaskId=null; currentAssessmentTaskName=''; currentAssessmentNo=null; currentAssessmentVisitId=null; tnTaskDetailOpen=false;
+  tnSetAssessmentScreen('list');
   const ws=document.getElementById('assessmentWorkspace'); if(ws) ws.style.display='none';
   tnClearAnswers(); tnRenderTasks();
 });
@@ -1360,6 +1410,7 @@ window.save = async function() {
 window.addEventListener('load', () => {
   const d = document.getElementById('date');
   if (d && !d.value) d.value = new Date().toISOString().slice(0,10);
+  tnSetAssessmentScreen('list');
   tnRenderTasks();
 });
 
