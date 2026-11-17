@@ -398,12 +398,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <section id="assessment" class="page-section">
 <div class="page-heading"><h1>Flower Remedy Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
 <div class="panel" id="assessmentClientPanel"><h2>Participant · பங்கேற்பாளர்</h2>
-<div class="field"><label for="participantSelect">Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும்</label>
-<select id="participantSelect"><option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option></select></div>
-<div class="actions" style="margin-top:10px"><button type="button" class="primary" id="addParticipantClient">＋ New Client / புதிய வாடிக்கையாளர்</button></div>
+<div class="actions" style="margin:0 0 12px"><button type="button" class="primary" id="addParticipantClient">＋ New Client / புதிய வாடிக்கையாளர்</button></div>
+<div class="field"><label for="participantSearch">Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும்</label>
+<input type="search" id="participantSearch" placeholder="Search client name or mobile / பெயர் அல்லது மொபைல் தேடுக" autocomplete="off">
+<select id="participantSelect" style="margin-top:8px"><option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option></select></div>
 <p class="muted" id="selectedClientInfo">Assessment தொடங்க Client Records-ல் உள்ள வாடிக்கையாளரைத் தேர்வு செய்யவும்.</p>
 <div class="actions" style="margin-top:12px">
-  <button type="button" class="primary" id="showCreateTaskFormBtn">＋ Create New Task / புதிய பிரச்சனை உருவாக்கு</button>
+  <button type="button" class="primary" id="showCreateTaskFormBtn">＋ Create Task / புதிய மதிப்பீடு</button>
 </div>
 <div class="panel hidden" id="assessmentTaskFormPanel" style="margin-top:10px;background:#f8fbf8;display:none">
   <h3>புதிய பிரச்சனை / New Task</h3>
@@ -473,9 +474,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <h3 id="clientFormTitle">Add Client · புதிய வாடிக்கையாளர்</h3>
     <div class="grid">
       <div class="field"><label for="clientName">Name / பெயர் *</label><input id="clientName" required maxlength="100"></div>
-      <div class="field"><label for="clientMobile">Mobile / கைபேசி எண்</label><input id="clientMobile" inputmode="tel" maxlength="20"></div>
-      <div class="field"><label for="clientAge">Age / வயது</label><input id="clientAge" type="number" min="1" max="120"></div>
-      <div class="field"><label for="clientGender">Gender / பாலினம்</label><select id="clientGender"><option value="">Select / தேர்வு</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select></div>
+      <div class="field"><label for="clientPlace">Place / ஊர் *</label><input id="clientPlace" required maxlength="120" placeholder="City / ஊர்"></div>
+      <div class="field"><label for="clientMobile">Mobile Number / கைபேசி எண் *</label><input id="clientMobile" required inputmode="tel" maxlength="20"></div>
+      <div class="field"><label for="clientAge">Age / வயது *</label><input id="clientAge" type="number" min="1" max="120" required></div>
+      <div class="field"><label for="clientGender">Gender / பாலினம் *</label><select id="clientGender" required><option value="">Select / தேர்வு</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select></div>
     </div>
     <div class="field" style="margin-top:10px"><label for="clientNotes">Notes / குறிப்புகள்</label><textarea id="clientNotes" rows="3" maxlength="1000"></textarea></div>
     <div class="actions" style="margin-top:12px"><button type="submit" class="primary" id="saveClientBtn">Save Client / சேமி</button><button type="button" class="secondary" id="cancelClientForm">Cancel / ரத்து</button></div>
@@ -903,6 +905,7 @@ function openClientForm(client) {
   if (client) {
     editingClientId = client.id;
     document.getElementById('clientName').value = client.name || '';
+    document.getElementById('clientPlace').value = client.place || '';
     document.getElementById('clientMobile').value = client.mobile || '';
     document.getElementById('clientAge').value = client.age || '';
     document.getElementById('clientGender').value = client.gender || '';
@@ -932,7 +935,7 @@ function loadClientProfiles() {
   }
   host.innerHTML = clients.map(c => '<article class="record">' +
     '<div><strong>' + esc(c.name) + '</strong></div>' +
-    '<div class="muted small">ID: ' + esc(c.id) + ' · Mobile: ' + esc(c.mobile || '—') + ' · Age: ' + esc(c.age || '—') + '</div>' +
+    '<div class="muted small">Place: ' + esc(c.place || '—') + ' · Mobile: ' + esc(c.mobile || '—') + ' · Age: ' + esc(c.age || '—') + '</div>' +
     '<div class="actions" style="margin-top:8px">' +
     '<button type="button" class="secondary" data-client-view="' + esc(c.id) + '">View / பார்</button>' +
     '<button type="button" class="secondary" data-client-edit="' + esc(c.id) + '">Edit / திருத்து</button>' +
@@ -942,7 +945,7 @@ function loadClientProfiles() {
     const c = readClients().find(x => x.id === b.dataset.clientView);
     if (!c) return;
     alert('Client Details / வாடிக்கையாளர் விவரங்கள்\\n\\nName: ' + c.name +
-      '\\nID: ' + c.id + '\\nMobile: ' + (c.mobile || '—') +
+      '\\nID: ' + c.id + '\\nPlace: ' + (c.place || '—') + '\\nMobile: ' + (c.mobile || '—') +
       '\\nAge: ' + (c.age || '—') + '\\nGender: ' + (c.gender || '—') +
       '\\nNotes: ' + (c.notes || '—'));
   }));
@@ -969,8 +972,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const homeTab = document.getElementById('records');
     if (homeTab) { showTab('records'); document.getElementById('clientForm').classList.remove('hidden'); }
   });
+  const participantSearch = document.getElementById('participantSearch');
+  if (participantSearch && participantSelect) {
+    participantSearch.addEventListener('input', () => {
+      const term = participantSearch.value.trim().toLocaleLowerCase();
+      const current = participantSelect.value;
+      const clients = readClients();
+      const filtered = term
+        ? clients.filter(c => [c.name, c.place, c.mobile, c.id].some(v => String(v || '').toLocaleLowerCase().includes(term)))
+        : clients;
+      participantSelect.innerHTML = '<option value="">-- Select Client / வாடிக்கையாளரைத் தேர்வு செய்யவும் --</option>' +
+        filtered.map(c => '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.id) + ')</option>').join('');
+      if (filtered.some(c => c.id === current)) participantSelect.value = current;
+    });
+  }
   if (participantSelect) participantSelect.addEventListener('change', () => {
     const c = readClients().find(x => x.id === participantSelect.value);
+    if (participantSearch) participantSearch.value = '';
     assessmentStartedAt = null; assessmentEndedAt = null; lastReport = null;
     const startBtn = document.getElementById("startAssessmentBtn");
     if (startBtn) startBtn.disabled = false;
@@ -982,10 +1000,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('age').value = c ? c.age || '' : '';
     const info = document.getElementById('selectedClientInfo');
     if (info) {
-      info.style.whiteSpace = 'pre-line';
-      info.textContent = c
-        ? ('Client ID: ' + c.id + '\\nName: ' + c.name + '\\nMobile: ' + (c.mobile || ''))
-        : 'Assessment தொடங்க வாடிக்கையாளரைத் தேர்வு செய்யவும்.';
+      info.style.whiteSpace = 'normal';
+      if (c) {
+        info.replaceChildren();
+        const rows = [
+          ['Client ID :', c.id || ''],
+          ['Name :', c.name || ''],
+          ['Mobile Number :', c.mobile || '']
+        ];
+        rows.forEach(([label, value]) => {
+          const line = document.createElement('div');
+          line.style.marginBottom = '6px';
+          const strong = document.createElement('strong');
+          strong.textContent = label + ' ';
+          const detail = document.createElement('span');
+          detail.textContent = value;
+          line.append(strong, detail);
+          info.appendChild(line);
+        });
+      } else {
+        info.textContent = 'Assessment தொடங்க வாடிக்கையாளரைத் தேர்வு செய்யவும்.';
+      }
     }
     // V62: render the selected client's saved tasks only after pid is populated.
     if (typeof tnRenderTasks === 'function') tnRenderTasks();
@@ -1000,26 +1035,33 @@ document.addEventListener('DOMContentLoaded', () => {
   if (form) form.addEventListener('submit', event => {
     event.preventDefault();
     const name = document.getElementById('clientName').value.trim();
-    if (!name) { alert('Name / பெயர் கட்டாயம்.'); return; }
+    const place = document.getElementById('clientPlace').value.trim();
+    const mobile = document.getElementById('clientMobile').value.trim();
+    const age = document.getElementById('clientAge').value;
+    const gender = document.getElementById('clientGender').value;
+    if (!name || !place || !mobile || !age || !gender) {
+      alert('Name, Place, Mobile Number, Age, Gender — அனைத்தும் கட்டாயம்.');
+      return;
+    }
     const rows = readClients();
     const now = new Date().toISOString();
     if (editingClientId) {
       const i = rows.findIndex(x => x.id === editingClientId);
       if (i < 0) return;
-      rows[i] = {...rows[i], name,
-        mobile: document.getElementById('clientMobile').value.trim(),
-        age: document.getElementById('clientAge').value,
-        gender: document.getElementById('clientGender').value,
+      rows[i] = {...rows[i], name, place,
+        mobile,
+        age,
+        gender,
         notes: document.getElementById('clientNotes').value.trim(),
         updatedAt: now};
     } else {
       const createdDate = new Date();
       const monthYear = createdDate.toLocaleString('en-US', {month:'short'}) + '/' + createdDate.getFullYear();
       const id = 'CL-' + Date.now().toString().slice(-8) + '-' + monthYear;
-      rows.unshift({id, name,
-        mobile: document.getElementById('clientMobile').value.trim(),
-        age: document.getElementById('clientAge').value,
-        gender: document.getElementById('clientGender').value,
+      rows.unshift({id, name, place,
+        mobile,
+        age,
+        gender,
         notes: document.getElementById('clientNotes').value.trim(),
         createdAt: now, updatedAt: now});
     }
@@ -1325,6 +1367,7 @@ function tnSelectVisit(taskId, visitId) {
     }
   }
   tnShowVisits(taskId);
+  tnAutosaveCurrentVisit();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function tnUpdateCurrentVisit(status, report) {
@@ -1338,6 +1381,27 @@ function tnUpdateCurrentVisit(status, report) {
   if (report) { v.report = report; report.taskId=t.id; report.taskName=t.name; report.assessmentNo=v.number; report.assessmentVisitId=v.id; }
   tnWriteTasks(rows); tnShowVisits(t.id);
 }
+
+// V69: immediately persist every questionnaire response to the active visit.
+function tnAutosaveCurrentVisit() {
+  if (!currentAssessmentTaskId || !currentAssessmentVisitId) return;
+  const rows = tnReadTasks();
+  const task = rows.find(x => x.id === currentAssessmentTaskId);
+  const visit = task && (task.visits || []).find(x => x.id === currentAssessmentVisitId);
+  if (!visit || visit.status === 'completed') return;
+  visit.answers = getAnswers();
+  visit.pssAnswers = getPssAnswers();
+  visit.startedAt = assessmentStartedAt || visit.startedAt || new Date().toISOString();
+  visit.status = 'in_progress';
+  tnWriteTasks(rows);
+}
+document.addEventListener('change', function(event) {
+  const target = event.target;
+  if (target && (target.closest('#questionnaire') || target.closest('#pssQuestions'))) {
+    tnAutosaveCurrentVisit();
+  }
+});
+window.addEventListener('pagehide', tnAutosaveCurrentVisit);
 const tnTaskFormPanel = document.getElementById('assessmentTaskFormPanel');
 const tnShowTaskFormBtn = document.getElementById('showCreateTaskFormBtn');
 function tnToggleTaskForm(open) {
