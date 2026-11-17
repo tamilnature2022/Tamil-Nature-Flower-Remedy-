@@ -285,6 +285,63 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     font-size:.54rem;
   }
 }
+
+
+/* V45: compact 77-question assessment for 3+ questions per mobile screen */
+@media(max-width:560px){
+  #questionnaire .panel{
+    padding:8px;
+    margin-bottom:8px;
+  }
+  #questionnaire .panel h2{
+    font-size:.96rem;
+    line-height:1.25;
+    margin:0 0 6px;
+  }
+  #questionnaire .prompt{
+    padding:7px 6px;
+    margin:5px 0;
+    border-radius:9px;
+  }
+  #questionnaire .prompt-text{
+    font-size:.91rem;
+    line-height:1.32;
+    margin-bottom:5px;
+  }
+  #questionnaire .prompt-text .muted{
+    display:inline;
+    font-size:.76rem;
+    line-height:1.2;
+  }
+  #questionnaire .scale{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:4px;
+  }
+  #questionnaire .opt{
+    min-width:0;
+    min-height:54px;
+    padding:4px 1px;
+    font-size:.64rem;
+    line-height:1.15;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+  #questionnaire .opt input{
+    width:13px;
+    height:13px;
+    margin:0 0 1px;
+  }
+}
+@media(max-width:380px){
+  #questionnaire .prompt-text{font-size:.86rem}
+  #questionnaire .opt{font-size:.59rem;min-height:51px}
+}
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -386,7 +443,7 @@ const PSS10 = [
 let QUESTION_BANK=[];
 function buildQuestionBank(){const used={};let n=0;QUESTION_BANK=[];for(const c of CAT77){for(const [name,count] of c.items){const r=REMEDIES.find(x=>x[1]===name);if(!r)continue;let from=used[name]||0;for(let j=0;j<count;j++){const ix=from+j;if(ix>=3)continue;n++;QUESTION_BANK.push({id:'q'+n,number:n,category:c.id,categoryEn:c.en,categoryTa:c.ta,remedy:name,remedyTa:r[2],itemIndex:ix,en:r[3][ix],ta:r[4][ix]});}used[name]=from+count;}}}
 function makeQuestionnaire(){lang=$("lang").value;buildQuestionBank();let html="";for(const c of CAT77){const list=QUESTION_BANK.filter(q=>q.category===c.id);html+=`<div class="panel"><h2>${esc(c.en)} · ${esc(c.ta)} <span class="pill">${list.length} questions</span></h2>`;list.forEach(q=>{html+=`<div class="prompt"><div class="prompt-text"><strong>${q.number}.</strong> ${lang==="en"?esc(q.en):lang==="ta"?esc(q.ta):esc(q.ta)+"<br><span class='muted'>"+esc(q.en)+"</span>"}<div class="muted small">${esc(q.remedy)} · ${esc(q.remedyTa)}</div></div><div class="scale">`;SCALE.forEach((s,k)=>{html+=`<label class="opt"><input type="radio" name="${q.id}" value="${k}" data-qid="${q.id}" data-remedy="${esc(q.remedy)}" data-category="${c.id}" onchange="updateProgress()" onclick="updateProgress()"> ${k}<br>${lang==="en"?s[2]:s[1]}</label>`});html+='</div></div>';});html+='</div>';}$('questionnaire').innerHTML=html;
-let ph='';PSS10.forEach((q,i)=>{ph+=`<div class="prompt"><div class="prompt-text"><strong>PSS-${i+1}.</strong> ${lang==="en"?esc(q[0]):lang==="ta"?esc(q[1]):esc(q[1])+"<br><span class='muted'>"+esc(q[0])+"</span>"}</div><div class="scale">`;[[0,'Never','ஒருபோதும் இல்லை'],[1,'Almost never','கிட்டத்தட்ட இல்லை'],[2,'Sometimes','சில நேரங்களில்'],[3,'Fairly often','அடிக்கடி'],[4,'Very often','மிகவும் அடிக்கடி']].forEach(a=>{ph+=`<label class="opt"><input type="radio" name="pss-${i+1}" value="${a[0]}" data-pss="${i+1}" onchange="updateProgress()" onclick="updateProgress()"> ${a[0]}<br>${lang==='en'?a[1]:a[2]}</label>`});ph+='</div></div>';});$('pssQuestions').innerHTML=ph;
+let ph='';PSS10.forEach((q,i)=>{ph+=`<div class="prompt"><div class="prompt-text"><strong>PSS-${i+1}.</strong> ${lang==="en"?esc(q[0]):lang==="ta"?esc(q[1]):esc(q[1])+"<br><span class='muted'>"+esc(q[0])+"</span>"}</div><div class="scale">`;[[0,'Never','இல்லை'],[1,'Rarely','அரிது'],[2,'Sometimes','சில நேரம்'],[3,'Often','அடிக்கடி'],[4,'Very often','மிக அதிகம்']].forEach(a=>{ph+=`<label class="opt"><input type="radio" name="pss-${i+1}" value="${a[0]}" data-pss="${i+1}" onchange="updateProgress()" onclick="updateProgress()"> ${a[0]}<br>${lang==='en'?a[1]:a[2]}</label>`});ph+='</div></div>';});$('pssQuestions').innerHTML=ph;
 document.querySelectorAll('#questionnaire input[type=radio],#pssQuestions input[type=radio]').forEach(el=>el.addEventListener('change',updateProgress));updateProgress();}
 
 /* Mobile-safe delegated answer tracking */
