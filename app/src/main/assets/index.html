@@ -1350,6 +1350,8 @@ function tnRenderTasks() {
 function tnOpenTask(taskId) {
   const t = tnReadTasks().find(x => x.id === taskId && x.clientId === tnCurrentClientId());
   if (!t) return;
+  // Explicitly keep the user inside the Assessment module when opening a task.
+  if (typeof showTab === 'function') showTab('assessment');
   currentAssessmentTaskId = t.id; currentAssessmentTaskName = t.name;
   tnTaskDetailOpen = true;
   tnSetAssessmentScreen('task');
@@ -1363,9 +1365,13 @@ function tnShowVisits(taskId) {
   const host = document.getElementById('assessmentVisitList'); if (!t || !host) return;
   const visits = t.visits || [];
   const statusLabel = s => s === 'completed' ? 'Completed' : s === 'in_progress' ? 'In Progress' : 'Not Started';
-  host.innerHTML = `<button type="button" class="secondary" id="tnBackToTasksBtn">← Back to Tasks / பிரச்சனை பட்டியல்</button><h3 style="margin-top:14px">${tnEsc(t.name)}</h3><p class="muted small">Assessor: ${tnEsc(t.assessor || '—')} · Date: ${tnEsc(t.taskDate || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</p><p class="muted small">இந்தப் பிரச்சனைக்கான Assessment வரலாறு</p>` +
-    visits.map(v => `<div class="record" style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small">Start: ${v.startedAt ? tnEsc(new Date(v.startedAt).toLocaleString()) : '—'} · End: ${v.endedAt ? tnEsc(new Date(v.endedAt).toLocaleString()) : '—'}</div><button type="button" class="secondary" data-tn-visit="${tnEsc(v.id)}">Open Assessment ${v.number}</button></div>`).join('') +
-    '<button type="button" class="primary" id="tnAddVisitBtn">＋ New Assessment / அடுத்த வருகை</button>';
+  host.innerHTML = `
+    <button type="button" class="secondary" id="tnBackToTasksBtn">← Back to Tasks / பிரச்சனை பட்டியல்</button>
+    <h3 style="margin-top:14px">${tnEsc(t.name)}</h3>
+    <p class="muted small">Assessor: ${tnEsc(t.assessor || '—')} · Date: ${tnEsc(t.taskDate || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</p>
+    <p class="muted small">Assessment வரலாறு</p>
+    ${visits.map(v => `<div class="record" style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small">Start: ${v.startedAt ? tnEsc(new Date(v.startedAt).toLocaleString()) : '—'} · End: ${v.endedAt ? tnEsc(new Date(v.endedAt).toLocaleString()) : '—'}</div><button type="button" class="secondary" data-tn-visit="${tnEsc(v.id)}">Open Assessment ${v.number}</button></div>`).join('')}
+    <button type="button" class="primary" id="tnAddVisitBtn">＋ New Assessment / புதிய மதிப்பீடு</button>`;
   document.getElementById('tnBackToTasksBtn').addEventListener('click', () => {
     tnTaskDetailOpen = false; currentAssessmentTaskId = null; currentAssessmentTaskName = '';
     currentAssessmentNo = null; currentAssessmentVisitId = null;
@@ -1391,6 +1397,7 @@ function tnCreateVisit(taskId) {
   }
 }
 function tnSelectVisit(taskId, visitId) {
+  if (typeof showTab === 'function') showTab('assessment');
   const t = tnReadTasks().find(x => x.id === taskId);
   const v = t && (t.visits||[]).find(x => x.id === visitId);
   if (!t || !v) return;
@@ -1417,6 +1424,30 @@ function tnSelectVisit(taskId, visitId) {
   if (workspace) {
     workspace.style.display = 'block';
     tnSetAssessmentScreen('visit');
+    let notesPanel = document.getElementById('tnAssessmentVisitNotesPanel');
+    if (!notesPanel) {
+      notesPanel = document.createElement('section');
+      notesPanel.id = 'tnAssessmentVisitNotesPanel';
+      notesPanel.className = 'panel';
+      notesPanel.style.marginTop = '16px';
+      notesPanel.innerHTML = '<h2>Notes / குறிப்புகள்</h2><p class="muted small">இந்த Assessment-க்கான குறிப்புகள் மட்டும்.</p><textarea id="tnAssessmentVisitNotes" rows="5" style="width:100%" placeholder="Notes எழுதவும்..."></textarea><p id="tnAssessmentVisitNotesStatus" class="muted small" aria-live="polite">Auto Save</p>';
+      workspace.appendChild(notesPanel);
+    }
+    const notesInput = document.getElementById('tnAssessmentVisitNotes');
+    if (notesInput) {
+      notesInput.value = v.notes || '';
+      notesInput.oninput = () => {
+        const rows = tnReadTasks();
+        const task = rows.find(x => x.id === currentAssessmentTaskId);
+        const visit = task && (task.visits || []).find(x => x.id === currentAssessmentVisitId);
+        if (!visit) return;
+        visit.notes = notesInput.value;
+        visit.notesUpdatedAt = new Date().toISOString();
+        tnWriteTasks(rows);
+        const status = document.getElementById('tnAssessmentVisitNotesStatus');
+        if (status) status.textContent = 'Saved automatically / தானாகச் சேமிக்கப்பட்டது';
+      };
+    }
     let back = document.getElementById('tnVisitBackToTaskBtn');
     if (!back) {
       back = document.createElement('button');
