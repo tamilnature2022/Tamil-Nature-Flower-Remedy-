@@ -357,7 +357,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 
 /* V68: in-app task detail and assessment screens */
-#assessment.tn-task-detail-mode > #assessmentClientPanel { display:none !important; }
+#assessment.tn-task-detail-mode > #assessmentClientPanel > h2,
+#assessment.tn-task-detail-mode > #assessmentClientPanel > .actions,
+#assessment.tn-task-detail-mode > #assessmentClientPanel > .field,
+#assessment.tn-task-detail-mode > #assessmentClientPanel > #selectedClientInfo,
+#assessment.tn-task-detail-mode > #assessmentClientPanel > #createTaskAction,
+#assessment.tn-task-detail-mode > #assessmentClientPanel > #assessmentTaskFormPanel,
+#assessment.tn-task-detail-mode > #assessmentClientPanel > div[aria-hidden="true"],
+#assessment.tn-task-detail-mode > #assessmentClientPanel > input[type="hidden"] {
+  display:none !important;
+}
 #assessment.tn-task-detail-mode > #assessmentTaskPanel {
   min-height: calc(100vh - 190px);
   margin-top: 0 !important;
@@ -1350,15 +1359,23 @@ function tnRenderTasks() {
 function tnOpenTask(taskId) {
   const t = tnReadTasks().find(x => x.id === taskId && x.clientId === tnCurrentClientId());
   if (!t) return;
-  // Explicitly keep the user inside the Assessment module when opening a task.
+  // Task name click opens the questionnaire directly.
+  // Reopen the latest saved visit; if this task has no visit yet, create Assessment 1.
   if (typeof showTab === 'function') showTab('assessment');
-  currentAssessmentTaskId = t.id; currentAssessmentTaskName = t.name;
-  tnTaskDetailOpen = true;
-  tnSetAssessmentScreen('task');
-  const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
-  const host = document.getElementById('assessmentTaskList');
-  if (host) host.style.display = 'none';
-  tnShowVisits(t.id);
+  t.visits = t.visits || [];
+  let visit = t.visits.slice().sort((a,b) => (b.number || 0) - (a.number || 0))[0];
+  if (!visit) {
+    visit = {
+      id:'AV-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      number:1, status:'not_started', answers:{}, pssAnswers:{},
+      startedAt:null, endedAt:null, report:null, notes:'',
+      createdAt:new Date().toISOString()
+    };
+    t.visits.push(visit);
+    const rows = tnReadTasks().map(x => x.id === t.id ? t : x);
+    if (!tnWriteTasks(rows)) return;
+  }
+  tnSelectVisit(t.id, visit.id);
 }
 function tnShowVisits(taskId) {
   const t = tnReadTasks().find(x => x.id === taskId);
@@ -1377,6 +1394,7 @@ function tnShowVisits(taskId) {
     currentAssessmentNo = null; currentAssessmentVisitId = null;
     tnSetAssessmentScreen('list');
     const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
+    const taskPanel = document.getElementById('assessmentTaskPanel'); if (taskPanel) taskPanel.style.display = 'block';
     tnClearAnswers(); tnRenderTasks();
   });
   host.querySelectorAll('[data-tn-visit]').forEach(b => b.addEventListener('click', () => tnSelectVisit(taskId, b.dataset.tnVisit)));
@@ -1393,6 +1411,7 @@ function tnCreateVisit(taskId) {
     tnSetAssessmentScreen('task');
     currentAssessmentNo = null; currentAssessmentVisitId = null;
     const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
+    const taskPanel = document.getElementById('assessmentTaskPanel'); if (taskPanel) taskPanel.style.display = 'block';
     tnClearAnswers(); tnShowVisits(taskId);
   }
 }
