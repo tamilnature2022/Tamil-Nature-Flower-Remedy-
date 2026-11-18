@@ -1378,29 +1378,28 @@ function tnRenderTasks() {
   host.style.display = 'block';
   visitsHost.innerHTML = '';
   if (!tasks.length) { host.innerHTML = '<p class="muted">இந்த வாடிக்கையாளருக்கு பழைய Task இல்லை. புதிய காரணத்தை உள்ளிட்டு Create Task செய்யவும்.</p>'; return; }
-  host.innerHTML = '<h4>உங்கள் பிரச்சனைகள் / My Tasks</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button></article>`).join('');
+  host.innerHTML = '<h4>Tasks / மதிப்பீடு</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button></article>`).join('');
   host.querySelectorAll('[data-tn-task]').forEach(b => b.addEventListener('click', () => tnOpenTask(b.dataset.tnTask)));
 }
 function tnOpenTask(taskId) {
   const t = tnReadTasks().find(x => x.id === taskId && x.clientId === tnCurrentClientId());
   if (!t) return;
-  // Task name click opens the questionnaire directly.
-  // Reopen the latest saved visit; if this task has no visit yet, create Assessment 1.
+  // Task name opens the task details / assessment history page.
+  // The questionnaire opens only when the user taps an individual Open Assessment button.
   if (typeof showTab === 'function') showTab('assessment');
-  t.visits = t.visits || [];
-  let visit = t.visits.slice().sort((a,b) => (b.number || 0) - (a.number || 0))[0];
-  if (!visit) {
-    visit = {
-      id:'AV-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
-      number:1, status:'not_started', answers:{}, pssAnswers:{},
-      startedAt:null, endedAt:null, report:null, notes:'',
-      createdAt:new Date().toISOString()
-    };
-    t.visits.push(visit);
-    const rows = tnReadTasks().map(x => x.id === t.id ? t : x);
-    if (!tnWriteTasks(rows)) return;
-  }
-  tnSelectVisit(t.id, visit.id);
+  tnTaskDetailOpen = true;
+  currentAssessmentTaskId = t.id;
+  currentAssessmentTaskName = t.name;
+  currentAssessmentNo = null;
+  currentAssessmentVisitId = null;
+  tnSetAssessmentScreen('task');
+  const ws = document.getElementById('assessmentWorkspace');
+  if (ws) ws.style.display = 'none';
+  const taskPanel = document.getElementById('assessmentTaskPanel');
+  if (taskPanel) taskPanel.style.display = 'block';
+  const taskList = document.getElementById('assessmentTaskList');
+  if (taskList) taskList.style.display = 'none';
+  tnShowVisits(t.id);
 }
 function tnShowVisits(taskId) {
   const t = tnReadTasks().find(x => x.id === taskId);
@@ -1408,7 +1407,7 @@ function tnShowVisits(taskId) {
   const visits = t.visits || [];
   const statusLabel = s => s === 'completed' ? 'Completed' : s === 'in_progress' ? 'In Progress' : 'Not Started';
   host.innerHTML = `
-    <button type="button" class="secondary" id="tnBackToTasksBtn">← Back to Tasks / பிரச்சனை பட்டியல்</button>
+    <button type="button" class="secondary" id="tnBackToTasksBtn">← Back to Tasks / மதிப்பீடு பட்டியல்</button>
     <h3 style="margin-top:14px">${tnEsc(t.name)}</h3>
     <p class="muted small">Assessor: ${tnEsc(t.assessor || '—')} · Date: ${tnEsc(t.taskDate || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</p>
     <p class="muted small">Assessment வரலாறு</p>
