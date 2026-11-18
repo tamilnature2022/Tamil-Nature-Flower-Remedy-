@@ -394,7 +394,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 #selectedClientInfo strong{font-weight:900!important;color:#52665a!important;display:inline-block}
 
-.tn-breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:13px;font-weight:600;margin:4px 0 16px;color:var(--muted,#64748b)}
+.tn-breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:13px;font-weight:600;margin:4px 0 16px;color:var(--muted,#64748b);position:sticky;top:0;z-index:80;background:#fff;padding:10px 12px;border-bottom:1px solid #e4ece6;box-shadow:0 3px 10px rgba(20,60,40,.06);width:100%;box-sizing:border-box}
 .tn-breadcrumb button{background:none;border:0;padding:2px 0;color:var(--primary,#176b4b);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
 .tn-breadcrumb .current{color:var(--text,#172b23);font-weight:800}
 .tn-breadcrumb .sep{opacity:.55}
@@ -1467,23 +1467,24 @@ function tnShowVisits(taskId) {
   host.innerHTML = `
     <h3 style="margin:0 0 12px">Task Details</h3>
     <div class="record" style="margin:0 0 12px;padding:16px;border-radius:18px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
         <strong style="font-size:1.25em;line-height:1.35">${tnEsc(t.name)}</strong>
-        <span class="badge">${t.taskStatus === 'completed' ? 'Completed' : t.taskStatus === 'breakup' ? 'Break-up' : 'In Progress'}</span>
       </div>
-      <div class="muted small" style="margin-top:10px">${visits.length} Assessment · ${tnEsc(t.taskDate || '—')}</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <span class="badge">${t.taskStatus === 'completed' ? 'Completed' : t.taskStatus === 'breakup' ? 'Break-up' : 'In Progress'}</span>
+        <span class="muted small"><strong>Start Date:</strong> ${tnEsc(t.taskDate || '—')}</span>
+      </div>
+      <div class="muted small" style="margin-top:8px">${visits.length} Assessment${visits.length === 1 ? '' : 's'}</div>
       <hr style="border:0;border-top:1px solid var(--border,#ddd);margin:14px 0">
+      <div class="task-actions" style="display:grid;grid-template-columns:repeat(${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? 2 : 4},minmax(0,1fr));align-items:stretch;gap:6px;margin:14px 0 16px">
+        <button type="button" class="secondary" id="tnDetailEditTask" style="width:100%;min-width:0;min-height:42px;padding:8px 2px;font-size:clamp(10px,2.7vw,13px);font-weight:700;text-align:center;white-space:nowrap;line-height:1">Edit</button>
+        <button type="button" class="danger" id="tnDetailDeleteTask" style="width:100%;min-width:0;min-height:42px;padding:8px 2px;font-size:clamp(10px,2.7vw,13px);font-weight:700;text-align:center;white-space:nowrap;line-height:1">Delete</button>
+        ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? '' : `<button type="button" class="secondary" id="tnMarkBreakupBtn" style="width:100%;min-width:0;min-height:42px;padding:8px 1px;font-size:clamp(9px,2.35vw,12px);font-weight:700;text-align:center;white-space:nowrap;line-height:1">Break-up</button>
+        <button type="button" class="primary" id="tnMarkCompletedBtn" style="width:100%;min-width:0;min-height:42px;padding:8px 1px;font-size:clamp(9px,2.35vw,12px);font-weight:700;text-align:center;white-space:nowrap;line-height:1">Mark Completed</button>`}
+      </div>
       <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px">
         <span class="muted">Assessment History</span><strong>${visits.length} Visit${visits.length === 1 ? '' : 's'}</strong>
       </div>
-      <div class="task-actions" style="margin-top:12px">
-        <button type="button" class="secondary" id="tnDetailEditTask">Edit</button>
-        <button type="button" class="danger" id="tnDetailDeleteTask">Delete</button>
-      </div>
-      ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? '' : `<div class="task-actions" style="margin-top:10px">
-        <button type="button" class="secondary" id="tnMarkBreakupBtn">Mark Task Break-up</button>
-        <button type="button" class="primary" id="tnMarkCompletedBtn">Mark Task Completed</button>
-      </div>`}
       <div class="muted small" style="margin-top:10px">Assessor: ${tnEsc(t.assessor || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</div>
       <div class="muted small" style="margin-top:5px">Task End Date: ${tnEsc(t.endDate || '—')}</div>
     </div>
