@@ -1379,7 +1379,7 @@ function tnRenderTasks() {
   host.style.display = 'block';
   visitsHost.innerHTML = '';
   if (!tasks.length) { host.innerHTML = '<p class="muted">இந்த வாடிக்கையாளருக்கு பழைய Task இல்லை. புதிய காரணத்தை உள்ளிட்டு Create Task செய்யவும்.</p>'; return; }
-  host.innerHTML = '<h4>Task Name / பணி பெயர்</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button><div class="actions" style="margin-top:8px"><button type="button" class="secondary" data-tn-edit-task="${tnEsc(t.id)}">Edit / திருத்து</button><button type="button" class="danger" data-tn-delete-task="${tnEsc(t.id)}">Delete / நீக்கு</button></div></article>`).join('');
+  host.innerHTML = '<h4>மதிப்பீடு / Tasks</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button><div class="actions" style="margin-top:8px"><button type="button" class="secondary" data-tn-edit-task="${tnEsc(t.id)}">Edit / திருத்து</button><button type="button" class="danger" data-tn-delete-task="${tnEsc(t.id)}">Delete / நீக்கு</button></div></article>`).join('');
   host.querySelectorAll('[data-tn-task]').forEach(b => b.addEventListener('click', () => tnOpenTask(b.dataset.tnTask)));
   host.querySelectorAll('[data-tn-edit-task]').forEach(b => b.addEventListener('click', () => tnEditTask(b.dataset.tnEditTask)));
   host.querySelectorAll('[data-tn-delete-task]').forEach(b => b.addEventListener('click', () => tnDeleteTask(b.dataset.tnDeleteTask)));
@@ -1458,31 +1458,20 @@ function tnShowVisits(taskId) {
   const visits = t.visits || [];
   const statusLabel = s => s === 'completed' ? 'Completed' : s === 'in_progress' ? 'In Progress' : 'Not Started';
   host.innerHTML = `
-    <h3 style="margin:0 0 12px">Task Details</h3>
-    <div class="record" style="margin:0 0 12px;padding:16px;border-radius:18px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
-        <strong style="font-size:1.25em;line-height:1.35">${tnEsc(t.name)}</strong>
-        <span class="badge">${t.taskStatus === 'completed' ? 'Completed' : t.taskStatus === 'breakup' ? 'Break-up' : 'In Progress'}</span>
-      </div>
-      <div class="muted small" style="margin-top:10px">${visits.length} Assessment · ${tnEsc(t.taskDate || '—')}</div>
-      <hr style="border:0;border-top:1px solid var(--border,#ddd);margin:14px 0">
-      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-        <span class="muted">Assessment History</span><strong>${visits.length} Visit${visits.length === 1 ? '' : 's'}</strong>
-      </div>
-      <div class="actions" style="gap:8px">
-        <button type="button" class="secondary" id="tnDetailEditTask" style="flex:1">Edit</button>
-        <button type="button" class="danger" id="tnDetailDeleteTask" style="flex:1">Delete</button>
-      </div>
-      <div class="muted small" style="margin-top:10px">Assessor: ${tnEsc(t.assessor || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</div>
-      <div class="muted small" style="margin-top:5px">Task End Date: ${tnEsc(t.endDate || '—')}</div>
+    <button type="button" class="secondary" id="tnBackToTasksBtn">← Back to Tasks / மதிப்பீடு பட்டியல்</button>
+    <h3 style="margin-top:14px">${tnEsc(t.name)}</h3>
+    <p class="muted small">Assessor: ${tnEsc(t.assessor || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</p>
+    <div class="record" style="margin:10px 0">
+      <div><strong>Task Start Date / தொடக்க தேதி:</strong> ${tnEsc(t.taskDate || '—')}</div>
+      <div><strong>Task End Date / முடிவு தேதி:</strong> ${tnEsc(t.endDate || '—')}</div>
+      <div style="margin-top:6px"><strong>Task Status:</strong> <span class="badge">${t.taskStatus === 'completed' ? 'Completed' : t.taskStatus === 'breakup' ? 'Break-up' : 'In Progress'}</span></div>
     </div>
-    <button type="button" class="secondary" id="tnBackToTasksBtn" style="width:100%;margin:4px 0 16px">← Back to Tasks</button>
-    <h3 style="margin:0 0 12px">Assessment History</h3>
+    <p class="muted small">Assessment வரலாறு</p>
     ${visits.map(v => {
       const startDate = v.startedAt ? new Date(v.startedAt).toLocaleDateString() : (v.createdAt ? new Date(v.createdAt).toLocaleDateString() : '—');
-      return `<div class="record" style="margin-bottom:10px;padding:16px;border-radius:18px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><strong style="font-size:1.15em">Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small" style="margin-top:10px">Start Date: ${tnEsc(startDate)}</div><div class="actions" style="margin-top:12px;gap:8px"><button type="button" class="primary" data-tn-visit="${tnEsc(v.id)}" style="flex:1">Open Assessment</button>${v.report ? `<button type="button" class="secondary" data-tn-report="${tnEsc(v.id)}" style="flex:1">Report</button>` : ''}</div></div>`;
+      return `<div class="record" style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small">Start Date: ${tnEsc(startDate)}</div><div class="actions" style="margin-top:8px"><button type="button" class="secondary" data-tn-visit="${tnEsc(v.id)}">Open Assessment ${v.number}</button>${v.report ? `<button type="button" class="primary" data-tn-report="${tnEsc(v.id)}">Report / அறிக்கை</button>` : ''}</div></div>`;
     }).join('')}
-    ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? `<p class="notice">Task ${t.taskStatus === 'completed' ? 'Completed' : 'Break-up'} · ${tnEsc(t.endDate || '')}</p>` : `<button type="button" class="primary" id="tnAddVisitBtn" style="width:100%">＋ New Assessment / புதிய மதிப்பீடு</button>
+    ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? `<p class="notice">Task ${t.taskStatus === 'completed' ? 'Completed' : 'Break-up'} · ${tnEsc(t.endDate || '')}</p>` : `<button type="button" class="primary" id="tnAddVisitBtn">＋ New Assessment / புதிய மதிப்பீடு</button>
     <div class="actions" style="margin-top:12px;flex-wrap:wrap">
       <button type="button" class="secondary" id="tnMarkBreakupBtn">Mark Task Break-up</button>
       <button type="button" class="primary" id="tnMarkCompletedBtn">Mark Task Completed</button>
@@ -1495,10 +1484,6 @@ function tnShowVisits(taskId) {
     const taskPanel = document.getElementById('assessmentTaskPanel'); if (taskPanel) taskPanel.style.display = 'block';
     tnClearAnswers(); tnRenderTasks();
   });
-  const detailEdit = document.getElementById('tnDetailEditTask');
-  if (detailEdit) detailEdit.addEventListener('click', () => tnEditTask(taskId));
-  const detailDelete = document.getElementById('tnDetailDeleteTask');
-  if (detailDelete) detailDelete.addEventListener('click', () => tnDeleteTask(taskId));
   host.querySelectorAll('[data-tn-visit]').forEach(b => b.addEventListener('click', () => tnSelectVisit(taskId, b.dataset.tnVisit)));
   host.querySelectorAll('[data-tn-report]').forEach(b => b.addEventListener('click', () => tnShowVisitReport(taskId, b.dataset.tnReport)));
   const addVisitBtn = document.getElementById('tnAddVisitBtn');
