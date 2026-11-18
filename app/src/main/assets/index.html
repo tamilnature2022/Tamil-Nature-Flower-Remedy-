@@ -389,6 +389,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   margin-bottom: 10px;
 }
 
+#selectedClientInfo strong{font-weight:900!important;color:#52665a!important;display:inline-block}
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -416,9 +417,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 <section id="assessment" class="page-section">
 <div class="page-heading"><h1>Flower Remedy Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
-<div id="assessmentClientSummary" style="display:none;margin:8px 0 16px;padding:12px 14px;background:#eaf2ec;border-radius:12px;color:#183b2d;font-weight:700;line-height:1.7">
-  <div><strong>Client Name:</strong> <span id="assessmentClientName"></span></div>
-  <div><strong>Mobile number:</strong> <span id="assessmentClientMobile"></span></div>
+
 </div>
 <div class="panel" id="assessmentClientPanel"><h2>Participant · பங்கேற்பாளர்</h2>
 <div class="actions" style="margin:0 0 12px"><button type="button" class="primary" id="addParticipantClient">＋ New Client / புதிய வாடிக்கையாளர்</button></div>
@@ -623,7 +622,7 @@ function makeReport() {
 function reportHTML(r) {
   const escv = esc;
   const top = r.top3.length ? r.top3.map((x,i)=>`<tr><td>${i+1}</td><td>${escv(x.remedy)}</td><td>${x.score}/${x.maxScore}</td><td>${x.percentage}%</td></tr>`).join('') : '<tr><td colspan="4">No answered Bach remedy questions</td></tr>';
-  const cats = Object.values(r.categoryScores).map(c=>`<tr><td>${escv(c.name)} · ${escv(c.tamil)}</td><td>${c.score}/${c.maxScore}</td><td>${c.answered}/${c.questionCount}</td></tr>`).join('');
+  const cats = Object.values(r.categoryScores).sort((a,b)=>b.score-a.score || b.answered-a.answered).map(c=>`<tr><td>${escv(c.name)} · ${escv(c.tamil)}</td><td>${c.score}/${c.maxScore}</td><td>${c.answered}/${c.questionCount}</td></tr>`).join('');
   const rem = r.remedies.filter(x=>x.answered>0).sort((a,b)=>b.score-a.score).map(x=>`<tr><td>${escv(x.remedy)}</td><td>${escv(x.category)}</td><td>${x.score}/${x.maxScore}</td><td>${x.answered}/${x.questionCount}</td><td>${x.percentage}%</td></tr>`).join('');
   return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(r.date||'—')}</p><p>Assessment Status: ${escv(r.status||'Completed')} | Started: ${escv(r.startedAt||'—')} | Completed: ${escv(r.endedAt||'—')} | Duration: ${Math.floor(Number(r.durationSeconds||0)/60)} min ${Number(r.durationSeconds||0)%60} sec</p><p>Bach responses: ${r.bachAnswered}/77 · PSS-10 responses: ${r.pss.answered}/10</p>
   <p>Assessment Start: ${escv(r.startedAt ? new Date(r.startedAt).toLocaleString() : '—')} · End: ${escv(r.endedAt ? new Date(r.endedAt).toLocaleString() : '—')} · Duration: ${escv(r.durationSeconds == null ? '—' : Math.floor(r.durationSeconds/60)+' min '+(r.durationSeconds%60)+' sec')}</p></div>
@@ -1101,9 +1100,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const line = document.createElement('div');
           line.style.marginBottom = '6px';
           const strong = document.createElement('strong');
-          strong.textContent = label + ' ';
+          strong.textContent = label + ' '; strong.style.fontWeight = '900'; strong.style.fontWeight = '900';
           const detail = document.createElement('span');
           detail.textContent = value;
+          detail.style.fontWeight = '800';
+          detail.style.color = '#263b32';
           line.append(strong, detail);
           info.appendChild(line);
         });
@@ -1378,8 +1379,58 @@ function tnRenderTasks() {
   host.style.display = 'block';
   visitsHost.innerHTML = '';
   if (!tasks.length) { host.innerHTML = '<p class="muted">இந்த வாடிக்கையாளருக்கு பழைய Task இல்லை. புதிய காரணத்தை உள்ளிட்டு Create Task செய்யவும்.</p>'; return; }
-  host.innerHTML = '<h4>Tasks / மதிப்பீடு</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button></article>`).join('');
+  host.innerHTML = '<h4>Task Name / பணி பெயர்</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button><div class="actions" style="margin-top:8px"><button type="button" class="secondary" data-tn-edit-task="${tnEsc(t.id)}">Edit / திருத்து</button><button type="button" class="danger" data-tn-delete-task="${tnEsc(t.id)}">Delete / நீக்கு</button></div></article>`).join('');
   host.querySelectorAll('[data-tn-task]').forEach(b => b.addEventListener('click', () => tnOpenTask(b.dataset.tnTask)));
+  host.querySelectorAll('[data-tn-edit-task]').forEach(b => b.addEventListener('click', () => tnEditTask(b.dataset.tnEditTask)));
+  host.querySelectorAll('[data-tn-delete-task]').forEach(b => b.addEventListener('click', () => tnDeleteTask(b.dataset.tnDeleteTask)));
+}
+function tnEditTask(taskId) {
+  const rows = tnReadTasks();
+  const task = rows.find(t => t.id === taskId && t.clientId === tnCurrentClientId());
+  if (!task) return;
+  const name = prompt('Task Name / காரணம்:', task.name || '');
+  if (name === null) return;
+  if (!name.trim()) { alert('Task Name காலியாக இருக்கக்கூடாது.'); return; }
+  const assessor = prompt('Assessor / மதிப்பீட்டாளர்:', task.assessor || '');
+  if (assessor === null) return;
+  const taskDate = prompt('Task Start Date (YYYY-MM-DD):', task.taskDate || '');
+  if (taskDate === null) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(taskDate.trim())) { alert('தேதியை YYYY-MM-DD வடிவில் உள்ளிடவும்.'); return; }
+  const languageInput = prompt('Language: ta = Tamil, en = English', task.language || 'ta');
+  if (languageInput === null) return;
+  const language = languageInput.trim().toLowerCase();
+  if (!['ta','en'].includes(language)) { alert('Language ta அல்லது en ஆக இருக்க வேண்டும்.'); return; }
+  task.name = name.trim(); task.assessor = assessor.trim(); task.taskDate = taskDate.trim(); task.language = language;
+  if (tnWriteTasks(rows)) {
+    if (currentAssessmentTaskId === taskId) currentAssessmentTaskName = task.name;
+    tnRenderTasks();
+  }
+}
+function tnDeleteTask(taskId) {
+  const rows = tnReadTasks();
+  const task = rows.find(t => t.id === taskId && t.clientId === tnCurrentClientId());
+  if (!task) return;
+  // Cascade delete: visits, saved answers, assessment reports and task metadata
+  // are all stored inside this task record under TN_TASK_KEY.
+  const visits = Array.isArray(task.visits) ? task.visits : [];
+  const assessmentCount = visits.length;
+  const reportCount = visits.filter(v => !!v.report).length;
+  if (!confirm(`“${task.name}” Task-ஐ நிரந்தரமாக நீக்கவா?\n\nஇதனுடன் ${assessmentCount} Assessment record(s), அவற்றின் answers மற்றும் ${reportCount} saved Report(s) அனைத்தும் தானாகவே நீக்கப்படும்.\n\nஇந்த செயலை மீண்டும் மாற்ற முடியாது.`)) return;
+  // Remove the complete task tree in one storage write. No orphan assessment
+  // or report records are retained because they belong to task.visits.
+  const nextRows = rows.filter(t => !(t.id === taskId && t.clientId === tnCurrentClientId()));
+  if (tnWriteTasks(nextRows)) {
+    if (currentAssessmentTaskId === taskId) {
+      tnTaskDetailOpen = false; currentAssessmentTaskId = null; currentAssessmentTaskName = '';
+      currentAssessmentNo = null; currentAssessmentVisitId = null;
+      tnSetAssessmentScreen('list');
+      const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
+      const panel = document.getElementById('assessmentTaskPanel'); if (panel) panel.style.display = 'block';
+      tnClearAnswers();
+    }
+    tnRenderTasks();
+    alert('Task மற்றும் அதனுடன் தொடர்புடைய அனைத்து Assessments, Answers, Reports வெற்றிகரமாக நீக்கப்பட்டன.');
+  }
 }
 function tnOpenTask(taskId) {
   const t = tnReadTasks().find(x => x.id === taskId && x.clientId === tnCurrentClientId());
@@ -1407,12 +1458,35 @@ function tnShowVisits(taskId) {
   const visits = t.visits || [];
   const statusLabel = s => s === 'completed' ? 'Completed' : s === 'in_progress' ? 'In Progress' : 'Not Started';
   host.innerHTML = `
-    <button type="button" class="secondary" id="tnBackToTasksBtn">← Back to Tasks / மதிப்பீடு பட்டியல்</button>
-    <h3 style="margin-top:14px">${tnEsc(t.name)}</h3>
-    <p class="muted small">Assessor: ${tnEsc(t.assessor || '—')} · Date: ${tnEsc(t.taskDate || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</p>
-    <p class="muted small">Assessment வரலாறு</p>
-    ${visits.map(v => `<div class="record" style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small">Start: ${v.startedAt ? tnEsc(new Date(v.startedAt).toLocaleString()) : '—'} · End: ${v.endedAt ? tnEsc(new Date(v.endedAt).toLocaleString()) : '—'}</div><button type="button" class="secondary" data-tn-visit="${tnEsc(v.id)}">Open Assessment ${v.number}</button></div>`).join('')}
-    <button type="button" class="primary" id="tnAddVisitBtn">＋ New Assessment / புதிய மதிப்பீடு</button>`;
+    <h3 style="margin:0 0 12px">Task Details</h3>
+    <div class="record" style="margin:0 0 12px;padding:16px;border-radius:18px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <strong style="font-size:1.25em;line-height:1.35">${tnEsc(t.name)}</strong>
+        <span class="badge">${t.taskStatus === 'completed' ? 'Completed' : t.taskStatus === 'breakup' ? 'Break-up' : 'In Progress'}</span>
+      </div>
+      <div class="muted small" style="margin-top:10px">${visits.length} Assessment · ${tnEsc(t.taskDate || '—')}</div>
+      <hr style="border:0;border-top:1px solid var(--border,#ddd);margin:14px 0">
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="muted">Assessment History</span><strong>${visits.length} Visit${visits.length === 1 ? '' : 's'}</strong>
+      </div>
+      <div class="actions" style="gap:8px">
+        <button type="button" class="secondary" id="tnDetailEditTask" style="flex:1">Edit</button>
+        <button type="button" class="danger" id="tnDetailDeleteTask" style="flex:1">Delete</button>
+      </div>
+      <div class="muted small" style="margin-top:10px">Assessor: ${tnEsc(t.assessor || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</div>
+      <div class="muted small" style="margin-top:5px">Task End Date: ${tnEsc(t.endDate || '—')}</div>
+    </div>
+    <button type="button" class="secondary" id="tnBackToTasksBtn" style="width:100%;margin:4px 0 16px">← Back to Tasks</button>
+    <h3 style="margin:0 0 12px">Assessment History</h3>
+    ${visits.map(v => {
+      const startDate = v.startedAt ? new Date(v.startedAt).toLocaleDateString() : (v.createdAt ? new Date(v.createdAt).toLocaleDateString() : '—');
+      return `<div class="record" style="margin-bottom:10px;padding:16px;border-radius:18px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><strong style="font-size:1.15em">Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small" style="margin-top:10px">Start Date: ${tnEsc(startDate)}</div><div class="actions" style="margin-top:12px;gap:8px"><button type="button" class="primary" data-tn-visit="${tnEsc(v.id)}" style="flex:1">Open Assessment</button>${v.report ? `<button type="button" class="secondary" data-tn-report="${tnEsc(v.id)}" style="flex:1">Report</button>` : ''}</div></div>`;
+    }).join('')}
+    ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? `<p class="notice">Task ${t.taskStatus === 'completed' ? 'Completed' : 'Break-up'} · ${tnEsc(t.endDate || '')}</p>` : `<button type="button" class="primary" id="tnAddVisitBtn" style="width:100%">＋ New Assessment / புதிய மதிப்பீடு</button>
+    <div class="actions" style="margin-top:12px;flex-wrap:wrap">
+      <button type="button" class="secondary" id="tnMarkBreakupBtn">Mark Task Break-up</button>
+      <button type="button" class="primary" id="tnMarkCompletedBtn">Mark Task Completed</button>
+    </div>`}`;
   document.getElementById('tnBackToTasksBtn').addEventListener('click', () => {
     tnTaskDetailOpen = false; currentAssessmentTaskId = null; currentAssessmentTaskName = '';
     currentAssessmentNo = null; currentAssessmentVisitId = null;
@@ -1421,12 +1495,54 @@ function tnShowVisits(taskId) {
     const taskPanel = document.getElementById('assessmentTaskPanel'); if (taskPanel) taskPanel.style.display = 'block';
     tnClearAnswers(); tnRenderTasks();
   });
+  const detailEdit = document.getElementById('tnDetailEditTask');
+  if (detailEdit) detailEdit.addEventListener('click', () => tnEditTask(taskId));
+  const detailDelete = document.getElementById('tnDetailDeleteTask');
+  if (detailDelete) detailDelete.addEventListener('click', () => tnDeleteTask(taskId));
   host.querySelectorAll('[data-tn-visit]').forEach(b => b.addEventListener('click', () => tnSelectVisit(taskId, b.dataset.tnVisit)));
-  document.getElementById('tnAddVisitBtn').addEventListener('click', () => tnCreateVisit(taskId));
+  host.querySelectorAll('[data-tn-report]').forEach(b => b.addEventListener('click', () => tnShowVisitReport(taskId, b.dataset.tnReport)));
+  const addVisitBtn = document.getElementById('tnAddVisitBtn');
+  if (addVisitBtn) addVisitBtn.addEventListener('click', () => tnCreateVisit(taskId));
+  const markTask = (status) => {
+    const label = status === 'completed' ? 'Completed' : 'Break-up';
+    if (!confirm(`இந்த Task-ஐ ${label} என முடிக்க விரும்புகிறீர்களா?\nEnd Date இன்றைய தேதியாக பதிவு செய்யப்படும்.`)) return;
+    const latestRows = tnReadTasks();
+    const currentTask = latestRows.find(x => x.id === taskId);
+    if (!currentTask || currentTask.taskStatus === 'completed' || currentTask.taskStatus === 'breakup') return;
+    currentTask.taskStatus = status;
+    currentTask.endDate = new Date().toISOString().slice(0,10);
+    currentTask.taskClosedAt = new Date().toISOString();
+    if (tnWriteTasks(latestRows)) tnShowVisits(taskId);
+  };
+  const breakupBtn = document.getElementById('tnMarkBreakupBtn');
+  const completedBtn = document.getElementById('tnMarkCompletedBtn');
+  if (breakupBtn) breakupBtn.addEventListener('click', () => markTask('breakup'));
+  if (completedBtn) completedBtn.addEventListener('click', () => markTask('completed'));
+}
+function tnShowVisitReport(taskId, visitId) {
+  const rows = tnReadTasks();
+  const task = rows.find(x => x.id === taskId);
+  const visit = task && (task.visits || []).find(x => x.id === visitId);
+  const host = document.getElementById('assessmentVisitList');
+  if (!task || !visit || !visit.report || !host) {
+    alert('இந்த Assessment-க்கு Report இன்னும் உருவாக்கப்படவில்லை.');
+    return;
+  }
+  host.innerHTML = `
+    <div class="actions no-print" style="margin-bottom:12px">
+      <button type="button" class="secondary" id="tnBackFromReport">← Back to Assessment History / மதிப்பீட்டு வரலாறு</button>
+      <button type="button" class="primary" id="tnPrintVisitReport">Print / Save PDF</button>
+    </div>
+    <h3>Assessment ${visit.number} – Report / அறிக்கை</h3>
+    <div id="tnSingleVisitReport">${reportHTML(visit.report)}</div>`;
+  document.getElementById('tnBackFromReport').addEventListener('click', () => tnShowVisits(taskId));
+  document.getElementById('tnPrintVisitReport').addEventListener('click', () => window.print());
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function tnCreateVisit(taskId) {
   const rows = tnReadTasks(), t = rows.find(x => x.id === taskId);
   if (!t) return;
+  if (t.taskStatus === 'completed' || t.taskStatus === 'breakup') { alert('இந்த Task முடிக்கப்பட்டுவிட்டது. புதிய Assessment சேர்க்க முடியாது.'); return; }
   t.visits = t.visits || [];
   const v = {id:'AV-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), number:t.visits.length+1, status:'not_started', answers:{}, pssAnswers:{}, startedAt:null, endedAt:null, report:null, createdAt:new Date().toISOString()};
   t.visits.push(v);
@@ -1518,14 +1634,24 @@ function tnSelectVisit(taskId, visitId) {
         <div id="tnPssAnsweredCount" class="muted" style="font-weight:700;margin:4px 0">0/10 PSS Answered</div>
         <div id="tnBachAnsweredCount" class="muted" style="font-weight:700;margin:4px 0">0/77 Bach answered</div>`;
       workspace.insertBefore(progressBar, back.nextSibling);
-      back.addEventListener('click', () => {
-        const ws = document.getElementById('assessmentWorkspace');
-        if (ws) ws.style.display = 'none';
-        tnSetAssessmentScreen('task');
-        tnShowVisits(taskId);
-        window.scrollTo({top:0,behavior:'smooth'});
-      });
     }
+    // Refresh this handler for every opened visit so it always returns
+    // to the currently selected task, not a previously opened task.
+    back.onclick = () => {
+      tnTaskDetailOpen = true;
+      currentAssessmentTaskId = taskId;
+      const activeTask = tnReadTasks().find(x => x.id === taskId);
+      currentAssessmentTaskName = activeTask ? activeTask.name : '';
+      currentAssessmentNo = null;
+      currentAssessmentVisitId = null;
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'none';
+      tnSetAssessmentScreen('task');
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      tnShowVisits(taskId);
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
   }
   tnShowVisits(taskId);
   tnAutosaveCurrentVisit();
