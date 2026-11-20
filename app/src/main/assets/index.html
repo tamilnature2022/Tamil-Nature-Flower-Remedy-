@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V116</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V130</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -426,7 +426,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 
 
-/* V117: prevent the document/assessment viewport from drifting sideways on mobile.
+/* V130: prevent the document/assessment viewport from drifting sideways on mobile.
    Keep intentional horizontal scrolling limited to the navigation/breadcrumb strips. */
 html, body {
   width: 100%;
@@ -1452,6 +1452,8 @@ function tnUpdatePersistentBreadcrumb(pageName) {
   const taskBtn = document.getElementById('tnPersistentTask');
   if (taskBtn) taskBtn.onclick = () => { if (taskId) { tnTaskDetailOpen=true; tnSetAssessmentScreen('task'); tnShowVisits(taskId); window.scrollTo({top:0,behavior:'smooth'}); } };
 }
+let tnAppNavMode = 'list';
+let tnSuppressNavPush = false;
 function tnSetAssessmentScreen(mode) {
   const page = document.getElementById('assessment');
   if (!page) return;
@@ -1460,7 +1462,79 @@ function tnSetAssessmentScreen(mode) {
   if (mode === 'list') tnUpdatePersistentBreadcrumb('list');
   else if (mode === 'task') tnUpdatePersistentBreadcrumb('task');
   else if (mode === 'visit') tnUpdatePersistentBreadcrumb('visit');
+
+  // Keep one browser-history entry per in-app assessment level.
+  // Android WebView Back therefore returns visit -> task -> task list.
+  if (!tnSuppressNavPush && mode !== tnAppNavMode) {
+    try {
+      history.pushState({
+        tnAppNavigation: true,
+        mode,
+        taskId: currentAssessmentTaskId || null
+      }, '', location.href);
+    } catch (e) {}
+  }
+  tnAppNavMode = mode;
 }
+function tnRestoreAssessmentNavigation(state) {
+  const mode = state && state.tnAppNavigation ? state.mode : 'list';
+  const taskId = (state && state.tnAppNavigation && state.taskId) || currentAssessmentTaskId;
+  tnSuppressNavPush = true;
+  try {
+    if (mode === 'visit' && taskId) {
+      currentAssessmentTaskId = taskId;
+      const task = tnReadTasks().find(x => x.id === taskId);
+      currentAssessmentTaskName = task ? task.name : currentAssessmentTaskName;
+      tnTaskDetailOpen = true;
+      tnSetAssessmentScreen('visit');
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'block';
+      tnShowVisits(taskId);
+    } else if (mode === 'task' && taskId) {
+      currentAssessmentTaskId = taskId;
+      const task = tnReadTasks().find(x => x.id === taskId);
+      currentAssessmentTaskName = task ? task.name : currentAssessmentTaskName;
+      currentAssessmentNo = null;
+      currentAssessmentVisitId = null;
+      tnTaskDetailOpen = true;
+      tnSetAssessmentScreen('task');
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'none';
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      tnShowVisits(taskId);
+    } else {
+      tnTaskDetailOpen = false;
+      currentAssessmentTaskId = null;
+      currentAssessmentTaskName = '';
+      currentAssessmentNo = null;
+      currentAssessmentVisitId = null;
+      tnSetAssessmentScreen('list');
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'none';
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      tnRenderTasks();
+    }
+    tnAppNavMode = mode === 'visit' || mode === 'task' ? mode : 'list';
+    window.scrollTo({top:0, behavior:'smooth'});
+  } finally {
+    tnSuppressNavPush = false;
+  }
+}
+window.addEventListener('popstate', event => {
+  // Only consume Back for our internal Task/Assessment navigation.
+  if (tnAppNavMode !== 'list' || (event.state && event.state.tnAppNavigation)) {
+    tnRestoreAssessmentNavigation(event.state);
+  }
+});
+try {
+  if (!history.state || !history.state.tnAppNavigation) {
+    history.replaceState({tnAppNavigation:true, mode:'list', taskId:null}, '', location.href);
+  }
+} catch (e) {}
 function tnRenderTasks() {
   const host = document.getElementById('assessmentTaskList');
   const visitsHost = document.getElementById('assessmentVisitList');
