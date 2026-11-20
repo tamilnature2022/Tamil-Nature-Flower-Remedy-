@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V123</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V124</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -1580,6 +1580,15 @@ function tnSetAssessmentScreen(mode) {
   if (!page) return;
   page.classList.toggle('tn-task-detail-mode', mode === 'task');
   page.classList.toggle('tn-visit-workspace-mode', mode === 'visit');
+
+  // Keep the page heading aligned with the actual screen being displayed.
+  const heading = page.querySelector('.page-heading h1');
+  if (heading) {
+    heading.textContent = mode === 'task' ? 'Task Details'
+      : mode === 'visit' ? 'Task Assessment'
+      : 'Assessment';
+  }
+
   if (mode === 'list') tnUpdatePersistentBreadcrumb('list');
   else if (mode === 'task') tnUpdatePersistentBreadcrumb('task');
   else if (mode === 'visit') tnUpdatePersistentBreadcrumb('visit');
