@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V129</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V116</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -398,8 +398,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #assessment > .page-heading + #tnPersistentBreadcrumb{display:none}
 #assessment.tn-task-detail-mode > #tnPersistentBreadcrumb,#assessment.tn-visit-workspace-mode > #tnPersistentBreadcrumb{display:flex}
 #assessment .tn-breadcrumb:not(#tnPersistentBreadcrumb){display:none!important}
-#assessment.tn-task-detail-mode #assessmentVisitList > .tn-breadcrumb{display:none!important;}
-#assessment #tnVisitBackToTaskBtn{display:none!important;}
 #tnPersistentBreadcrumb{position:sticky;top:0;z-index:120;margin:0 0 14px;background:#fff}
 .tn-breadcrumb button{background:none;border:0;padding:2px 0;color:var(--primary,#176b4b);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
 .tn-breadcrumb .current{color:var(--text,#172b23);font-weight:800}
@@ -418,8 +416,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #tnPersistentBreadcrumb button{font-size:clamp(12px,3.3vw,14px);}
 #tnPersistentBreadcrumb .current{font-size:clamp(12px,3.3vw,14px);}
 #assessment > .page-heading + #tnPersistentBreadcrumb{display:none!important;}
-#assessment.tn-task-detail-mode > #tnPersistentBreadcrumb{display:flex!important;}
-#assessment.tn-visit-workspace-mode > #tnPersistentBreadcrumb{display:flex!important;}
+#assessment.tn-task-detail-mode > #tnPersistentBreadcrumb,#assessment.tn-visit-workspace-mode > #tnPersistentBreadcrumb{display:none!important;}
 @media(max-width:560px){
   .sticky-shell{padding-top:0;}
   .sticky-shell .app-header{margin-top:38px;margin-bottom:8px;}
@@ -460,50 +457,6 @@ main, .sticky-shell, #assessment, #assessmentWorkspace,
   #questionnaire .opt, #pssQuestions .opt { min-width: 0; }
 }
 
-
-/* V119: single-purpose back navigation; Home remains in the main tab bar. */
-#assessment.tn-visit-workspace-mode > #tnPersistentBreadcrumb {
-  display:flex!important;
-  align-items:center;
-  gap:8px;
-}
-#tnPersistentBreadcrumb #tnPersistentTask {
-  display:inline-flex;
-  align-items:center;
-  min-height:42px;
-  padding:7px 14px;
-  border-radius:10px;
-  background:#e7eee8;
-  color:#176b4b;
-  font-weight:800;
-  font-size:15px;
-}
-#tnPersistentBreadcrumb .current {
-  font-weight:800;
-}
-
-/* V123: consistent, tappable breadcrumb/back trail across the whole app. */
-#tnPersistentBreadcrumb:not(:empty) {
-  display:flex!important;
-  flex-wrap:nowrap;
-  overflow-x:auto;
-  white-space:nowrap;
-  gap:8px;
-}
-#tnPersistentBreadcrumb button {
-  min-height:40px;
-  padding:7px 10px;
-  border-radius:9px;
-  background:#e7eee8;
-  color:#176b4b;
-  font-weight:800;
-  cursor:pointer;
-}
-#tnPersistentBreadcrumb .current {
-  padding:7px 4px;
-  font-weight:900;
-}
-
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -531,7 +484,7 @@ main, .sticky-shell, #assessment, #assessmentWorkspace,
 <div id="bachRemedyGuide"><div class="category"><h3>1. Fear · பயம்</h3><p class="muted">பயம், அச்சம் மற்றும் கவலை சார்ந்த உணர்வுகள்.</p><div class="remedy"><div class="remedy-title">Rock Rose · ராக் ரோஸ்</div>திடீர் அதீத பயம் அல்லது பீதி. <span class="muted">Terror, panic or acute fear.</span></div><div class="remedy"><div class="remedy-title">Mimulus · மிமுலஸ்</div>காரணம் தெரிந்த குறிப்பிட்ட விஷயங்கள் குறித்த பயம். <span class="muted">Fear of known things or situations.</span></div><div class="remedy"><div class="remedy-title">Cherry Plum · செர்ரி பிளம்</div>தன்னுடைய கட்டுப்பாட்டை இழந்துவிடுவோமோ என்ற அச்சம். <span class="muted">Fear of losing control.</span></div><div class="remedy"><div class="remedy-title">Aspen · ஆஸ்பென்</div>காரணம் தெளிவாகத் தெரியாத அச்சம் அல்லது பதற்றம். <span class="muted">Vague or unexplained apprehension.</span></div><div class="remedy"><div class="remedy-title">Red Chestnut · ரெட் செஸ்ட்நட்</div>அன்புக்குரியவர்களுக்கு ஏதாவது நேருமோ என்ற மிகையான கவலை. <span class="muted">Excessive worry about loved ones.</span></div></div><div class="category"><h3>2. Uncertainty · உறுதியின்மை</h3><p class="muted">முடிவு, நம்பிக்கை அல்லது வாழ்க்கைத் திசை குறித்த தயக்கம்.</p><div class="remedy"><div class="remedy-title">Cerato · செராட்டோ</div>தன் முடிவை நம்பாமல் பிறரிடம் உறுதிப்படுத்திக் கொள்வது. <span class="muted">Doubting one’s judgement.</span></div><div class="remedy"><div class="remedy-title">Scleranthus · ஸ்க்ளெராந்தஸ்</div>இரண்டு தேர்வுகளுக்கிடையே முடிவெடுக்க முடியாமை. <span class="muted">Indecision between two choices.</span></div><div class="remedy"><div class="remedy-title">Gentian · ஜென்ஷியன்</div>தடை அல்லது பின்னடைவு ஏற்பட்டால் மனம் தளர்தல். <span class="muted">Discouragement after setbacks.</span></div><div class="remedy"><div class="remedy-title">Gorse · கோர்ஸ்</div>நம்பிக்கை இழந்து முன்னேற்றம் இல்லை என உணர்தல். <span class="muted">Hopelessness and loss of hope.</span></div><div class="remedy"><div class="remedy-title">Hornbeam · ஹார்ன்பீம்</div>ஒரு செயலைத் தொடங்குவதற்கு முன்பே மனச் சோர்வு. <span class="muted">Mental tiredness before starting.</span></div><div class="remedy"><div class="remedy-title">Wild Oat · வைல்ட் ஓட்</div>வாழ்க்கையில் எந்தப் பாதையைத் தேர்ந்தெடுப்பது என்ற குழப்பம். <span class="muted">Uncertainty about life direction.</span></div></div><div class="category"><h3>3. Insufficient Interest in Present Circumstances · நிகழ்காலத்தில் போதிய ஈடுபாடின்மை</h3><p class="muted">நிகழ்காலத்தில் கவனம், ஆர்வம் அல்லது மன ஈடுபாடு குறைதல்.</p><div class="remedy"><div class="remedy-title">Clematis · கிளெமாட்டிஸ்</div>நிகழ்காலத்தை விட கற்பனை அல்லது எதிர்காலக் கனவுகளில் மூழ்கியிருத்தல். <span class="muted">Being dreamy or preoccupied with the future.</span></div><div class="remedy"><div class="remedy-title">Honeysuckle · ஹனிசக்கிள்</div>கடந்தகால நினைவுகளில் அதிகம் வாழ்தல். <span class="muted">Living in memories of the past.</span></div><div class="remedy"><div class="remedy-title">Wild Rose · வைல்ட் ரோஸ்</div>மாற்ற முயற்சியின்றி சூழ்நிலையை அப்படியே ஏற்றுக்கொள்ளுதல். <span class="muted">Resignation and passive acceptance.</span></div><div class="remedy"><div class="remedy-title">Olive · ஆலிவ்</div>நீண்ட முயற்சிக்குப் பின் உடல் அல்லது மன ஆற்றல் தீர்ந்த உணர்வு. <span class="muted">Exhaustion after prolonged effort.</span></div><div class="remedy"><div class="remedy-title">White Chestnut · வைட் செஸ்ட்நட்</div>மீண்டும் மீண்டும் வரும் எண்ணங்களால் மன அமைதி பாதிக்கப்படுதல். <span class="muted">Repetitive, unwanted thoughts.</span></div><div class="remedy"><div class="remedy-title">Mustard · மஸ்டர்ட்</div>காரணம் புரியாத திடீர் சோகம் அல்லது மன இருள். <span class="muted">Gloom or sadness without a clear cause.</span></div><div class="remedy"><div class="remedy-title">Chestnut Bud · செஸ்ட்நட் பட்</div>அதே தவறுகளை மீண்டும் செய்து அனுபவத்திலிருந்து கற்றுக்கொள்ள சிரமம். <span class="muted">Repeating patterns without learning.</span></div></div><div class="category"><h3>4. Loneliness · தனிமை</h3><p class="muted">தனிமை உணர்வு அல்லது பிறருடன் தொடர்பு கொள்ளும் முறையில் சிரமம்.</p><div class="remedy"><div class="remedy-title">Water Violet · வாட்டர் வயலெட்</div>தனியாக இருக்க விரும்பி உணர்வுகளைப் பகிர்வதில் விலகி இருப்பது. <span class="muted">Reserved independence and emotional distance.</span></div><div class="remedy"><div class="remedy-title">Impatiens · இம்பேஷன்ஸ்</div>அவசரம், பொறுமையின்மை மற்றும் தாமதத்தால் எரிச்சல். <span class="muted">Impatience and irritation with delays.</span></div><div class="remedy"><div class="remedy-title">Heather · ஹீதர்</div>தனிமையைத் தவிர்க்க பிறரின் கவனத்தையும் துணையையும் நாடுதல். <span class="muted">Strong need for company and attention.</span></div></div><div class="category"><h3>5. Oversensitivity to Influences and Ideas · பிறர் தாக்கங்களுக்கு மிகை உணர்திறன்</h3><p class="muted">பிறரின் கருத்துகள் அல்லது சூழலால் எளிதில் பாதிக்கப்படுதல்.</p><div class="remedy"><div class="remedy-title">Agrimony · அக்ரிமனி</div>உள்ளுக்குள் கவலை இருந்தாலும் வெளியில் மகிழ்ச்சியாகக் காட்டிக்கொள்வது. <span class="muted">Hiding worries behind a cheerful appearance.</span></div><div class="remedy"><div class="remedy-title">Centaury · சென்டாரி</div>இல்லை என்று சொல்ல முடியாமல் தன் தேவைகளைப் புறக்கணித்தல். <span class="muted">Difficulty saying no.</span></div><div class="remedy"><div class="remedy-title">Walnut · வால்நட்</div>மாற்றங்கள் அல்லது வெளித் தாக்கங்களால் தன் பாதையில் நிலைத்திருக்க சிரமம். <span class="muted">Difficulty adapting to change or outside influence.</span></div><div class="remedy"><div class="remedy-title">Holly · ஹாலி</div>பொறாமை, சந்தேகம், கோபம் அல்லது பகைமை போன்ற உணர்வுகள். <span class="muted">Jealousy, suspicion, anger or resentment.</span></div></div><div class="category"><h3>6. Despondency or Despair · மனச்சோர்வு அல்லது நம்பிக்கையிழப்பு</h3><p class="muted">தன்னம்பிக்கை குறைவு, மனவேதனை, சுமை அல்லது தளர்ச்சி.</p><div class="remedy"><div class="remedy-title">Larch · லார்ச்</div>தோல்வியடைவேன் என்ற எண்ணத்தால் முயற்சிக்க முன்வராமை. <span class="muted">Lack of confidence and fear of failure.</span></div><div class="remedy"><div class="remedy-title">Pine · பைன்</div>தவறு செய்ததாகத் தொடர்ந்து குற்றவுணர்ச்சி கொள்வது. <span class="muted">Self-blame and guilt.</span></div><div class="remedy"><div class="remedy-title">Elm · எல்ம்</div>பொறுப்புகள் அதிகமாகி சமாளிக்க முடியாத உணர்வு. <span class="muted">Feeling overwhelmed by responsibilities.</span></div><div class="remedy"><div class="remedy-title">Sweet Chestnut · ஸ்வீட் செஸ்ட்நட்</div>தாங்க முடியாத மனவேதனை அல்லது நெருக்கடி உணர்வு. <span class="muted">Extreme mental anguish or despair.</span></div><div class="remedy"><div class="remedy-title">Star of Bethlehem · ஸ்டார் ஆஃப் பெத்லெஹெம்</div>அதிர்ச்சி அல்லது துயர அனுபவத்திற்குப் பிந்தைய மனத் தாக்கம். <span class="muted">Distress following shock or upsetting events.</span></div><div class="remedy"><div class="remedy-title">Willow · வில்லோ</div>தனக்கு அநீதி நடந்ததாக எண்ணி கசப்பு அல்லது மனக்குறை வைத்திருத்தல். <span class="muted">Resentment and feeling unfairly treated.</span></div><div class="remedy"><div class="remedy-title">Oak · ஓக்</div>சோர்வாக இருந்தாலும் ஓய்வெடுக்காமல் தொடர்ந்து போராடுதல். <span class="muted">Persisting with duties despite exhaustion.</span></div><div class="remedy"><div class="remedy-title">Crab Apple · கிராப் ஆப்பிள்</div>தன்னிடம் குறை அல்லது அசுத்தம் இருப்பதாக உணர்ந்து அதில் அதிக கவனம். <span class="muted">Preoccupation with perceived flaws or uncleanliness.</span></div></div><div class="category"><h3>7. Over-care for the Welfare of Others · பிறர் நலனில் மிகையான அக்கறை</h3><p class="muted">பிறரை கட்டுப்படுத்துதல் அல்லது அவர்களின் நலனில் மிகையாக ஈடுபடுதல்.</p><div class="remedy"><div class="remedy-title">Chicory · சிக்கரி</div>அன்புக்குரியவர்களிடம் அதிக எதிர்பார்ப்பு வைத்து கட்டுப்படுத்த முயற்சித்தல். <span class="muted">Possessive care and demanding attention.</span></div><div class="remedy"><div class="remedy-title">Vervain · வெர்வெயின்</div>ஒரு கருத்து அல்லது நோக்கத்தில் அளவுக்கு மீறிய தீவிரம். <span class="muted">Over-enthusiasm and intense conviction.</span></div><div class="remedy"><div class="remedy-title">Vine · வைன்</div>பிறர் தன் வழியிலேயே நடக்க வேண்டும் என்று ஆதிக்கம் செலுத்துதல். <span class="muted">Dominance and insistence on one’s own way.</span></div><div class="remedy"><div class="remedy-title">Beech · பீச்</div>பிறரின் குறைகளை எளிதில் விமர்சித்து சகிப்புத்தன்மை குறைதல். <span class="muted">Criticism and intolerance of others.</span></div><div class="remedy"><div class="remedy-title">Rock Water · ராக் வாட்டர்</div>தன்னிடம் மிகக் கடுமையான கட்டுப்பாடுகள் மற்றும் எதிர்பார்ப்புகள். <span class="muted">Rigid self-discipline and high personal standards.</span></div></div></div><div class="panel"><p class="muted">குறிப்பு: இந்தப் பக்கம் 38 Bach Flower Remedies பற்றிய கல்வி அறிமுகம் மட்டுமே. இவை மருத்துவ நோயறிதல் அல்லது நிரூபிக்கப்பட்ட சிகிச்சைக்கு மாற்றாகாது. Screening மதிப்பெண்கள் தனியாக நோயறிதல் அல்ல.</p></div></section>
 
 <section id="assessment" class="page-section">
-<div class="page-heading"><h1>Task Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
+<div class="page-heading"><h1>Flower Remedy Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
 
 </div>
 <div class="panel" id="assessmentClientPanel"><h2>Participant · பங்கேற்பாளர்</h2>
@@ -912,8 +865,6 @@ function showTab(tabId) {
 
   if (tabId === 'records') loadRecords();
   if (tabId === 'dashboard') renderDashboard();
-  if (tabId !== 'home' && tabId !== 'assessment') tnUpdatePersistentBreadcrumb('module:' + tabId);
-  if (tabId === 'home') tnUpdatePersistentBreadcrumb('home');
 
   try { location.hash = tabId; } catch (_) {}
   try { window.scrollTo(0, 0); } catch (_) {}
@@ -1188,16 +1139,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (participantSelect) participantSelect.addEventListener('change', () => {
-    const selectedValue = String(participantSelect.value || '');
-    const c = readClients().find(x => String(x.id) === selectedValue);
-    tnSelectedClientId = c ? String(c.id) : '';
+    const c = readClients().find(x => x.id === participantSelect.value);
     if (participantSearch && c) participantSearch.value = c.name;
     if (createTaskAction) createTaskAction.style.display = c ? 'block' : 'none';
     if (assessmentTaskPanel) assessmentTaskPanel.style.display = c ? 'block' : 'none';
-    const taskListHost = document.getElementById('assessmentTaskList');
-    const visitListHost = document.getElementById('assessmentVisitList');
-    if (taskListHost) taskListHost.style.display = c ? 'block' : 'none';
-    if (visitListHost) { visitListHost.style.display = 'none'; visitListHost.innerHTML = ''; }
     assessmentStartedAt = null; assessmentEndedAt = null; lastReport = null;
     const startBtn = document.getElementById("startAssessmentBtn");
     if (startBtn) startBtn.disabled = false;
@@ -1239,12 +1184,8 @@ document.addEventListener('DOMContentLoaded', () => {
         info.textContent = 'Assessment தொடங்க வாடிக்கையாளரைத் தேர்வு செய்யவும்.';
       }
     }
-    // V129: render only after both shared selected-client state and hidden fields are set.
-    if (typeof tnRenderTasks === 'function') {
-      if (assessmentTaskPanel) assessmentTaskPanel.style.display = c ? 'block' : 'none';
-      if (taskListHost) taskListHost.style.display = c ? 'block' : 'none';
-      tnRenderTasks();
-    }
+    // V62: render the selected client's saved tasks only after pid is populated.
+    if (typeof tnRenderTasks === 'function') tnRenderTasks();
   });
   const cancel = document.getElementById('cancelClientForm');
   const form = document.getElementById('clientForm');
@@ -1458,43 +1399,7 @@ function tnWriteTasks(rows) {
   catch (e) { alert('Task சேமிக்க முடியவில்லை: ' + e.message); return false; }
 }
 function tnEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-let tnSelectedClientId = '';
-function tnCurrentClientId() {
-  if (tnSelectedClientId) return String(tnSelectedClientId);
-  const pid = document.getElementById('pid');
-  if (pid && pid.value) return String(pid.value);
-
-  // First fallback: the selected client dropdown is the authoritative source
-  // immediately after a client is chosen from the search results.
-  const participant = document.getElementById('participantSelect');
-  if (participant && participant.value) {
-    if (pid) pid.value = participant.value;
-    return participant.value;
-  }
-
-  // Recovery path: if the hidden client ID is blank after returning between
-  // screens, recover it from the still-visible selected-client summary.
-  const info = document.getElementById('selectedClientInfo');
-  if (info) {
-    const match = info.textContent.match(/Client\s*ID\s*:\s*([A-Za-z0-9_-]+)/i);
-    if (match && match[1]) {
-      const client = readClients().find(c => String(c.id) === match[1]);
-      if (client) {
-        if (pid) pid.value = client.id;
-        const name = document.getElementById('pname');
-        const mobile = document.getElementById('mobile');
-        const age = document.getElementById('age');
-        if (name) name.value = client.name || '';
-        if (mobile) mobile.value = client.mobile || '';
-        if (age) age.value = client.age || '';
-        const select = document.getElementById('participantSelect');
-        if (select) select.value = client.id;
-        return client.id;
-      }
-    }
-  }
-  return '';
-}
+function tnCurrentClientId() { return (document.getElementById('pid') || {}).value || ''; }
 function tnClearAnswers() {
   document.querySelectorAll('#questionnaire input:checked,#pssQuestions input:checked').forEach(x => x.checked = false);
   updateProgress();
@@ -1529,160 +1434,40 @@ function tnUpdatePersistentBreadcrumb(pageName) {
   tnCurrentBreadcrumbPage = pageName || tnCurrentBreadcrumbPage;
   const nav = document.getElementById('tnPersistentBreadcrumb');
   if (!nav) return;
-
-  const page = tnCurrentBreadcrumbPage || 'list';
-  const moduleLabels = {
-    home: 'Home',
-    records: 'Client Records',
-    dashboard: 'Research Dashboard',
-    bachInfo: '38 Bach Flower Remedies'
-  };
-
-  if (page === 'list' || page === 'home') {
-    nav.innerHTML = '';
-    return;
-  }
-
-  if (page.indexOf('module:') === 0) {
-    const moduleId = page.slice(7);
-    const label = moduleLabels[moduleId] || moduleId;
-    nav.innerHTML = '<button type="button" data-tn-back="home">← Home</button><span class="sep">›</span><span class="current">' + label + '</span>';
-    nav.querySelector('[data-tn-back="home"]').onclick = () => showTab('home');
-    return;
-  }
-
+  if (tnCurrentBreadcrumbPage === 'list') { nav.innerHTML = ''; return; }
   const taskId = currentAssessmentTaskId;
-  const visitId = currentAssessmentVisitId;
-  const task = taskId ? tnReadTasks().find(x => x.id === taskId) : null;
-  const visit = task && visitId ? (task.visits || []).find(x => x.id === visitId) : null;
-
-  const labels = {
-    task: 'Task Details',
-    visit: 'Task Assessment',
-    report: 'Report',
-    compare: 'Task Progress Comparison',
-    final: 'Final Task Report'
+  const task = tnReadTasks().find(x => x.id === taskId);
+  const home = '<button type="button" id="tnPersistentHome">Flower Remedy Assessment</button>';
+  const taskCrumb = '<span class="sep">›</span><button type="button" id="tnPersistentTask">Task Details</button>';
+  const labels = {task:'Task Details',visit:'Task Assessment',report:'Assessment Report',compare:'Task Progress Comparison',final:'Final Task Report'};
+  nav.innerHTML = home + (tnCurrentBreadcrumbPage === 'task' ? '<span class="sep">›</span><span class="current">Task Details</span>' : taskCrumb + '<span class="sep">›</span><span class="current">' + (labels[tnCurrentBreadcrumbPage] || 'Task Assessment') + '</span>');
+  const homeBtn = document.getElementById('tnPersistentHome');
+  if (homeBtn) homeBtn.onclick = () => {
+    tnTaskDetailOpen=false; currentAssessmentTaskId=null; currentAssessmentTaskName=''; currentAssessmentNo=null; currentAssessmentVisitId=null;
+    tnSetAssessmentScreen('list');
+    const ws=document.getElementById('assessmentWorkspace'); if(ws) ws.style.display='none';
+    const panel=document.getElementById('assessmentTaskPanel'); if(panel) panel.style.display='block';
+    tnClearAnswers(); tnRenderTasks(); window.scrollTo({top:0,behavior:'smooth'});
   };
-  const currentLabel = labels[page] || 'Task Assessment';
-
-  let parts = '<button type="button" data-tn-back="assessment">Assessment</button>';
-  parts += '<span class="sep">›</span>';
-
-  if (page === 'task') {
-    parts += '<span class="current">Task Details</span>';
-  } else {
-    parts += '<button type="button" data-tn-back="task">Task Details</button>';
-    parts += '<span class="sep">›</span>';
-
-    if (page === 'visit') {
-      parts += '<span class="current">Task Assessment</span>';
-    } else if (page === 'report') {
-      parts += '<button type="button" data-tn-back="visit">Task Assessment</button>';
-      parts += '<span class="sep">›</span><span class="current">Report</span>';
-    } else {
-      parts += '<span class="current">' + currentLabel + '</span>';
-    }
-  }
-
-  nav.innerHTML = parts;
-
-  const assessmentBtn = nav.querySelector('[data-tn-back="assessment"]');
-  if (assessmentBtn) assessmentBtn.onclick = function(event) {
-    if (event) { event.preventDefault(); event.stopPropagation(); }
-    tnShowAssessmentTaskList();
-  };
-
-  const taskBtn = nav.querySelector('[data-tn-back="task"]');
-  if (taskBtn) taskBtn.onclick = function(event) {
-    if (event) { event.preventDefault(); event.stopPropagation(); }
-    if (!taskId) return;
-    tnReturnToActiveTaskDetails();
-    tnUpdatePersistentBreadcrumb('task');
-  };
-
-  const visitBtn = nav.querySelector('[data-tn-back="visit"]');
-  if (visitBtn) visitBtn.onclick = function(event) {
-    if (event) { event.preventDefault(); event.stopPropagation(); }
-    if (taskId && visitId) {
-      tnSelectVisit(taskId, visitId);
-      tnUpdatePersistentBreadcrumb('visit');
-    }
-  };
+  const taskBtn = document.getElementById('tnPersistentTask');
+  if (taskBtn) taskBtn.onclick = () => { if (taskId) { tnTaskDetailOpen=true; tnSetAssessmentScreen('task'); tnShowVisits(taskId); window.scrollTo({top:0,behavior:'smooth'}); } };
 }
 function tnSetAssessmentScreen(mode) {
   const page = document.getElementById('assessment');
   if (!page) return;
   page.classList.toggle('tn-task-detail-mode', mode === 'task');
   page.classList.toggle('tn-visit-workspace-mode', mode === 'visit');
-
-  // Keep the page heading aligned with the actual screen being displayed.
-  const heading = page.querySelector('.page-heading h1');
-  if (heading) {
-    heading.textContent = mode === 'task' ? 'Task Details'
-      : mode === 'visit' ? 'Task Assessment'
-      : 'Assessment';
-  }
-
   if (mode === 'list') tnUpdatePersistentBreadcrumb('list');
   else if (mode === 'task') tnUpdatePersistentBreadcrumb('task');
   else if (mode === 'visit') tnUpdatePersistentBreadcrumb('visit');
 }
-function tnShowAssessmentTaskList() {
-  const selectedControl = document.getElementById('participantSelect');
-  if (selectedControl && selectedControl.value) {
-    tnSelectedClientId = String(selectedControl.value);
-    const hiddenPid = document.getElementById('pid');
-    if (hiddenPid) hiddenPid.value = tnSelectedClientId;
-  }
-  tnTaskDetailOpen = false;
-  currentAssessmentTaskId = null;
-  currentAssessmentTaskName = '';
-  currentAssessmentNo = null;
-  currentAssessmentVisitId = null;
-
-  const page = document.getElementById('assessment');
-  const workspace = document.getElementById('assessmentWorkspace');
-  const clientPanel = document.getElementById('assessmentClientPanel');
-  const taskPanel = document.getElementById('assessmentTaskPanel');
-  const taskList = document.getElementById('assessmentTaskList');
-  const visitList = document.getElementById('assessmentVisitList');
-
-  if (workspace) {
-    workspace.style.display = 'none';
-    delete workspace.dataset.activeTaskId;
-  }
-  if (clientPanel) clientPanel.style.display = '';
-  if (taskPanel) taskPanel.style.display = 'block';
-  if (taskList) taskList.style.display = 'block';
-  if (visitList) {
-    visitList.style.display = 'none';
-    visitList.innerHTML = '';
-  }
-
-  if (page) {
-    page.classList.remove('tn-task-detail-mode', 'tn-visit-workspace-mode');
-  }
-  tnSetAssessmentScreen('list');
-  tnRenderTasks();
-
-  // The task list is the Assessment landing view; keep its containers visible.
-  if (taskPanel) taskPanel.style.display = 'block';
-  if (taskList) taskList.style.display = 'block';
-  if (visitList) visitList.style.display = 'none';
-  window.scrollTo({top:0, behavior:'smooth'});
-  return true;
-}
-
 function tnRenderTasks() {
   const host = document.getElementById('assessmentTaskList');
   const visitsHost = document.getElementById('assessmentVisitList');
   if (!host || !visitsHost) return;
   const clientId = tnCurrentClientId();
   if (!clientId) { host.innerHTML = '<p class="muted">முதலில் Client-ஐத் தேர்வு செய்யவும்.</p>'; visitsHost.innerHTML = ''; return; }
-  const panel = document.getElementById('assessmentTaskPanel');
-  if (panel) panel.style.display = 'block';
-  host.style.display = 'block';
-  const tasks = tnReadTasks().filter(t => String(t.clientId) === String(clientId));
+  const tasks = tnReadTasks().filter(t => t.clientId === clientId);
   if (tnTaskDetailOpen && currentAssessmentTaskId && tasks.some(t => t.id === currentAssessmentTaskId)) {
     host.style.display = 'none';
     tnShowVisits(currentAssessmentTaskId);
@@ -1692,7 +1477,7 @@ function tnRenderTasks() {
   host.style.display = 'block';
   visitsHost.innerHTML = '';
   if (!tasks.length) { host.innerHTML = '<p class="muted">இந்த வாடிக்கையாளருக்கு பழைய Task இல்லை. புதிய காரணத்தை உள்ளிட்டு Create Task செய்யவும்.</p>'; return; }
-  host.innerHTML = '<h4>Task List / பணி பட்டியல்</h4>' + tasks.map((t, i) => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${i + 1}. ${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button></article>`).join('');
+  host.innerHTML = '<h4>Task Name / பணி பெயர்</h4>' + tasks.map(t => `<article class="record" style="margin-bottom:8px"><button type="button" class="task-name-link" data-tn-task="${tnEsc(t.id)}" style="display:block;width:100%;text-align:left;background:transparent;border:0;padding:4px 0;color:inherit;font:inherit;cursor:pointer"><strong style="font-size:1.08em">${tnEsc(t.name)}</strong><div class="muted small">${(t.visits||[]).length} Assessment(s) · Tap task name to open</div></button></article>`).join('');
   host.querySelectorAll('[data-tn-task]').forEach(b => b.addEventListener('click', () => tnOpenTask(b.dataset.tnTask)));
 }
 function tnEditTask(taskId) {
@@ -1764,8 +1549,6 @@ function tnOpenTask(taskId) {
   tnShowVisits(t.id);
 }
 function tnShowVisits(taskId) {
-  const workspace = document.getElementById("assessmentWorkspace");
-  if (workspace && taskId) workspace.dataset.activeTaskId = taskId;
   const t = tnReadTasks().find(x => x.id === taskId);
   const host = document.getElementById('assessmentVisitList'); if (!t || !host) return;
   const visits = t.visits || [];
@@ -1795,7 +1578,7 @@ function tnShowVisits(taskId) {
       <div class="muted small" style="margin-top:10px">Assessor: ${tnEsc(t.assessor || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</div>
       <div class="muted small" style="margin-top:5px">Task End Date: ${tnEsc(t.endDate || '—')}</div>
     </div>
-    
+    <nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnCrumbAssessment">Flower Remedy Assessment</button><span class="sep">›</span><span class="current">Task Details</span></nav>
     <div class="task-actions" style="margin:12px 0;gap:8px">
       ${(visits.filter(v => v.report).length >= 2) ? `<button type="button" class="secondary" id="tnTaskCompareBtn">Task Progress Comparison</button>` : ''}
       ${t.taskStatus === 'completed' && visits.some(v => v.report) ? `<button type="button" class="primary" id="tnFinalTaskReportBtn">Final Task Report</button>` : ''}
@@ -1807,6 +1590,14 @@ function tnShowVisits(taskId) {
     }).join('')}
     ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? `<p class="notice">Task ${t.taskStatus === 'completed' ? 'Completed' : 'Break-up'} · ${tnEsc(t.endDate || '')}</p>` : `<button type="button" class="primary" id="tnAddVisitBtn" style="width:100%">＋ New Assessment / புதிய மதிப்பீடு</button>
 `}`;
+  document.getElementById('tnCrumbAssessment').addEventListener('click', () => {
+    tnTaskDetailOpen = false; currentAssessmentTaskId = null; currentAssessmentTaskName = '';
+    currentAssessmentNo = null; currentAssessmentVisitId = null;
+    tnSetAssessmentScreen('list');
+    const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
+    const taskPanel = document.getElementById('assessmentTaskPanel'); if (taskPanel) taskPanel.style.display = 'block';
+    tnClearAnswers(); tnRenderTasks();
+  });
   const detailEdit = document.getElementById('tnDetailEditTask');
   if (detailEdit) detailEdit.addEventListener('click', () => tnEditTask(taskId));
   const detailDelete = document.getElementById('tnDetailDeleteTask');
@@ -1836,39 +1627,6 @@ function tnShowVisits(taskId) {
   if (completedBtn) completedBtn.addEventListener('click', () => markTask('completed'));
 }
 
-
-// V118: delegated, capture-phase Task Details navigation.
-function tnReturnToActiveTaskDetails() {
-  const ws = document.getElementById('assessmentWorkspace');
-  const activeTaskId = currentAssessmentTaskId || (ws && ws.dataset.activeTaskId) || null;
-  if (!activeTaskId) return false;
-  const activeTask = tnReadTasks().find(x => String(x.id) === String(activeTaskId));
-  if (!activeTask) return false;
-  currentAssessmentTaskId = activeTask.id;
-  currentAssessmentTaskName = activeTask.name || '';
-  currentAssessmentNo = null;
-  currentAssessmentVisitId = null;
-  tnTaskDetailOpen = true;
-  if (ws) ws.style.display = 'none';
-  const panel = document.getElementById('assessmentTaskPanel');
-  if (panel) panel.style.display = 'block';
-  const taskList = document.getElementById('assessmentTaskList');
-  if (taskList) taskList.style.display = 'none';
-  tnSetAssessmentScreen('task');
-  tnShowVisits(activeTask.id);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  return true;
-}
-document.addEventListener('click', function(event) {
-  const button = event.target && event.target.closest
-    ? event.target.closest('#tnPersistentTask, #tnCrumbTaskDetails') : null;
-  if (!button) return;
-  event.preventDefault();
-  event.stopPropagation();
-  if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-  tnReturnToActiveTaskDetails();
-}, true);
-
 function tnShowTaskComparison(taskId) {
   const task = tnReadTasks().find(x => x.id === taskId);
   const host = document.getElementById('assessmentVisitList');
@@ -1885,10 +1643,8 @@ function tnShowTaskComparison(taskId) {
     const b=(latest.remedies||[]).find(x=>x.remedy===a.remedy);
     return `<tr><td>${tnEsc(a.remedy)}</td><td>${a.score}</td><td>${b?b.score:'—'}</td><td>${b?tnEsc(trend(a.score,b.score)):'—'}</td></tr>`;
   }).join('');
-  currentAssessmentTaskId = task.id; currentAssessmentTaskName = task.name || ''; currentAssessmentVisitId = null; currentAssessmentNo = null;
-  tnSetAssessmentScreen('task');
   tnUpdatePersistentBreadcrumb('compare');
-  host.innerHTML = `
+  host.innerHTML = `<nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnCompareHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnCompareBack">Task Details</button><span class="sep">›</span><span class="current">Task Progress Comparison</span></nav>
     <h3>Task Progress Comparison</h3><div class="record" style="padding:14px;border-radius:16px;margin-bottom:12px"><strong>${tnEsc(task.name)}</strong><p class="muted small">Initial: Assessment ${completed[0].number} (${tnEsc(first.date||'—')}) · Latest: Assessment ${completed[completed.length-1].number} (${tnEsc(latest.date||'—')})</p>
     <div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Measure</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>
     <tr><td>Bach Answered</td><td>${first.bachAnswered}/77</td><td>${latest.bachAnswered}/77</td><td>${trend(first.bachAnswered,latest.bachAnswered)}</td></tr>
@@ -1897,6 +1653,8 @@ function tnShowTaskComparison(taskId) {
     <h4>7 Category Scores</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Category</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${cats}</tbody></table></div>
     <h4>Remedy-wise Score Comparison</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Remedy</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${remedies}</tbody></table></div>
     <p class="muted small">Score மாற்றம் என்பது மதிப்பெண் வேறுபாடு மட்டுமே; தனியாக மருத்துவ முன்னேற்ற முடிவாகக் கருதக்கூடாது.</p>`;
+  document.getElementById('tnCompareBack').onclick=()=>tnShowVisits(taskId);
+  document.getElementById('tnCompareHome').onclick=()=>{ tnTaskDetailOpen=false; currentAssessmentTaskId=null; currentAssessmentVisitId=null; tnSetAssessmentScreen('list'); const w=document.getElementById('assessmentWorkspace'); if(w)w.style.display='none'; const panel=document.getElementById('assessmentTaskPanel'); if(panel)panel.style.display='block'; tnRenderTasks(); };
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function tnCopyReportText(elementId) {
@@ -1930,16 +1688,16 @@ function tnShowFinalTaskReport(taskId) {
   const visits=(task.visits||[]).filter(v=>v.report).sort((a,b)=>Number(a.number)-Number(b.number));
   if(!visits.length){alert('Completed Assessment Report கிடைக்கவில்லை.');return;}
   const first=visits[0].report, latest=visits[visits.length-1].report;
-  currentAssessmentTaskId = task.id; currentAssessmentTaskName = task.name || ''; currentAssessmentVisitId = null; currentAssessmentNo = null;
-  tnSetAssessmentScreen('task');
   tnUpdatePersistentBreadcrumb('final');
-  host.innerHTML=`
+  host.innerHTML=`<nav class="tn-breadcrumb no-print" aria-label="Breadcrumb"><button type="button" id="tnFinalHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnFinalBack">Task Details</button><span class="sep">›</span><span class="current">Final Task Report</span></nav>
   <div class="actions no-print"><button type="button" class="primary" id="tnPrintFinalTask">Print / Save PDF</button><button type="button" class="primary" id="tnCopyFinalTask">Copy Report / அறிக்கையை நகலெடு</button></div>
   <h2>Final Task Report</h2><h3>${tnEsc(task.name)}</h3><p>Task Period: ${tnEsc(task.taskDate||'—')} – ${tnEsc(task.endDate||'—')} · Status: Completed</p>
   <p>Assessments with reports: ${visits.length}</p><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Measure</th><th>Initial (Assessment ${visits[0].number})</th><th>Final (Assessment ${visits[visits.length-1].number})</th></tr></thead><tbody>
   <tr><td>PSS-10</td><td>${first.pss.score}/40</td><td>${latest.pss.score}/40</td></tr><tr><td>Bach Answered</td><td>${first.bachAnswered}/77</td><td>${latest.bachAnswered}/77</td></tr></tbody></table></div>
   <h3>Assessment Timeline</h3><ol>${visits.map(v=>`<li>Assessment ${v.number} — ${tnEsc(v.report.date||'—')} — PSS-10: ${v.report.pss.score}/40 — Bach answered: ${v.report.bachAnswered}/77</li>`).join('')}</ol>
   <p class="muted small">இந்த அறிக்கை Task-ன் முதல் மற்றும் கடைசி சேமிக்கப்பட்ட Assessment-ஐ ஒப்பிடுகிறது. Score மாற்றங்கள் தனியாக மருத்துவ முடிவை நிரூபிப்பதில்லை.</p>`;
+  document.getElementById('tnFinalBack').onclick=()=>tnShowVisits(taskId);
+  document.getElementById('tnFinalHome').onclick=()=>{tnTaskDetailOpen=false;currentAssessmentTaskId=null;currentAssessmentVisitId=null;tnSetAssessmentScreen('list');const w=document.getElementById('assessmentWorkspace');if(w)w.style.display='none';const panel=document.getElementById('assessmentTaskPanel');if(panel)panel.style.display='block';tnRenderTasks();};
   document.getElementById('tnPrintFinalTask').onclick=()=>window.print();
   document.getElementById('tnCopyFinalTask').onclick=()=>tnCopyReportText('assessmentVisitList');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1953,15 +1711,14 @@ function tnShowVisitReport(taskId, visitId) {
     alert('இந்த Assessment-க்கு Report இன்னும் உருவாக்கப்படவில்லை.');
     return;
   }
-  currentAssessmentTaskId = task.id; currentAssessmentTaskName = task.name || ''; currentAssessmentVisitId = visit.id; currentAssessmentNo = visit.number;
-  tnSetAssessmentScreen('task');
   tnUpdatePersistentBreadcrumb('report');
   host.innerHTML = `
     <div class="actions no-print" style="margin-bottom:12px">
-      
+      <nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnReportCrumbAssessment">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnBackFromReport">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span></nav>
       <button type="button" class="primary" id="tnPrintVisitReport">Print / Save PDF</button><button type="button" class="primary" id="tnCopyVisitReport">Copy Report / அறிக்கையை நகலெடு</button>
     </div>
     <div id="tnSingleVisitReport">${reportHTML(visit.report)}</div>`;
+  document.getElementById('tnBackFromReport').addEventListener('click', () => tnShowVisits(taskId));
   document.getElementById('tnPrintVisitReport').addEventListener('click', () => window.print());
   document.getElementById('tnCopyVisitReport').addEventListener('click', () => tnCopyReportText('tnSingleVisitReport'));
   window.scrollTo({top:0,behavior:'smooth'});
@@ -2048,7 +1805,7 @@ function tnSelectVisit(taskId, visitId) {
       back.id = 'tnVisitBackToTaskBtn';
       back.className = 'tn-breadcrumb';
       back.setAttribute('aria-label', 'Breadcrumb');
-      back.innerHTML = ''; back.style.display = 'none';
+      back.innerHTML = '<button type="button" id="tnCrumbAssessmentHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnCrumbTaskDetails">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span>';
       workspace.insertBefore(back, workspace.firstChild);
       const progressBar = document.createElement('div');
       progressBar.id = 'tnAssessmentProgressBar';
@@ -2062,7 +1819,38 @@ function tnSelectVisit(taskId, visitId) {
         <div id="tnBachAnsweredCount" class="muted" style="font-weight:700;margin:4px 0">0/77 Bach answered</div>`;
       workspace.insertBefore(progressBar, back.nextSibling);
     }
-    // Back navigation is handled by the shared breadcrumb in the sticky app header.
+    // Refresh this handler for every opened visit so it always returns
+    // to the currently selected task, not a previously opened task.
+    document.getElementById('tnCrumbTaskDetails').onclick = () => {
+      tnTaskDetailOpen = true;
+      currentAssessmentTaskId = taskId;
+      const activeTask = tnReadTasks().find(x => x.id === taskId);
+      currentAssessmentTaskName = activeTask ? activeTask.name : '';
+      currentAssessmentNo = null;
+      currentAssessmentVisitId = null;
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'none';
+      tnSetAssessmentScreen('task');
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      tnShowVisits(taskId);
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+    document.getElementById('tnCrumbAssessmentHome').onclick = () => {
+      tnTaskDetailOpen = false;
+      currentAssessmentTaskId = null;
+      currentAssessmentTaskName = '';
+      currentAssessmentNo = null;
+      currentAssessmentVisitId = null;
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'none';
+      tnSetAssessmentScreen('list');
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      tnClearAnswers();
+      tnRenderTasks();
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
   }
   tnShowVisits(taskId);
   tnAutosaveCurrentVisit();
@@ -2175,105 +1963,6 @@ window.addEventListener('load', () => {
   tnSetAssessmentScreen('list');
   tnRenderTasks();
 });
-
-
-/* V123: app-wide back navigation. Android/WebView back and browser back
-   follow the current in-app hierarchy instead of jumping to Home. */
-function tnHandleAppBack() {
-  const assessment = document.getElementById('assessment');
-  const isAssessmentActive = assessment && assessment.classList.contains('active');
-  if (isAssessmentActive) {
-    if (tnCurrentBreadcrumbPage === 'report' && currentAssessmentTaskId && currentAssessmentVisitId) {
-      tnSelectVisit(currentAssessmentTaskId, currentAssessmentVisitId);
-      tnUpdatePersistentBreadcrumb('visit');
-      return true;
-    }
-    if ((tnCurrentBreadcrumbPage === 'compare' || tnCurrentBreadcrumbPage === 'final') && currentAssessmentTaskId) {
-      tnReturnToActiveTaskDetails();
-      tnUpdatePersistentBreadcrumb('task');
-      return true;
-    }
-    if (tnCurrentBreadcrumbPage === 'visit' && currentAssessmentTaskId) {
-      tnReturnToActiveTaskDetails();
-      tnUpdatePersistentBreadcrumb('task');
-      return true;
-    }
-    if (tnCurrentBreadcrumbPage === 'task') {
-      tnShowAssessmentTaskList();
-      return true;
-    }
-  }
-
-  const activeSection = document.querySelector('section.page-section.active');
-  if (activeSection && activeSection.id !== 'home') {
-    showTab('home');
-    return true;
-  }
-  return false;
-}
-window.tnHandleAppBack = tnHandleAppBack;
-
-(function installAppBackNavigation() {
-  if (window.__tnBackNavigationInstalled) return;
-  window.__tnBackNavigationInstalled = true;
-  history.replaceState({tnApp:true, page:'home'}, '', location.href);
-  history.pushState({tnApp:true, page:'root'}, '', location.href);
-  window.addEventListener('popstate', function() {
-    const handled = tnHandleAppBack();
-    if (handled) history.pushState({tnApp:true, page:'root'}, '', location.href);
-  });
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape' || event.key === 'Backspace') {
-      const tag = (event.target && event.target.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || event.target.isContentEditable) return;
-      if (tnHandleAppBack()) event.preventDefault();
-    }
-  });
-})();
-
-
-/* V128: reliable Create Task button handling after client selection/navigation. */
-(function installCreateTaskDelegation() {
-  if (window.__tnCreateTaskDelegationInstalled) return;
-  window.__tnCreateTaskDelegationInstalled = true;
-
-  document.addEventListener('click', function(event) {
-    const trigger = event.target && event.target.closest
-      ? event.target.closest('#showCreateTaskFormBtn') : null;
-    if (!trigger) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const select = document.getElementById('participantSelect');
-    const pid = document.getElementById('pid');
-    if (select && select.value && pid) pid.value = select.value;
-
-    const clientId = (pid && pid.value) || (select && select.value) || '';
-    if (!clientId) {
-      alert('முதலில் Client-ஐத் தேர்வு செய்யவும்.');
-      return;
-    }
-
-    const action = document.getElementById('createTaskAction');
-    const panel = document.getElementById('assessmentTaskFormPanel');
-    if (action) action.style.display = 'block';
-    if (panel) {
-      panel.style.display = 'block';
-      panel.classList.remove('hidden');
-      panel.removeAttribute('hidden');
-    }
-    trigger.style.display = 'none';
-
-    const date = document.getElementById('date');
-    if (date && !date.value) date.value = new Date().toISOString().slice(0, 10);
-    const name = document.getElementById('newAssessmentTaskName');
-    if (name) {
-      name.focus();
-      name.scrollIntoView({behavior:'smooth', block:'center'});
-    }
-  }, true);
-})();
 
 </script>
 
