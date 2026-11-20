@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V128</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V129</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -1188,7 +1188,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (participantSelect) participantSelect.addEventListener('change', () => {
-    const c = readClients().find(x => x.id === participantSelect.value);
+    const selectedValue = String(participantSelect.value || '');
+    const c = readClients().find(x => String(x.id) === selectedValue);
+    tnSelectedClientId = c ? String(c.id) : '';
     if (participantSearch && c) participantSearch.value = c.name;
     if (createTaskAction) createTaskAction.style.display = c ? 'block' : 'none';
     if (assessmentTaskPanel) assessmentTaskPanel.style.display = c ? 'block' : 'none';
@@ -1237,8 +1239,12 @@ document.addEventListener('DOMContentLoaded', () => {
         info.textContent = 'Assessment தொடங்க வாடிக்கையாளரைத் தேர்வு செய்யவும்.';
       }
     }
-    // V62: render the selected client's saved tasks only after pid is populated.
-    if (typeof tnRenderTasks === 'function') tnRenderTasks();
+    // V129: render only after both shared selected-client state and hidden fields are set.
+    if (typeof tnRenderTasks === 'function') {
+      if (assessmentTaskPanel) assessmentTaskPanel.style.display = c ? 'block' : 'none';
+      if (taskListHost) taskListHost.style.display = c ? 'block' : 'none';
+      tnRenderTasks();
+    }
   });
   const cancel = document.getElementById('cancelClientForm');
   const form = document.getElementById('clientForm');
@@ -1452,9 +1458,11 @@ function tnWriteTasks(rows) {
   catch (e) { alert('Task சேமிக்க முடியவில்லை: ' + e.message); return false; }
 }
 function tnEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+let tnSelectedClientId = '';
 function tnCurrentClientId() {
+  if (tnSelectedClientId) return String(tnSelectedClientId);
   const pid = document.getElementById('pid');
-  if (pid && pid.value) return pid.value;
+  if (pid && pid.value) return String(pid.value);
 
   // First fallback: the selected client dropdown is the authoritative source
   // immediately after a client is chosen from the search results.
@@ -1620,6 +1628,12 @@ function tnSetAssessmentScreen(mode) {
   else if (mode === 'visit') tnUpdatePersistentBreadcrumb('visit');
 }
 function tnShowAssessmentTaskList() {
+  const selectedControl = document.getElementById('participantSelect');
+  if (selectedControl && selectedControl.value) {
+    tnSelectedClientId = String(selectedControl.value);
+    const hiddenPid = document.getElementById('pid');
+    if (hiddenPid) hiddenPid.value = tnSelectedClientId;
+  }
   tnTaskDetailOpen = false;
   currentAssessmentTaskId = null;
   currentAssessmentTaskName = '';
