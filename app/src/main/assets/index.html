@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V121</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V123</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -398,7 +398,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #assessment > .page-heading + #tnPersistentBreadcrumb{display:none}
 #assessment.tn-task-detail-mode > #tnPersistentBreadcrumb,#assessment.tn-visit-workspace-mode > #tnPersistentBreadcrumb{display:flex}
 #assessment .tn-breadcrumb:not(#tnPersistentBreadcrumb){display:none!important}
-#assessment.tn-task-detail-mode #assessmentVisitList > .tn-breadcrumb{display:flex!important;}
+#assessment.tn-task-detail-mode #assessmentVisitList > .tn-breadcrumb{display:none!important;}
+#assessment #tnVisitBackToTaskBtn{display:none!important;}
 #tnPersistentBreadcrumb{position:sticky;top:0;z-index:120;margin:0 0 14px;background:#fff}
 .tn-breadcrumb button{background:none;border:0;padding:2px 0;color:var(--primary,#176b4b);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
 .tn-breadcrumb .current{color:var(--text,#172b23);font-weight:800}
@@ -417,7 +418,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #tnPersistentBreadcrumb button{font-size:clamp(12px,3.3vw,14px);}
 #tnPersistentBreadcrumb .current{font-size:clamp(12px,3.3vw,14px);}
 #assessment > .page-heading + #tnPersistentBreadcrumb{display:none!important;}
-#assessment.tn-task-detail-mode > #tnPersistentBreadcrumb{display:none!important;}
+#assessment.tn-task-detail-mode > #tnPersistentBreadcrumb{display:flex!important;}
 #assessment.tn-visit-workspace-mode > #tnPersistentBreadcrumb{display:flex!important;}
 @media(max-width:560px){
   .sticky-shell{padding-top:0;}
@@ -480,6 +481,29 @@ main, .sticky-shell, #assessment, #assessmentWorkspace,
 #tnPersistentBreadcrumb .current {
   font-weight:800;
 }
+
+/* V123: consistent, tappable breadcrumb/back trail across the whole app. */
+#tnPersistentBreadcrumb:not(:empty) {
+  display:flex!important;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  white-space:nowrap;
+  gap:8px;
+}
+#tnPersistentBreadcrumb button {
+  min-height:40px;
+  padding:7px 10px;
+  border-radius:9px;
+  background:#e7eee8;
+  color:#176b4b;
+  font-weight:800;
+  cursor:pointer;
+}
+#tnPersistentBreadcrumb .current {
+  padding:7px 4px;
+  font-weight:900;
+}
+
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -888,6 +912,8 @@ function showTab(tabId) {
 
   if (tabId === 'records') loadRecords();
   if (tabId === 'dashboard') renderDashboard();
+  if (tabId !== 'home' && tabId !== 'assessment') tnUpdatePersistentBreadcrumb('module:' + tabId);
+  if (tabId === 'home') tnUpdatePersistentBreadcrumb('home');
 
   try { location.hash = tabId; } catch (_) {}
   try { window.scrollTo(0, 0); } catch (_) {}
@@ -1457,32 +1483,98 @@ function tnUpdatePersistentBreadcrumb(pageName) {
   tnCurrentBreadcrumbPage = pageName || tnCurrentBreadcrumbPage;
   const nav = document.getElementById('tnPersistentBreadcrumb');
   if (!nav) return;
-  if (tnCurrentBreadcrumbPage === 'list' || tnCurrentBreadcrumbPage === 'task') {
+
+  const page = tnCurrentBreadcrumbPage || 'list';
+  const moduleLabels = {
+    home: 'Home',
+    records: 'Client Records',
+    dashboard: 'Research Dashboard',
+    bachInfo: '38 Bach Flower Remedies'
+  };
+
+  if (page === 'list' || page === 'home') {
     nav.innerHTML = '';
     return;
   }
+
+  if (page.indexOf('module:') === 0) {
+    const moduleId = page.slice(7);
+    const label = moduleLabels[moduleId] || moduleId;
+    nav.innerHTML = '<button type="button" data-tn-back="home">← Home</button><span class="sep">›</span><span class="current">' + label + '</span>';
+    nav.querySelector('[data-tn-back="home"]').onclick = () => showTab('home');
+    return;
+  }
+
+  const taskId = currentAssessmentTaskId;
+  const visitId = currentAssessmentVisitId;
+  const task = taskId ? tnReadTasks().find(x => x.id === taskId) : null;
+  const visit = task && visitId ? (task.visits || []).find(x => x.id === visitId) : null;
+
   const labels = {
+    task: 'Task Details',
     visit: 'Task Assessment',
-    report: 'Assessment Report',
+    report: 'Report',
     compare: 'Task Progress Comparison',
     final: 'Final Task Report'
   };
-  nav.innerHTML =
-    '<button type="button" id="tnPersistentTask" aria-label="Back to Task Details">← Task Details</button>' +
-    '<span class="sep">›</span><span class="current">' +
-    (labels[tnCurrentBreadcrumbPage] || 'Task Assessment') + '</span>';
-  const taskBtn = document.getElementById('tnPersistentTask');
-  if (taskBtn) {
-    taskBtn.onclick = function(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      tnReturnToActiveTaskDetails();
-    };
-  }
-}
+  const currentLabel = labels[page] || 'Task Assessment';
 
+  let parts = '<button type="button" data-tn-back="assessment">Assessment</button>';
+  parts += '<span class="sep">›</span>';
+
+  if (page === 'task') {
+    parts += '<span class="current">Task Details</span>';
+  } else {
+    parts += '<button type="button" data-tn-back="task">Task Details</button>';
+    parts += '<span class="sep">›</span>';
+
+    if (page === 'visit') {
+      parts += '<span class="current">Task Assessment</span>';
+    } else if (page === 'report') {
+      parts += '<button type="button" data-tn-back="visit">Task Assessment</button>';
+      parts += '<span class="sep">›</span><span class="current">Report</span>';
+    } else {
+      parts += '<span class="current">' + currentLabel + '</span>';
+    }
+  }
+
+  nav.innerHTML = parts;
+
+  const assessmentBtn = nav.querySelector('[data-tn-back="assessment"]');
+  if (assessmentBtn) assessmentBtn.onclick = function(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    tnTaskDetailOpen = false;
+    currentAssessmentTaskId = null;
+    currentAssessmentTaskName = '';
+    currentAssessmentNo = null;
+    currentAssessmentVisitId = null;
+    const ws = document.getElementById('assessmentWorkspace');
+    if (ws) ws.style.display = 'none';
+    const panel = document.getElementById('assessmentTaskPanel');
+    if (panel) panel.style.display = 'block';
+    tnSetAssessmentScreen('list');
+    tnClearAnswers();
+    tnRenderTasks();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  const taskBtn = nav.querySelector('[data-tn-back="task"]');
+  if (taskBtn) taskBtn.onclick = function(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    if (!taskId) return;
+    tnReturnToActiveTaskDetails();
+    tnUpdatePersistentBreadcrumb('task');
+  };
+
+  const visitBtn = nav.querySelector('[data-tn-back="visit"]');
+  if (visitBtn) visitBtn.onclick = function(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    if (taskId && visitId) {
+      tnSelectVisit(taskId, visitId);
+      tnUpdatePersistentBreadcrumb('visit');
+    }
+  };
+}
 function tnSetAssessmentScreen(mode) {
   const page = document.getElementById('assessment');
   if (!page) return;
@@ -1611,7 +1703,7 @@ function tnShowVisits(taskId) {
       <div class="muted small" style="margin-top:10px">Assessor: ${tnEsc(t.assessor || '—')} · Language: ${t.language === 'en' ? 'English' : 'தமிழ்'}</div>
       <div class="muted small" style="margin-top:5px">Task End Date: ${tnEsc(t.endDate || '—')}</div>
     </div>
-    <nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnCrumbAssessment">← Flower Remedy Assessment</button></nav>
+    
     <div class="task-actions" style="margin:12px 0;gap:8px">
       ${(visits.filter(v => v.report).length >= 2) ? `<button type="button" class="secondary" id="tnTaskCompareBtn">Task Progress Comparison</button>` : ''}
       ${t.taskStatus === 'completed' && visits.some(v => v.report) ? `<button type="button" class="primary" id="tnFinalTaskReportBtn">Final Task Report</button>` : ''}
@@ -1623,14 +1715,6 @@ function tnShowVisits(taskId) {
     }).join('')}
     ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? `<p class="notice">Task ${t.taskStatus === 'completed' ? 'Completed' : 'Break-up'} · ${tnEsc(t.endDate || '')}</p>` : `<button type="button" class="primary" id="tnAddVisitBtn" style="width:100%">＋ New Assessment / புதிய மதிப்பீடு</button>
 `}`;
-  document.getElementById('tnCrumbAssessment').addEventListener('click', () => {
-    tnTaskDetailOpen = false; currentAssessmentTaskId = null; currentAssessmentTaskName = '';
-    currentAssessmentNo = null; currentAssessmentVisitId = null;
-    tnSetAssessmentScreen('list');
-    const ws = document.getElementById('assessmentWorkspace'); if (ws) ws.style.display = 'none';
-    const taskPanel = document.getElementById('assessmentTaskPanel'); if (taskPanel) taskPanel.style.display = 'block';
-    tnClearAnswers(); tnRenderTasks();
-  });
   const detailEdit = document.getElementById('tnDetailEditTask');
   if (detailEdit) detailEdit.addEventListener('click', () => tnEditTask(taskId));
   const detailDelete = document.getElementById('tnDetailDeleteTask');
@@ -1709,8 +1793,10 @@ function tnShowTaskComparison(taskId) {
     const b=(latest.remedies||[]).find(x=>x.remedy===a.remedy);
     return `<tr><td>${tnEsc(a.remedy)}</td><td>${a.score}</td><td>${b?b.score:'—'}</td><td>${b?tnEsc(trend(a.score,b.score)):'—'}</td></tr>`;
   }).join('');
+  currentAssessmentTaskId = task.id; currentAssessmentTaskName = task.name || ''; currentAssessmentVisitId = null; currentAssessmentNo = null;
+  tnSetAssessmentScreen('task');
   tnUpdatePersistentBreadcrumb('compare');
-  host.innerHTML = `<nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnCompareHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnCompareBack">Task Details</button><span class="sep">›</span><span class="current">Task Progress Comparison</span></nav>
+  host.innerHTML = `
     <h3>Task Progress Comparison</h3><div class="record" style="padding:14px;border-radius:16px;margin-bottom:12px"><strong>${tnEsc(task.name)}</strong><p class="muted small">Initial: Assessment ${completed[0].number} (${tnEsc(first.date||'—')}) · Latest: Assessment ${completed[completed.length-1].number} (${tnEsc(latest.date||'—')})</p>
     <div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Measure</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>
     <tr><td>Bach Answered</td><td>${first.bachAnswered}/77</td><td>${latest.bachAnswered}/77</td><td>${trend(first.bachAnswered,latest.bachAnswered)}</td></tr>
@@ -1719,8 +1805,6 @@ function tnShowTaskComparison(taskId) {
     <h4>7 Category Scores</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Category</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${cats}</tbody></table></div>
     <h4>Remedy-wise Score Comparison</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Remedy</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${remedies}</tbody></table></div>
     <p class="muted small">Score மாற்றம் என்பது மதிப்பெண் வேறுபாடு மட்டுமே; தனியாக மருத்துவ முன்னேற்ற முடிவாகக் கருதக்கூடாது.</p>`;
-  document.getElementById('tnCompareBack').onclick=()=>tnShowVisits(taskId);
-  document.getElementById('tnCompareHome').onclick=()=>{ tnTaskDetailOpen=false; currentAssessmentTaskId=null; currentAssessmentVisitId=null; tnSetAssessmentScreen('list'); const w=document.getElementById('assessmentWorkspace'); if(w)w.style.display='none'; const panel=document.getElementById('assessmentTaskPanel'); if(panel)panel.style.display='block'; tnRenderTasks(); };
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function tnCopyReportText(elementId) {
@@ -1754,16 +1838,16 @@ function tnShowFinalTaskReport(taskId) {
   const visits=(task.visits||[]).filter(v=>v.report).sort((a,b)=>Number(a.number)-Number(b.number));
   if(!visits.length){alert('Completed Assessment Report கிடைக்கவில்லை.');return;}
   const first=visits[0].report, latest=visits[visits.length-1].report;
+  currentAssessmentTaskId = task.id; currentAssessmentTaskName = task.name || ''; currentAssessmentVisitId = null; currentAssessmentNo = null;
+  tnSetAssessmentScreen('task');
   tnUpdatePersistentBreadcrumb('final');
-  host.innerHTML=`<nav class="tn-breadcrumb no-print" aria-label="Breadcrumb"><button type="button" id="tnFinalHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnFinalBack">Task Details</button><span class="sep">›</span><span class="current">Final Task Report</span></nav>
+  host.innerHTML=`
   <div class="actions no-print"><button type="button" class="primary" id="tnPrintFinalTask">Print / Save PDF</button><button type="button" class="primary" id="tnCopyFinalTask">Copy Report / அறிக்கையை நகலெடு</button></div>
   <h2>Final Task Report</h2><h3>${tnEsc(task.name)}</h3><p>Task Period: ${tnEsc(task.taskDate||'—')} – ${tnEsc(task.endDate||'—')} · Status: Completed</p>
   <p>Assessments with reports: ${visits.length}</p><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Measure</th><th>Initial (Assessment ${visits[0].number})</th><th>Final (Assessment ${visits[visits.length-1].number})</th></tr></thead><tbody>
   <tr><td>PSS-10</td><td>${first.pss.score}/40</td><td>${latest.pss.score}/40</td></tr><tr><td>Bach Answered</td><td>${first.bachAnswered}/77</td><td>${latest.bachAnswered}/77</td></tr></tbody></table></div>
   <h3>Assessment Timeline</h3><ol>${visits.map(v=>`<li>Assessment ${v.number} — ${tnEsc(v.report.date||'—')} — PSS-10: ${v.report.pss.score}/40 — Bach answered: ${v.report.bachAnswered}/77</li>`).join('')}</ol>
   <p class="muted small">இந்த அறிக்கை Task-ன் முதல் மற்றும் கடைசி சேமிக்கப்பட்ட Assessment-ஐ ஒப்பிடுகிறது. Score மாற்றங்கள் தனியாக மருத்துவ முடிவை நிரூபிப்பதில்லை.</p>`;
-  document.getElementById('tnFinalBack').onclick=()=>tnShowVisits(taskId);
-  document.getElementById('tnFinalHome').onclick=()=>{tnTaskDetailOpen=false;currentAssessmentTaskId=null;currentAssessmentVisitId=null;tnSetAssessmentScreen('list');const w=document.getElementById('assessmentWorkspace');if(w)w.style.display='none';const panel=document.getElementById('assessmentTaskPanel');if(panel)panel.style.display='block';tnRenderTasks();};
   document.getElementById('tnPrintFinalTask').onclick=()=>window.print();
   document.getElementById('tnCopyFinalTask').onclick=()=>tnCopyReportText('assessmentVisitList');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1777,14 +1861,15 @@ function tnShowVisitReport(taskId, visitId) {
     alert('இந்த Assessment-க்கு Report இன்னும் உருவாக்கப்படவில்லை.');
     return;
   }
+  currentAssessmentTaskId = task.id; currentAssessmentTaskName = task.name || ''; currentAssessmentVisitId = visit.id; currentAssessmentNo = visit.number;
+  tnSetAssessmentScreen('task');
   tnUpdatePersistentBreadcrumb('report');
   host.innerHTML = `
     <div class="actions no-print" style="margin-bottom:12px">
-      <nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnReportCrumbAssessment">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnBackFromReport">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span></nav>
+      
       <button type="button" class="primary" id="tnPrintVisitReport">Print / Save PDF</button><button type="button" class="primary" id="tnCopyVisitReport">Copy Report / அறிக்கையை நகலெடு</button>
     </div>
     <div id="tnSingleVisitReport">${reportHTML(visit.report)}</div>`;
-  document.getElementById('tnBackFromReport').addEventListener('click', () => tnShowVisits(taskId));
   document.getElementById('tnPrintVisitReport').addEventListener('click', () => window.print());
   document.getElementById('tnCopyVisitReport').addEventListener('click', () => tnCopyReportText('tnSingleVisitReport'));
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1871,7 +1956,7 @@ function tnSelectVisit(taskId, visitId) {
       back.id = 'tnVisitBackToTaskBtn';
       back.className = 'tn-breadcrumb';
       back.setAttribute('aria-label', 'Breadcrumb');
-      back.innerHTML = '<button type="button" id="tnCrumbAssessmentHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnCrumbTaskDetails">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span>';
+      back.innerHTML = ''; back.style.display = 'none';
       workspace.insertBefore(back, workspace.firstChild);
       const progressBar = document.createElement('div');
       progressBar.id = 'tnAssessmentProgressBar';
@@ -1885,40 +1970,7 @@ function tnSelectVisit(taskId, visitId) {
         <div id="tnBachAnsweredCount" class="muted" style="font-weight:700;margin:4px 0">0/77 Bach answered</div>`;
       workspace.insertBefore(progressBar, back.nextSibling);
     }
-    // Refresh this handler for every opened visit so it always returns
-    // to the currently selected task, not a previously opened task.
-    document.getElementById('tnCrumbTaskDetails').onclick = () => {
-      const activeTaskId = currentAssessmentTaskId || taskId;
-      const activeTask = tnReadTasks().find(x => x.id === activeTaskId);
-      if (!activeTask) return;
-      tnTaskDetailOpen = true;
-      currentAssessmentTaskId = activeTaskId;
-      currentAssessmentTaskName = activeTask.name || '';
-      currentAssessmentNo = null;
-      currentAssessmentVisitId = null;
-      const ws = document.getElementById('assessmentWorkspace');
-      if (ws) ws.style.display = 'none';
-      const panel = document.getElementById('assessmentTaskPanel');
-      if (panel) panel.style.display = 'block';
-      tnSetAssessmentScreen('task');
-      tnShowVisits(activeTaskId);
-      window.scrollTo({top:0,behavior:'smooth'});
-    };
-    document.getElementById('tnCrumbAssessmentHome').onclick = () => {
-      tnTaskDetailOpen = false;
-      currentAssessmentTaskId = null;
-      currentAssessmentTaskName = '';
-      currentAssessmentNo = null;
-      currentAssessmentVisitId = null;
-      const ws = document.getElementById('assessmentWorkspace');
-      if (ws) ws.style.display = 'none';
-      tnSetAssessmentScreen('list');
-      const panel = document.getElementById('assessmentTaskPanel');
-      if (panel) panel.style.display = 'block';
-      tnClearAnswers();
-      tnRenderTasks();
-      window.scrollTo({top:0,behavior:'smooth'});
-    };
+    // Back navigation is handled by the shared breadcrumb in the sticky app header.
   }
   tnShowVisits(taskId);
   tnAutosaveCurrentVisit();
@@ -2031,6 +2083,72 @@ window.addEventListener('load', () => {
   tnSetAssessmentScreen('list');
   tnRenderTasks();
 });
+
+
+/* V123: app-wide back navigation. Android/WebView back and browser back
+   follow the current in-app hierarchy instead of jumping to Home. */
+function tnHandleAppBack() {
+  const assessment = document.getElementById('assessment');
+  const isAssessmentActive = assessment && assessment.classList.contains('active');
+  if (isAssessmentActive) {
+    if (tnCurrentBreadcrumbPage === 'report' && currentAssessmentTaskId && currentAssessmentVisitId) {
+      tnSelectVisit(currentAssessmentTaskId, currentAssessmentVisitId);
+      tnUpdatePersistentBreadcrumb('visit');
+      return true;
+    }
+    if ((tnCurrentBreadcrumbPage === 'compare' || tnCurrentBreadcrumbPage === 'final') && currentAssessmentTaskId) {
+      tnReturnToActiveTaskDetails();
+      tnUpdatePersistentBreadcrumb('task');
+      return true;
+    }
+    if (tnCurrentBreadcrumbPage === 'visit' && currentAssessmentTaskId) {
+      tnReturnToActiveTaskDetails();
+      tnUpdatePersistentBreadcrumb('task');
+      return true;
+    }
+    if (tnCurrentBreadcrumbPage === 'task') {
+      tnTaskDetailOpen = false;
+      currentAssessmentTaskId = null;
+      currentAssessmentTaskName = '';
+      currentAssessmentNo = null;
+      currentAssessmentVisitId = null;
+      const ws = document.getElementById('assessmentWorkspace');
+      if (ws) ws.style.display = 'none';
+      const panel = document.getElementById('assessmentTaskPanel');
+      if (panel) panel.style.display = 'block';
+      tnSetAssessmentScreen('list');
+      tnRenderTasks();
+      window.scrollTo({top:0,behavior:'smooth'});
+      return true;
+    }
+  }
+
+  const activeSection = document.querySelector('section.page-section.active');
+  if (activeSection && activeSection.id !== 'home') {
+    showTab('home');
+    return true;
+  }
+  return false;
+}
+window.tnHandleAppBack = tnHandleAppBack;
+
+(function installAppBackNavigation() {
+  if (window.__tnBackNavigationInstalled) return;
+  window.__tnBackNavigationInstalled = true;
+  history.replaceState({tnApp:true, page:'home'}, '', location.href);
+  history.pushState({tnApp:true, page:'root'}, '', location.href);
+  window.addEventListener('popstate', function() {
+    const handled = tnHandleAppBack();
+    if (handled) history.pushState({tnApp:true, page:'root'}, '', location.href);
+  });
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' || event.key === 'Backspace') {
+      const tag = (event.target && event.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || event.target.isContentEditable) return;
+      if (tnHandleAppBack()) event.preventDefault();
+    }
+  });
+})();
 
 </script>
 
