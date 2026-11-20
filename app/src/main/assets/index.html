@@ -697,7 +697,7 @@ function reportHTML(r) {
   const top = r.top3.length ? r.top3.map((x,i)=>`<tr><td>${i+1}</td><td>${escv(x.remedy)}</td><td>${x.score}/${x.maxScore}</td><td>${x.percentage}%</td></tr>`).join('') : '<tr><td colspan="4">No answered Bach remedy questions</td></tr>';
   const cats = Object.values(r.categoryScores).sort((a,b)=>b.score-a.score || b.answered-a.answered).map(c=>`<tr><td>${escv(c.name)} · ${escv(c.tamil)}</td><td>${c.score}/${c.maxScore}</td><td>${c.answered}/${c.questionCount}</td></tr>`).join('');
   const rem = r.remedies.filter(x=>x.answered>0).sort((a,b)=>b.score-a.score).map(x=>`<tr><td>${escv(x.remedy)}</td><td>${escv(x.category)}</td><td>${x.score}/${x.maxScore}</td><td>${x.answered}/${x.questionCount}</td><td>${x.percentage}%</td></tr>`).join('');
-  return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p><strong>Task Name:</strong> ${escv(taskName)}</p><h3>${assessmentLabel}</h3><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(reportDate)}</p><p>Assessment Status: ${escv(r.status||'Completed')}</p><p>PSS = ${r.pss.answered}/10 Responses · Bach = ${r.bachAnswered}/77 Responses</p></div>
+  return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p><strong>Task Name:</strong> ${escv(taskName)}</p><p><strong>Assessor Name:</strong> ${escv(r.assessor||'—')}</p><h3>${assessmentLabel}</h3><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(reportDate)}</p><p>Assessment Status: ${escv(r.status||'Completed')}</p><p>PSS = ${r.pss.answered}/10 Responses · Bach = ${r.bachAnswered}/77 Responses</p></div>
   <section class="report-section"><h3>1. 7 Emotional Category Scores</h3><table class="scoretable"><thead><tr><th>Category</th><th>Score</th><th>Answered</th></tr></thead><tbody>${cats}</tbody></table></section>
   <section class="report-section"><h3>2. Remedy-wise Scores</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Category</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="5">No answered remedy questions</td></tr>'}</tbody></table></section>
   <section class="report-section"><h3>3. PSS-10 Score (Separate Stress Measure)</h3><p>Score: <strong>${r.pss.score}/40</strong> · Answered: ${r.pss.answered}/10</p><p class="muted small">Items 4, 5, 7 and 8 are reverse-scored. PSS-10 is reported separately from Bach remedy screening.</p></section>
@@ -1811,13 +1811,18 @@ function tnShowVisitReport(taskId, visitId) {
   }
   tnUpdatePersistentBreadcrumb('report');
   host.innerHTML = `
-    <div class="actions no-print" style="margin-bottom:12px">
-      <nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnReportCrumbAssessment">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnBackFromReport">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span></nav>
-      <button type="button" class="primary" id="tnPrintVisitReport">Print / Save PDF</button><button type="button" class="primary" id="tnCopyVisitReport">Copy Report / அறிக்கையை நகலெடு</button>
-    </div>
-    <div id="tnSingleVisitReport">${reportHTML(visit.report)}</div>`;
+    <nav class="tn-breadcrumb no-print" aria-label="Breadcrumb"><button type="button" id="tnReportCrumbAssessment">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnBackFromReport">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span></nav>
+    <div id="tnSingleVisitReport">${reportHTML(visit.report)}</div>
+    <div class="actions no-print" style="margin-top:18px;justify-content:center;flex-wrap:wrap">
+      <button type="button" class="primary" id="tnPrintVisitReport">Print / Save PDF</button>
+      <button type="button" class="primary" id="tnShareVisitPDF">Share PDF</button>
+      <button type="button" class="primary" id="tnCopyVisitReport">Copy Report / அறிக்கையை நகலெடு</button>
+    </div>`;
   document.getElementById('tnBackFromReport').addEventListener('click', () => tnShowVisits(taskId));
+  document.getElementById('tnReportCrumbAssessment').addEventListener('click', () => { tnTaskDetailOpen=false; currentAssessmentTaskId=null; currentAssessmentVisitId=null; tnSetAssessmentScreen('list'); const w=document.getElementById('assessmentWorkspace'); if(w)w.style.display='none'; const panel=document.getElementById('assessmentTaskPanel'); if(panel)panel.style.display='block'; tnRenderTasks(); });
   document.getElementById('tnPrintVisitReport').addEventListener('click', () => window.print());
+  // The browser print dialog is the offline-safe route to create a PDF; users can then share the saved PDF from Android.
+  document.getElementById('tnShareVisitPDF').addEventListener('click', () => window.print());
   document.getElementById('tnCopyVisitReport').addEventListener('click', () => tnCopyReportText('tnSingleVisitReport'));
   window.scrollTo({top:0,behavior:'smooth'});
 }
