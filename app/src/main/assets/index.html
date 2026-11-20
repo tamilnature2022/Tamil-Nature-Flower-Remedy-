@@ -1820,6 +1820,10 @@ function tnSelectVisit(taskId, visitId) {
   if (!t || !v) return;
   currentAssessmentTaskId = t.id; currentAssessmentTaskName = t.name;
   currentAssessmentNo = v.number; currentAssessmentVisitId = v.id;
+  const currentNameEl = document.getElementById('tnCurrentAssessmentTaskName');
+  const currentVisitLabelEl = document.getElementById('tnCurrentAssessmentVisitLabel');
+  if (currentNameEl) currentNameEl.textContent = currentAssessmentTaskName || '—';
+  if (currentVisitLabelEl) currentVisitLabelEl.textContent = 'Assessment ' + v.number;
   const selectedClient = readClients().find(c => c.id === t.clientId);
   const visitClientName = document.getElementById('tnAssessmentClientName');
   const visitClientMobile = document.getElementById('tnAssessmentClientMobile');
@@ -1885,6 +1889,18 @@ function tnSelectVisit(taskId, visitId) {
       back.setAttribute('aria-label', 'Breadcrumb');
       back.innerHTML = '<button type="button" id="tnCrumbAssessmentHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnCrumbTaskDetails">Task Details</button><span class="sep">›</span><span class="current">Task Assessment</span>';
       workspace.insertBefore(back, workspace.firstChild);
+      const assessmentHeading = document.createElement('h2');
+      assessmentHeading.id = 'tnAssessmentSectionHeading';
+      assessmentHeading.textContent = 'Task Assessment';
+      assessmentHeading.style.margin = '14px 0 10px';
+      const currentAssessmentName = document.createElement('div');
+      currentAssessmentName.id = 'tnCurrentAssessmentName';
+      currentAssessmentName.className = 'panel';
+      currentAssessmentName.style.margin = '0 0 14px';
+      currentAssessmentName.style.padding = '14px 16px';
+      currentAssessmentName.innerHTML = '<strong id="tnCurrentAssessmentTaskName" style="display:block;font-size:1.15em"></strong><span id="tnCurrentAssessmentVisitLabel" class="muted small" style="display:block;margin-top:4px"></span>';
+      workspace.insertBefore(assessmentHeading, back.nextSibling);
+      workspace.insertBefore(currentAssessmentName, assessmentHeading.nextSibling);
       const clientCard = document.createElement('section');
       clientCard.id = 'tnAssessmentClientCard';
       clientCard.className = 'panel';
@@ -1904,6 +1920,13 @@ function tnSelectVisit(taskId, visitId) {
         <div style="margin:8px 0 14px"><strong id="tnBachAnsweredCount" style="display:block;color:#176b43;font-size:1.7em">0/77</strong><span>Bach Questions Answered</span></div>
         <div style="margin:8px 0 14px"><strong id="tnPssAnsweredCount" style="display:block;color:#176b43;font-size:1.7em">0/10</strong><span>PSS-10 Answered</span></div>
         <div class="actions" style="margin:10px 0 0"><button type="button" class="secondary" id="allUnanswered">Clear Answers</button></div>`;
+      workspace.insertBefore(progressBar, clientCard.nextSibling);
+      // Keep the assessment page order consistent: breadcrumb, page heading,
+      // current task/assessment name, client details, then progress.
+      workspace.insertBefore(back, workspace.firstChild);
+      workspace.insertBefore(assessmentHeading, back.nextSibling);
+      workspace.insertBefore(currentAssessmentName, assessmentHeading.nextSibling);
+      workspace.insertBefore(clientCard, currentAssessmentName.nextSibling);
       workspace.insertBefore(progressBar, clientCard.nextSibling);
       const clientNameValue = document.getElementById('tnAssessmentClientName');
       const clientMobileValue = document.getElementById('tnAssessmentClientMobile');
