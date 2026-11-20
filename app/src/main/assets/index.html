@@ -1443,6 +1443,7 @@ function tnUpdatePersistentBreadcrumb(pageName) {
   nav.innerHTML = home + (tnCurrentBreadcrumbPage === 'task' ? '<span class="sep">›</span><span class="current">Task Details</span>' : taskCrumb + '<span class="sep">›</span><span class="current">' + (labels[tnCurrentBreadcrumbPage] || 'Task Assessment') + '</span>');
   const homeBtn = document.getElementById('tnPersistentHome');
   if (homeBtn) homeBtn.onclick = () => {
+    tnPersistCurrentVisitBeforeNavigation();
     tnTaskDetailOpen=false; currentAssessmentTaskId=null; currentAssessmentTaskName=''; currentAssessmentNo=null; currentAssessmentVisitId=null;
     tnSetAssessmentScreen('list');
     const ws=document.getElementById('assessmentWorkspace'); if(ws) ws.style.display='none';
@@ -1450,11 +1451,32 @@ function tnUpdatePersistentBreadcrumb(pageName) {
     tnClearAnswers(); tnRenderTasks(); window.scrollTo({top:0,behavior:'smooth'});
   };
   const taskBtn = document.getElementById('tnPersistentTask');
-  if (taskBtn) taskBtn.onclick = () => { if (taskId) { tnTaskDetailOpen=true; tnSetAssessmentScreen('task'); tnShowVisits(taskId); window.scrollTo({top:0,behavior:'smooth'}); } };
+  if (taskBtn) taskBtn.onclick = () => { if (taskId) {
+    tnPersistCurrentVisitBeforeNavigation();
+    tnTaskDetailOpen=true; currentAssessmentNo=null; currentAssessmentVisitId=null;
+    tnSetAssessmentScreen('task');
+    const ws=document.getElementById('assessmentWorkspace'); if(ws) ws.style.display='none';
+    const panel=document.getElementById('assessmentTaskPanel'); if(panel) panel.style.display='block';
+    tnShowVisits(taskId); window.scrollTo({top:0,behavior:'smooth'});
+  } };
 }
 let tnAppNavMode = 'list';
 let tnSuppressNavPush = false;
+// Save the currently open visit before moving to Task Details or the main list.
+function tnPersistCurrentVisitBeforeNavigation() {
+  if (tnAppNavMode !== 'visit' || !currentAssessmentTaskId || !currentAssessmentVisitId) return;
+  const rows = tnReadTasks();
+  const task = rows.find(x => x.id === currentAssessmentTaskId);
+  const visit = task && (task.visits || []).find(x => x.id === currentAssessmentVisitId);
+  if (!visit) return;
+  visit.answers = getAnswers();
+  visit.pssAnswers = getPssAnswers();
+  visit.startedAt = assessmentStartedAt || visit.startedAt || new Date().toISOString();
+  visit.status = visit.status === 'completed' ? 'completed' : 'in_progress';
+  tnWriteTasks(rows);
+}
 function tnSetAssessmentScreen(mode) {
+  if (mode !== 'visit') tnPersistCurrentVisitBeforeNavigation();
   const page = document.getElementById('assessment');
   if (!page) return;
   page.classList.toggle('tn-task-detail-mode', mode === 'task');
@@ -1525,7 +1547,9 @@ function tnRestoreAssessmentNavigation(state) {
   }
 }
 window.addEventListener('popstate', event => {
-  // Only consume Back for our internal Task/Assessment navigation.
+  // Persist the open questionnaire before Android/browser Back restores the prior page.
+  tnPersistCurrentVisitBeforeNavigation();
+  // Back from Task Assessment returns to Task Details; another Back returns to the main assessment list.
   if (tnAppNavMode !== 'list' || (event.state && event.state.tnAppNavigation)) {
     tnRestoreAssessmentNavigation(event.state);
   }
@@ -1937,6 +1961,7 @@ function tnSelectVisit(taskId, visitId) {
     // Refresh this handler for every opened visit so it always returns
     // to the currently selected task, not a previously opened task.
     document.getElementById('tnCrumbTaskDetails').onclick = () => {
+      tnPersistCurrentVisitBeforeNavigation();
       tnTaskDetailOpen = true;
       currentAssessmentTaskId = taskId;
       const activeTask = tnReadTasks().find(x => x.id === taskId);
@@ -1952,6 +1977,7 @@ function tnSelectVisit(taskId, visitId) {
       window.scrollTo({top:0,behavior:'smooth'});
     };
     document.getElementById('tnCrumbAssessmentHome').onclick = () => {
+      tnPersistCurrentVisitBeforeNavigation();
       tnTaskDetailOpen = false;
       currentAssessmentTaskId = null;
       currentAssessmentTaskName = '';
@@ -1967,6 +1993,13 @@ function tnSelectVisit(taskId, visitId) {
       window.scrollTo({top:0,behavior:'smooth'});
     };
   }
+  // Populate the current task and visit name after the assessment header
+  // has been created. On first open, the earlier update runs before the
+  // header exists, which previously left this card blank.
+  const taskNameDisplay = document.getElementById('tnCurrentAssessmentTaskName');
+  const visitLabelDisplay = document.getElementById('tnCurrentAssessmentVisitLabel');
+  if (taskNameDisplay) taskNameDisplay.textContent = currentAssessmentTaskName || task.name || '—';
+  if (visitLabelDisplay) visitLabelDisplay.textContent = 'Assessment ' + (v.number || currentAssessmentNo || 1);
   tnShowVisits(taskId);
   tnAutosaveCurrentVisit();
   window.scrollTo({top:0,behavior:'smooth'});
