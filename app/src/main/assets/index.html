@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V127</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V128</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -2215,6 +2215,50 @@ window.tnHandleAppBack = tnHandleAppBack;
       if (tnHandleAppBack()) event.preventDefault();
     }
   });
+})();
+
+
+/* V128: reliable Create Task button handling after client selection/navigation. */
+(function installCreateTaskDelegation() {
+  if (window.__tnCreateTaskDelegationInstalled) return;
+  window.__tnCreateTaskDelegationInstalled = true;
+
+  document.addEventListener('click', function(event) {
+    const trigger = event.target && event.target.closest
+      ? event.target.closest('#showCreateTaskFormBtn') : null;
+    if (!trigger) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const select = document.getElementById('participantSelect');
+    const pid = document.getElementById('pid');
+    if (select && select.value && pid) pid.value = select.value;
+
+    const clientId = (pid && pid.value) || (select && select.value) || '';
+    if (!clientId) {
+      alert('முதலில் Client-ஐத் தேர்வு செய்யவும்.');
+      return;
+    }
+
+    const action = document.getElementById('createTaskAction');
+    const panel = document.getElementById('assessmentTaskFormPanel');
+    if (action) action.style.display = 'block';
+    if (panel) {
+      panel.style.display = 'block';
+      panel.classList.remove('hidden');
+      panel.removeAttribute('hidden');
+    }
+    trigger.style.display = 'none';
+
+    const date = document.getElementById('date');
+    if (date && !date.value) date.value = new Date().toISOString().slice(0, 10);
+    const name = document.getElementById('newAssessmentTaskName');
+    if (name) {
+      name.focus();
+      name.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }, true);
 })();
 
 </script>
