@@ -22,7 +22,6 @@
 
         </activity>
 
-        <!-- PDF File Provider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.tamilnature.shanmugavel.fileprovider"
@@ -36,5 +35,4 @@
         </provider>
 
     </application>
-
 </manifest>
