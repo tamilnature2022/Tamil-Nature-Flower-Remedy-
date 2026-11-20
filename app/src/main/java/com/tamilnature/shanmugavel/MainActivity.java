@@ -3,8 +3,6 @@ package com.tamilnature.shanmugavel;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,15 +12,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.JavascriptInterface;
 import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.pdf.PdfDocument;
 import android.util.Base64;
 import android.content.Intent;
 import android.net.Uri;
 import android.content.ClipData;
 import android.widget.Toast;
-import android.print.PrintAttributes;
-import android.print.PrintDocumentAdapter;
-import android.print.PrintDocumentInfo;
-import android.print.PageRange;
 
 import androidx.core.content.FileProvider;
 
@@ -39,22 +35,29 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
+        );
+
         window.setStatusBarColor(Color.rgb(36, 75, 56));
         window.setNavigationBarColor(Color.rgb(24, 60, 44));
 
         View decorView = window.getDecorView();
         int flags = decorView.getSystemUiVisibility();
+
         flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
         flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
         flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+
         decorView.setSystemUiVisibility(flags);
 
         webView = new WebView(this);
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
+
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
@@ -71,25 +74,40 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/index.html");
     }
 
+    // ANDROID SHARE BRIDGE
     public class AndroidShareBridge {
 
         @JavascriptInterface
         public void sharePdf(String base64Pdf, String fileName) {
+
             try {
                 String cleanBase64 = stripDataPrefix(base64Pdf);
-                byte[] pdfBytes = Base64.decode(cleanBase64, Base64.DEFAULT);
+
+                byte[] pdfBytes = Base64.decode(
+                    cleanBase64,
+                    Base64.DEFAULT
+                );
+
                 File pdfFile = writePdfFile(pdfBytes, fileName);
+
                 runOnUiThread(() -> sharePdfFile(pdfFile));
+
             } catch (Exception e) {
                 showShareError(e);
             }
         }
 
         @JavascriptInterface
-        public void shareHtmlAsPdf(String base64Html, String fileName) {
+        public void shareHtmlAsPdf(
+            String base64Html,
+            String fileName
+        ) {
+
             try {
+                String cleanBase64 = stripDataPrefix(base64Html);
+
                 byte[] htmlBytes = Base64.decode(
-                    stripDataPrefix(base64Html),
+                    cleanBase64,
                     Base64.DEFAULT
                 );
 
@@ -109,16 +127,24 @@ public class MainActivity extends Activity {
     }
 
     private String stripDataPrefix(String value) {
+
         if (value == null) {
             throw new IllegalArgumentException("Empty content");
         }
 
         int comma = value.indexOf(',');
-        return comma >= 0 ? value.substring(comma + 1) : value;
+
+        return comma >= 0
+            ? value.substring(comma + 1)
+            : value;
     }
 
     private File getReportFolder() throws IOException {
-        File folder = new File(getCacheDir(), "shared_reports");
+
+        File folder = new File(
+            getCacheDir(),
+            "shared_reports"
+        );
 
         if (!folder.exists() && !folder.mkdirs()) {
             throw new IOException("Could not create report folder");
@@ -128,8 +154,11 @@ public class MainActivity extends Activity {
     }
 
     private String safePdfName(String fileName) {
+
         String safeName = (
-            fileName == null ? "TamilNature_Report.pdf" : fileName
+            fileName == null
+                ? "TamilNature_Report.pdf"
+                : fileName
         ).replaceAll("[^a-zA-Z0-9._-]", "_");
 
         if (!safeName.toLowerCase().endsWith(".pdf")) {
@@ -139,15 +168,19 @@ public class MainActivity extends Activity {
         return safeName;
     }
 
-    private File writePdfFile(byte[] bytes, String fileName)
-            throws IOException {
+    private File writePdfFile(
+        byte[] bytes,
+        String fileName
+    ) throws IOException {
 
         File pdfFile = new File(
             getReportFolder(),
             safePdfName(fileName)
         );
 
-        try (FileOutputStream output = new FileOutputStream(pdfFile)) {
+        try (FileOutputStream output =
+            new FileOutputStream(pdfFile)) {
+
             output.write(bytes);
             output.flush();
         }
@@ -155,21 +188,34 @@ public class MainActivity extends Activity {
         return pdfFile;
     }
 
+    // HTML TO PDF
     private void renderHtmlToPdfAndShare(
-            String html,
-            String fileName) {
+        String html,
+        String fileName
+    ) {
 
-        final WebView pdfWebView = new WebView(this);
+        WebView pdfWebView = new WebView(this);
 
         WebSettings settings = pdfWebView.getSettings();
+
         settings.setJavaScriptEnabled(false);
         settings.setDomStorageEnabled(false);
+        settings.setAllowFileAccess(true);
 
         pdfWebView.setWebViewClient(new WebViewClient() {
+
             @Override
-            public void onPageFinished(WebView view, String url) {
+            public void onPageFinished(
+                WebView view,
+                String url
+            ) {
+
                 view.post(() ->
-                    writeWebViewPdf(view, fileName, pdfWebView)
+                    writeWebViewPdf(
+                        view,
+                        fileName,
+                        pdfWebView
+                    )
                 );
             }
         });
@@ -183,154 +229,137 @@ public class MainActivity extends Activity {
         );
     }
 
+    // PDF CREATION
     private void writeWebViewPdf(
-            WebView source,
-            String fileName,
-            WebView temporaryWebView) {
+        WebView source,
+        String fileName,
+        WebView temporaryWebView
+    ) {
+
+        PdfDocument pdfDocument = new PdfDocument();
 
         try {
-            PrintDocumentAdapter adapter =
-                source.createPrintDocumentAdapter(
-                    safePdfName(fileName)
-                );
 
-            PrintAttributes attributes =
-                new PrintAttributes.Builder()
-                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                    .setResolution(
-                        new PrintAttributes.Resolution(
-                            "tn_pdf",
-                            "TamilNature PDF",
-                            300,
-                            300
-                        )
-                    )
-                    .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
-                    .build();
+            int width = getResources()
+                .getDisplayMetrics().widthPixels;
 
-            adapter.onLayout(
-                null,
-                attributes,
-                new CancellationSignal(),
-
-                new PrintDocumentAdapter.LayoutResultCallback() {
-
-                    @Override
-                    public void onLayoutFinished(
-                            PrintDocumentInfo info,
-                            boolean changed) {
-
-                        ParcelFileDescriptor descriptor = null;
-
-                        try {
-                            File outputFile = new File(
-                                getReportFolder(),
-                                safePdfName(fileName)
-                            );
-
-                            descriptor = ParcelFileDescriptor.open(
-                                outputFile,
-                                ParcelFileDescriptor.MODE_CREATE |
-                                ParcelFileDescriptor.MODE_TRUNCATE |
-                                ParcelFileDescriptor.MODE_WRITE_ONLY
-                            );
-
-                            ParcelFileDescriptor finalDescriptor =
-                                descriptor;
-
-                            adapter.onWrite(
-                                new PageRange[]{PageRange.ALL_PAGES},
-                                finalDescriptor,
-                                new CancellationSignal(),
-
-                                new PrintDocumentAdapter.WriteResultCallback() {
-
-                                    @Override
-                                    public void onWriteFinished(
-                                            PageRange[] pages) {
-
-                                        closeQuietly(finalDescriptor);
-
-                                        temporaryWebView.post(() -> {
-                                            sharePdfFile(outputFile);
-                                            temporaryWebView.destroy();
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onWriteFailed(
-                                            CharSequence error) {
-
-                                        closeQuietly(finalDescriptor);
-
-                                        temporaryWebView.post(() -> {
-                                            showToast(
-                                                "PDF உருவாக்க முடியவில்லை: "
-                                                + error
-                                            );
-
-                                            temporaryWebView.destroy();
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onWriteCancelled() {
-                                        closeQuietly(finalDescriptor);
-                                        temporaryWebView.post(
-                                            temporaryWebView::destroy
-                                        );
-                                    }
-                                }
-                            );
-
-                        } catch (Exception e) {
-                            closeQuietly(descriptor);
-
-                            temporaryWebView.post(() -> {
-                                showShareError(e);
-                                temporaryWebView.destroy();
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onLayoutFailed(CharSequence error) {
-                        temporaryWebView.post(() -> {
-                            showToast(
-                                "PDF layout தோல்வி: " + error
-                            );
-
-                            temporaryWebView.destroy();
-                        });
-                    }
-                },
-                null
+            int pageHeight = Math.round(
+                width * 842f / 595f
             );
 
-        } catch (Exception e) {
-            showShareError(e);
-            temporaryWebView.destroy();
-        }
-    }
+            source.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    width,
+                    View.MeasureSpec.EXACTLY
+                ),
+                View.MeasureSpec.makeMeasureSpec(
+                    pageHeight,
+                    View.MeasureSpec.EXACTLY
+                )
+            );
 
-    private void closeQuietly(ParcelFileDescriptor descriptor) {
-        if (descriptor != null) {
-            try {
-                descriptor.close();
-            } catch (IOException ignored) {
+            source.layout(
+                0,
+                0,
+                width,
+                pageHeight
+            );
+
+            int contentHeight = (int) (
+                source.getContentHeight()
+                * getResources()
+                    .getDisplayMetrics().density
+            );
+
+            int totalPages = Math.max(
+                1,
+                (int) Math.ceil(
+                    (double) contentHeight / pageHeight
+                )
+            );
+
+            for (int i = 0; i < totalPages; i++) {
+
+                PdfDocument.PageInfo pageInfo =
+                    new PdfDocument.PageInfo.Builder(
+                        595,
+                        842,
+                        i + 1
+                    ).create();
+
+                PdfDocument.Page page =
+                    pdfDocument.startPage(pageInfo);
+
+                source.scrollTo(
+                    0,
+                    i * pageHeight
+                );
+
+                Canvas canvas = page.getCanvas();
+
+                canvas.save();
+
+                canvas.scale(
+                    595f / width,
+                    595f / width
+                );
+
+                source.draw(canvas);
+
+                canvas.restore();
+
+                pdfDocument.finishPage(page);
             }
+
+            File outputFile = new File(
+                getReportFolder(),
+                safePdfName(fileName)
+            );
+
+            try (FileOutputStream output =
+                new FileOutputStream(outputFile)) {
+
+                pdfDocument.writeTo(output);
+                output.flush();
+            }
+
+            pdfDocument.close();
+
+            temporaryWebView.post(() -> {
+
+                sharePdfFile(outputFile);
+
+                temporaryWebView.destroy();
+            });
+
+        } catch (Exception e) {
+
+            pdfDocument.close();
+
+            temporaryWebView.post(() -> {
+
+                showShareError(e);
+
+                temporaryWebView.destroy();
+            });
         }
     }
 
+    // SHARE PDF
     private void sharePdfFile(File pdfFile) {
+
         try {
+
             Uri contentUri = FileProvider.getUriForFile(
                 MainActivity.this,
                 getPackageName() + ".fileprovider",
                 pdfFile
             );
 
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            Intent shareIntent = new Intent(
+                Intent.ACTION_SEND
+            );
+
             shareIntent.setType("application/pdf");
 
             shareIntent.putExtra(
@@ -363,6 +392,7 @@ public class MainActivity extends Activity {
     }
 
     private void showShareError(Exception error) {
+
         runOnUiThread(() ->
             showToast(
                 "PDF Share Failed: " + error.getMessage()
@@ -371,6 +401,7 @@ public class MainActivity extends Activity {
     }
 
     private void showToast(String message) {
+
         Toast.makeText(
             MainActivity.this,
             message,
@@ -380,6 +411,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         } else {
