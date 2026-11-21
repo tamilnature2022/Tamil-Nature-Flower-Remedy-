@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V146</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V149</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -424,6 +424,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   #tnPersistentBreadcrumb{padding:8px 10px 10px;border-radius:0 0 12px 12px;}
 }
 
+/* V149: Android mobile-screen-only compact Remedy-wise Scores.
+   Screen media is intentional: Share PDF/print output keeps its original columns. */
+@media screen and (max-width:560px){
+  #reportContent .report-section{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-left:0;padding-right:0;}
+  #reportContent .report-section .scoretable{width:100%;min-width:100%;table-layout:fixed;font-size:0.78rem;}
+  #reportContent .report-section .scoretable th,
+  #reportContent .report-section .scoretable td{padding:7px 5px;overflow-wrap:anywhere;word-break:normal;}
+  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(2),
+  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(2){display:none;}
+  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(1),
+  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(1){width:48%;}
+  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(3),
+  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(3){width:18%;white-space:nowrap;}
+  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(4),
+  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(4){width:18%;white-space:nowrap;}
+  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(5),
+  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(5){width:16%;white-space:nowrap;}
+  #reportContent .report-section h3{font-size:1rem;margin-bottom:10px;}
+}
 
 
 /* V130: prevent the document/assessment viewport from drifting sideways on mobile.
