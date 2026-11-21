@@ -1830,8 +1830,23 @@ function tnShareElementAsPdf(elementId, fileName) {
       const participantLine = headParagraphs.find(node =>
         /Participant\s*ID\s*:/i.test(node.textContent || '')
       );
-      const cleanClone = top7Section.cloneNode(true);
-      cleanClone.querySelectorAll('.no-print,button').forEach(node => node.remove());
+      const sourceRows = Array.from(top7Section.querySelectorAll('tbody tr'));
+      const top7RowsHtml = sourceRows.map((row, index) => {
+        const cells = Array.from(row.querySelectorAll('td')).map(cell => (cell.textContent || '').trim());
+        if (cells.length < 3) return '';
+        const remedy = cells[0] || `${index + 1}. —`;
+        const score = cells[1] || '—';
+        const percentage = cells[2] || '—';
+        return `<div class="pdf-remedy-row">
+          <div class="pdf-remedy-name">${remedy}</div>
+          <div class="pdf-remedy-score">${score}</div>
+          <div class="pdf-remedy-percent">${percentage}</div>
+        </div>`;
+      }).join('');
+      if (!top7RowsHtml) {
+        alert('Top 7 Remedy Screening Signals பட்டியல் காலியாக உள்ளது.');
+        return;
+      }
 
       const participantHtml = participantLine
         ? participantLine.outerHTML
@@ -1842,12 +1857,16 @@ function tnShareElementAsPdf(elementId, fileName) {
 
       shareContent = `
         <h2 style="color:#174d3a;margin:0 0 18px">Tamil Nature Flower Remedy Screening Report</h2>
-        <section class="report-section" style="margin-top:0">
+        <section class="report-section pdf-participant" style="margin-top:0">
           <h3>Participant Details</h3>
           ${participantHtml}
           ${assessorHtml}
         </section>
-        ${cleanClone.outerHTML}
+        <section class="pdf-top7">
+          <h3>Top 7 Remedy Screening Signals</h3>
+          <div class="pdf-remedy-head"><div>Remedy</div><div>Score</div><div>Percentage</div></div>
+          ${top7RowsHtml}
+        </section>
       `;
     }
 
@@ -1865,6 +1884,14 @@ function tnShareElementAsPdf(elementId, fileName) {
       tr{height:auto!important;break-inside:avoid!important;page-break-inside:avoid!important}
       td,th{overflow:visible!important;overflow-wrap:normal;word-break:normal;vertical-align:top}
       p,h2,h3{height:auto!important;max-height:none!important;overflow:visible!important}
+      .pdf-participant{margin:0 0 22px!important;padding:0 0 14px!important;border-bottom:2px solid #d8e4dc}
+      .pdf-participant h3,.pdf-top7 h3{font-size:18px;margin:0 0 12px;color:#174d3a}
+      .pdf-top7{display:block!important;height:auto!important;max-height:none!important;overflow:visible!important}
+      .pdf-remedy-head,.pdf-remedy-row{display:grid;grid-template-columns:minmax(0,1fr) 78px 92px;gap:10px;align-items:start}
+      .pdf-remedy-head{font-weight:700;color:#52685d;border-bottom:1px solid #cbd9d0;padding:9px 6px}
+      .pdf-remedy-row{border-bottom:1px solid #d8e4dc;padding:11px 6px;font-size:14px;line-height:1.35;min-height:36px;break-inside:avoid;page-break-inside:avoid}
+      .pdf-remedy-name{overflow-wrap:anywhere}
+      .pdf-remedy-score,.pdf-remedy-percent{white-space:nowrap;text-align:left}
       @page{size:A4;margin:12mm}
     `;
     const html = `<!doctype html><html lang="ta"><head>
