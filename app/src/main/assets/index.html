@@ -1831,7 +1831,7 @@ function tnShareElementAsPdf(elementId, fileName) {
         /Participant\s*ID\s*:/i.test(node.textContent || '')
       );
       const sourceRows = Array.from(top7Section.querySelectorAll('tbody tr'));
-      const top7RowsHtml = sourceRows.map((row, index) => {
+      const top7Rows = sourceRows.map((row, index) => {
         const cells = Array.from(row.querySelectorAll('td')).map(cell => (cell.textContent || '').trim());
         if (cells.length < 3) return '';
         const remedy = cells[0] || `${index + 1}. —`;
@@ -1842,11 +1842,13 @@ function tnShareElementAsPdf(elementId, fileName) {
           <div class="pdf-remedy-score">${score}</div>
           <div class="pdf-remedy-percent">${percentage}</div>
         </div>`;
-      }).join('');
-      if (!top7RowsHtml) {
-        alert('Top 7 Remedy Screening Signals பட்டியல் காலியாக உள்ளது.');
+      }).filter(Boolean);
+      if (top7Rows.length !== 7) {
+        alert('Top 7 Remedies முழுமையாகக் கிடைக்கவில்லை. கிடைத்தவை: ' + top7Rows.length);
         return;
       }
+      const pageOneRows = top7Rows.slice(0, 4).join('');
+      const pageTwoRows = top7Rows.slice(4).join('');
 
       const participantHtml = participantLine
         ? participantLine.outerHTML
@@ -1856,16 +1858,23 @@ function tnShareElementAsPdf(elementId, fileName) {
         : '<p><strong>Assessor Name:</strong> —</p>';
 
       shareContent = `
-        <h2 style="color:#174d3a;margin:0 0 18px">Tamil Nature Flower Remedy Screening Report</h2>
-        <section class="report-section pdf-participant" style="margin-top:0">
-          <h3>Participant Details</h3>
-          ${participantHtml}
-          ${assessorHtml}
+        <section class="pdf-page pdf-page-one">
+          <h2 style="color:#174d3a;margin:0 0 18px">Tamil Nature Flower Remedy Screening Report</h2>
+          <section class="report-section pdf-participant" style="margin-top:0">
+            <h3>Participant Details</h3>
+            ${participantHtml}
+            ${assessorHtml}
+          </section>
+          <section class="pdf-top7">
+            <h3>Top 7 Remedy Screening Signals</h3>
+            <div class="pdf-remedy-head"><div>Remedy</div><div>Score</div><div>Percentage</div></div>
+            ${pageOneRows}
+          </section>
         </section>
-        <section class="pdf-top7">
-          <h3>Top 7 Remedy Screening Signals</h3>
+        <section class="pdf-page pdf-page-two">
+          <h2 style="color:#174d3a;margin:0 0 18px">Top 7 Remedy Screening Signals – Continued</h2>
           <div class="pdf-remedy-head"><div>Remedy</div><div>Score</div><div>Percentage</div></div>
-          ${top7RowsHtml}
+          ${pageTwoRows}
         </section>
       `;
     }
@@ -1884,6 +1893,9 @@ function tnShareElementAsPdf(elementId, fileName) {
       tr{height:auto!important;break-inside:avoid!important;page-break-inside:avoid!important}
       td,th{overflow:visible!important;overflow-wrap:normal;word-break:normal;vertical-align:top}
       p,h2,h3{height:auto!important;max-height:none!important;overflow:visible!important}
+      .pdf-page{display:block!important;width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important}
+      .pdf-page-one{break-after:page!important;page-break-after:always!important}
+      .pdf-page-two{break-before:page!important;page-break-before:always!important}
       .pdf-participant{margin:0 0 22px!important;padding:0 0 14px!important;border-bottom:2px solid #d8e4dc}
       .pdf-participant h3,.pdf-top7 h3{font-size:18px;margin:0 0 12px;color:#174d3a}
       .pdf-top7{display:block!important;height:auto!important;max-height:none!important;overflow:visible!important}
