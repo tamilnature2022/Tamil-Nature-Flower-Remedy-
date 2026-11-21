@@ -424,23 +424,29 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   #tnPersistentBreadcrumb{padding:8px 10px 10px;border-radius:0 0 12px 12px;}
 }
 
-/* V149: Android mobile-screen-only compact Remedy-wise Scores.
-   Screen media is intentional: Share PDF/print output keeps its original columns. */
+/* V150: Android mobile compact Remedy-wise table.
+   CSS is screen-only; the Share PDF/print markup and output are untouched. */
 @media screen and (max-width:560px){
-  #reportContent .report-section{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-left:0;padding-right:0;}
-  #reportContent .report-section .scoretable{width:100%;min-width:100%;table-layout:fixed;font-size:0.78rem;}
-  #reportContent .report-section .scoretable th,
-  #reportContent .report-section .scoretable td{padding:7px 5px;overflow-wrap:anywhere;word-break:normal;}
-  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(2),
-  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(2){display:none;}
-  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(1),
-  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(1){width:48%;}
-  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(3),
-  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(3){width:18%;white-space:nowrap;}
-  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(4),
-  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(4){width:18%;white-space:nowrap;}
-  #reportContent .report-section .scoretable:not(.category-score-table) th:nth-child(5),
-  #reportContent .report-section .scoretable:not(.category-score-table) td:nth-child(5){width:16%;white-space:nowrap;}
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table){
+    width:100%; min-width:0; table-layout:auto; border-collapse:collapse;
+    font-size:clamp(12px,3.5vw,14px);
+  }
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th,
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td{
+    padding:8px 4px; vertical-align:top; overflow-wrap:normal; word-break:normal;
+  }
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(2),
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(2){
+    display:none !important;
+  }
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(1),
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(1){width:42%;min-width:0;}
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(3),
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(3){width:18%;white-space:nowrap;}
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(4),
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(4){width:22%;white-space:nowrap;}
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(5),
+  #reportContent .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(5){width:18%;white-space:nowrap;}
   #reportContent .report-section h3{font-size:1rem;margin-bottom:10px;}
 }
 
@@ -1835,9 +1841,31 @@ function tnShareElementAsPdf(elementId, fileName) {
   }
   try {
     const styleText = Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\\n');
+    let shareContent = target.innerHTML;
+    // Individual assessment Share PDF: include only the Top 7 Remedy Screening Signals.
+    // The on-screen report and Final Task Report export remain unchanged.
+    if (elementId === 'tnSingleVisitReport') {
+      const sections = Array.from(target.querySelectorAll('section, .report-section, article, div'));
+      const top7Section = sections.find(node => {
+        const heading = node.querySelector('h1,h2,h3,h4');
+        return heading && /Top\\s*7\\s*Remedy\\s*Screening\\s*Signals/i.test(heading.textContent || '');
+      });
+      if (!top7Section) { alert('Top 7 Remedy Screening Signals பகுதி கிடைக்கவில்லை.'); return; }
+      const cleanClone = top7Section.cloneNode(true);
+      cleanClone.querySelectorAll('.no-print,button').forEach(node => node.remove());
+      const reportHead = target.querySelector('.report-head');
+      const headParagraphs = reportHead ? Array.from(reportHead.querySelectorAll('p')) : [];
+      const assessorLine = headParagraphs.find(node => /Assessor\\s*Name\\s*:/i.test(node.textContent || ''));
+      const participantLine = headParagraphs.find(node => /Participant\\s*ID\\s*:/i.test(node.textContent || ''));
+      const participantHtml = participantLine ? participantLine.outerHTML : '<p>Participant ID: — | Name: — | Mobile: — | Date: —</p>';
+      const assessorHtml = assessorLine ? assessorLine.outerHTML : '<p><strong>Assessor Name:</strong> —</p>';
+      shareContent = '<h2 style="color:#174d3a;margin:0 0 18px">Tamil Nature Flower Remedy Screening Report</h2>' +
+        '<section class="report-section" style="margin-top:0"><h3>Participant Details</h3>' + participantHtml + assessorHtml + '</section>' +
+        cleanClone.outerHTML;
+    }
     const html = '<!doctype html><html lang="ta"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + fileName + '</title><style>' + styleText + '\\n' +
       'html,body{background:#fff!important;color:#24352c!important;width:100%;margin:0;padding:0;font-family:Arial,sans-serif}body{font-size:12px}main{max-width:none!important;width:100%!important;margin:0!important;padding:8px!important}.no-print{display:none!important}.panel{box-shadow:none!important;border:0!important;padding:0!important}.report-section{break-inside:avoid;page-break-inside:avoid}table{width:100%;border-collapse:collapse;table-layout:fixed}td,th{overflow-wrap:normal;word-break:normal;vertical-align:top}.category-score-table th:nth-child(1),.category-score-table td:nth-child(1){width:64%}.category-score-table th:nth-child(2),.category-score-table td:nth-child(2){width:18%;white-space:nowrap}.category-score-table th:nth-child(3),.category-score-table td:nth-child(3){width:18%;white-space:nowrap}@page{size:A4;margin:12mm}' +
-      '</style></head><body><main>' + target.innerHTML + '</main></body></html>';
+      '</style></head><body><main>' + shareContent + '</main></body></html>';
     const encoded = btoa(unescape(encodeURIComponent(html)));
     window.AndroidShare.shareHtmlAsPdf(encoded, fileName);
   } catch (error) {
