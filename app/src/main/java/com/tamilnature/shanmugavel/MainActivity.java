@@ -5,60 +5,49 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.JavascriptInterface;
-import android.graphics.Color;
-import android.graphics.Canvas;
+import android.webkit.WebSettings;
 import android.graphics.pdf.PdfDocument;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Color;
 import android.util.Base64;
-import android.content.Intent;
-import android.net.Uri;
-import android.content.ClipData;
-import android.widget.Toast;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
+import android.content.Intent;
+import android.content.ClipData;
+import android.net.Uri;
 
 import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
 
     private WebView webView;
     private FrameLayout rootLayout;
 
-    private Handler handler =
-        new Handler(Looper.getMainLooper());
-
-    private void msg(String message) {
-        handler.post(() ->
-            Toast.makeText(
-                MainActivity.this,
-                message,
-                Toast.LENGTH_LONG
-            ).show()
-        );
-    }
+    private final Handler handler =
+            new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Window window = getWindow();
-
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().setNavigationBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         );
-
-        window.setStatusBarColor(Color.rgb(36, 75, 56));
-        window.setNavigationBarColor(Color.rgb(24, 60, 44));
 
         rootLayout = new FrameLayout(this);
         setContentView(rootLayout);
@@ -66,11 +55,11 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
 
         rootLayout.addView(
-            webView,
-            new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+                webView,
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                )
         );
 
         WebSettings settings = webView.getSettings();
@@ -79,43 +68,37 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(true);
 
         webView.addJavascriptInterface(
-            new AndroidShareBridge(),
-            "AndroidShare"
+                new AndroidShareBridge(),
+                "AndroidShare"
         );
 
         webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
 
-        webView.loadUrl(
-            "file:///android_asset/index.html"
-        );
+        webView.loadUrl("file:///android_asset/index.html");
     }
 
+    // ------------------------------------
     // ANDROID JAVASCRIPT BRIDGE
+    // ------------------------------------
 
-    public class AndroidShareBridge {
+    private class AndroidShareBridge {
 
         @JavascriptInterface
-        public void sharePdf(
-            String base64Pdf,
-            String fileName
-        ) {
+        public void sharePdf(String base64Pdf, String fileName) {
             try {
-                byte[] bytes = Base64.decode(
-                    stripDataPrefix(base64Pdf),
-                    Base64.DEFAULT
-                );
+                String cleanBase64 = stripDataPrefix(base64Pdf);
 
-                File file = writePdfFile(
-                    bytes,
-                    fileName
-                );
+                byte[] pdfBytes =
+                        Base64.decode(cleanBase64, Base64.DEFAULT);
 
-                handler.post(() ->
-                    sharePdfFile(file)
-                );
+                File outputFile = writePdfFile(pdfBytes, fileName);
+
+                handler.post(() -> sharePdfFile(outputFile));
 
             } catch (Exception e) {
                 showError(e);
@@ -123,28 +106,20 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void shareHtmlAsPdf(
-            String base64Html,
-            String fileName
-        ) {
-            msg("1. PDF Share Request Received");
-
+        public void shareHtmlAsPdf(String base64Html, String fileName) {
             try {
-                byte[] htmlBytes = Base64.decode(
-                    stripDataPrefix(base64Html),
-                    Base64.DEFAULT
-                );
+                String cleanBase64 = stripDataPrefix(base64Html);
+
+                byte[] htmlBytes =
+                        Base64.decode(cleanBase64, Base64.DEFAULT);
 
                 String html = new String(
-                    htmlBytes,
-                    java.nio.charset.StandardCharsets.UTF_8
+                        htmlBytes,
+                        StandardCharsets.UTF_8
                 );
 
                 handler.post(() ->
-                    renderHtmlToPdfAndShare(
-                        html,
-                        fileName
-                    )
+                        renderHtmlToPdfAndShare(html, fileName)
                 );
 
             } catch (Exception e) {
@@ -153,334 +128,306 @@ public class MainActivity extends Activity {
         }
     }
 
-    // BASE64
+    // ------------------------------------
+    // REMOVE BASE64 PREFIX
+    // ------------------------------------
 
     private String stripDataPrefix(String value) {
 
         if (value == null) {
-            throw new IllegalArgumentException(
-                "Empty content"
-            );
+            return "";
         }
 
-        int comma = value.indexOf(",");
+        int commaIndex = value.indexOf(",");
 
-        return comma >= 0
-            ? value.substring(comma + 1)
-            : value;
+        if (value.startsWith("data:") && commaIndex >= 0) {
+            return value.substring(commaIndex + 1);
+        }
+
+        return value;
     }
 
-    // REPORT FOLDER
+    // ------------------------------------
+    // PDF FILE LOCATION
+    // ------------------------------------
 
     private File getReportFolder() throws IOException {
 
         File folder = new File(
-            getCacheDir(),
-            "shared_reports"
+                getCacheDir(),
+                "shared_reports"
         );
 
         if (!folder.exists() && !folder.mkdirs()) {
-            throw new IOException(
-                "Cannot create report folder"
-            );
+            throw new IOException("Cannot create PDF folder");
         }
 
         return folder;
     }
 
-    private String safePdfName(String name) {
+    private String safePdfName(String fileName) {
 
-        String safe = (
-            name == null
-                ? "TamilNature_Report.pdf"
-                : name
-        ).replaceAll(
-            "[^a-zA-Z0-9._-]",
-            "_"
-        );
-
-        if (!safe.toLowerCase().endsWith(".pdf")) {
-            safe += ".pdf";
+        if (fileName == null || fileName.trim().isEmpty()) {
+            fileName = "TamilNature_Report.pdf";
         }
 
-        return safe;
-    }
+        fileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
 
-    private File writePdfFile(
-        byte[] bytes,
-        String name
-    ) throws IOException {
-
-        File file = new File(
-            getReportFolder(),
-            safePdfName(name)
-        );
-
-        try (
-            FileOutputStream output =
-                new FileOutputStream(file)
-        ) {
-            output.write(bytes);
-            output.flush();
+        if (!fileName.toLowerCase().endsWith(".pdf")) {
+            fileName += ".pdf";
         }
 
-        return file;
+        return fileName;
     }
 
+    private File writePdfFile(byte[] bytes, String fileName)
+            throws IOException {
+
+        File folder = getReportFolder();
+
+        File outputFile = new File(
+                folder,
+                safePdfName(fileName)
+        );
+
+        try (FileOutputStream outputStream =
+                     new FileOutputStream(outputFile)) {
+
+            outputStream.write(bytes);
+            outputStream.flush();
+        }
+
+        return outputFile;
+    }
+
+    // ------------------------------------
     // HTML TO PDF
+    // ------------------------------------
 
     private void renderHtmlToPdfAndShare(
-        String html,
-        String fileName
+            String html,
+            String fileName
     ) {
 
-        msg("2. PDF HTML Loading...");
+        WebView pdfWebView = new WebView(this);
 
-        WebView pdfWebView = new WebView(
-            MainActivity.this
-        );
-
-        WebSettings settings =
-            pdfWebView.getSettings();
+        WebSettings settings = pdfWebView.getSettings();
 
         settings.setJavaScriptEnabled(false);
         settings.setDomStorageEnabled(false);
         settings.setAllowFileAccess(true);
+        settings.setDefaultTextEncodingName("UTF-8");
 
-        // Attach temporary WebView to the Activity
         FrameLayout.LayoutParams params =
-            new FrameLayout.LayoutParams(
-                1,
-                1
-            );
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                );
 
-        rootLayout.addView(
-            pdfWebView,
-            params
-        );
+        rootLayout.addView(pdfWebView, params);
 
         pdfWebView.setAlpha(0.01f);
 
-        pdfWebView.setWebViewClient(
-            new WebViewClient() {
+        pdfWebView.setWebViewClient(new WebViewClient() {
 
-                @Override
-                public void onPageFinished(
+            @Override
+            public void onPageFinished(
                     WebView view,
                     String url
-                ) {
+            ) {
 
-                    msg("3. PDF HTML Loaded");
+                handler.postDelayed(() -> {
 
-                    // Use Main Thread Handler
-                    handler.postDelayed(() -> {
+                    try {
+                        createPdf(pdfWebView, fileName);
 
-                        msg("4. PDF Creating...");
+                    } catch (Exception e) {
+                        showError(e);
+                        removeTemporaryWebView(pdfWebView);
+                    }
 
-                        createPdf(
-                            pdfWebView,
-                            fileName
-                        );
+                }, 1500);
+            }
 
-                    }, 1500);
-                }
-
-                @Override
-                public void onReceivedError(
+            @Override
+            public void onReceivedError(
                     WebView view,
                     int errorCode,
                     String description,
                     String failingUrl
-                ) {
-                    msg(
-                        "HTML Error: " + description
-                    );
-
-                    removeTemporaryWebView(
-                        pdfWebView
-                    );
-                }
+            ) {
+                showError(new Exception(description));
+                removeTemporaryWebView(pdfWebView);
             }
-        );
+        });
 
         pdfWebView.loadDataWithBaseURL(
-            "file:///android_asset/",
-            html,
-            "text/html",
-            "UTF-8",
-            null
+                "file:///android_asset/",
+                html,
+                "text/html",
+                "UTF-8",
+                null
         );
     }
 
-    // CREATE PDF
+    // ------------------------------------
+    // CREATE PDF DOCUMENT
+    // ------------------------------------
 
     private void createPdf(
-        WebView source,
-        String fileName
-    ) {
+            WebView source,
+            String fileName
+    ) throws Exception {
 
-        PdfDocument document =
-            new PdfDocument();
+        PdfDocument document = new PdfDocument();
 
-        try {
+        int pageWidth = 595;
+        int pageHeight = 842;
 
-            int width = 595;
-            int pageHeight = 842;
+        int screenWidth =
+                getResources().getDisplayMetrics().widthPixels;
 
-            int densityWidth =
-                getResources()
-                    .getDisplayMetrics()
-                    .widthPixels;
+        float scale = (float) pageWidth / screenWidth;
 
-            int contentHeight = (int) (
-                source.getContentHeight()
-                * getResources()
-                    .getDisplayMetrics()
-                    .density
-            );
+        int contentHeight =
+                (int) (source.getContentHeight() *
+                        getResources().getDisplayMetrics().density);
 
-            if (contentHeight <= 0) {
-                contentHeight = pageHeight;
-            }
+        if (contentHeight <= 0) {
+            contentHeight = source.getHeight();
+        }
 
-            int pages = Math.max(
-                1,
-                (int) Math.ceil(
-                    (double) contentHeight /
-                    pageHeight
-                )
-            );
+        int totalPages = (int) Math.ceil(
+                (double) (contentHeight * scale) / pageHeight
+        );
 
-            for (int i = 0; i < pages; i++) {
+        if (totalPages < 1) {
+            totalPages = 1;
+        }
 
-                PdfDocument.PageInfo info =
+        for (int i = 0; i < totalPages; i++) {
+
+            PdfDocument.PageInfo pageInfo =
                     new PdfDocument.PageInfo.Builder(
-                        width,
-                        pageHeight,
-                        i + 1
+                            pageWidth,
+                            pageHeight,
+                            i + 1
                     ).create();
 
-                PdfDocument.Page page =
-                    document.startPage(info);
+            PdfDocument.Page page =
+                    document.startPage(pageInfo);
 
-                Canvas canvas =
-                    page.getCanvas();
+            Canvas canvas = page.getCanvas();
 
-                canvas.save();
+            canvas.drawColor(Color.WHITE);
 
-                float scale =
-                    (float) width / densityWidth;
+            canvas.save();
 
-                canvas.scale(scale, scale);
+            canvas.scale(scale, scale);
 
-                source.scrollTo(
-                    0,
-                    (int) (
-                        i * pageHeight / scale
-                    )
-                );
-
-                source.draw(canvas);
-
-                canvas.restore();
-
-                document.finishPage(page);
-            }
-
-            File outputFile = new File(
-                getReportFolder(),
-                safePdfName(fileName)
+            int scrollY = (int) (
+                    (i * pageHeight) / scale
             );
 
-            try (
-                FileOutputStream output =
-                    new FileOutputStream(outputFile)
-            ) {
-                document.writeTo(output);
-                output.flush();
-            }
+            source.scrollTo(0, scrollY);
 
-            document.close();
+            source.draw(canvas);
 
-            msg("5. PDF Created Successfully");
+            canvas.restore();
 
-            removeTemporaryWebView(source);
-
-            sharePdfFile(outputFile);
-
-        } catch (Exception e) {
-
-            document.close();
-
-            showError(e);
-
-            removeTemporaryWebView(source);
+            document.finishPage(page);
         }
+
+        File folder = getReportFolder();
+
+        File outputFile = new File(
+                folder,
+                safePdfName(fileName)
+        );
+
+        try (FileOutputStream outputStream =
+                     new FileOutputStream(outputFile)) {
+
+            document.writeTo(outputStream);
+            outputStream.flush();
+        }
+
+        document.close();
+
+        removeTemporaryWebView(source);
+
+        sharePdfFile(outputFile);
     }
 
+    // ------------------------------------
     // REMOVE TEMPORARY WEBVIEW
+    // ------------------------------------
 
-    private void removeTemporaryWebView(
-        WebView temporaryWebView
-    ) {
+    private void removeTemporaryWebView(WebView view) {
+
+        if (view == null) {
+            return;
+        }
+
         handler.post(() -> {
 
-            if (temporaryWebView != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
 
-                if (temporaryWebView.getParent()
-                    instanceof FrameLayout) {
-
-                    ((FrameLayout)
-                        temporaryWebView.getParent()
-                    ).removeView(temporaryWebView);
-                }
-
-                temporaryWebView.destroy();
+            if (parent != null) {
+                parent.removeView(view);
             }
+
+            view.stopLoading();
+            view.destroy();
         });
     }
 
-    // SHARE PDF
+    // ------------------------------------
+    // OPEN ANDROID PDF SHARE
+    // ------------------------------------
 
     private void sharePdfFile(File file) {
 
         try {
 
-            msg("6. Opening PDF Share...");
+            if (file == null || !file.exists()) {
+                throw new IOException("PDF file not found");
+            }
 
-            Uri uri = FileProvider.getUriForFile(
-                MainActivity.this,
-                getPackageName() + ".fileprovider",
-                file
+            Uri pdfUri = FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".fileprovider",
+                    file
             );
 
-            Intent intent =
-                new Intent(Intent.ACTION_SEND);
-
-            intent.setType("application/pdf");
-
-            intent.putExtra(
-                Intent.EXTRA_STREAM,
-                uri
+            Intent shareIntent = new Intent(
+                    Intent.ACTION_SEND
             );
 
-            intent.setClipData(
-                ClipData.newUri(
-                    getContentResolver(),
-                    "PDF Report",
-                    uri
-                )
+            shareIntent.setType("application/pdf");
+
+            shareIntent.putExtra(
+                    Intent.EXTRA_STREAM,
+                    pdfUri
             );
 
-            intent.addFlags(
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            shareIntent.setClipData(
+                    ClipData.newUri(
+                            getContentResolver(),
+                            "TamilNature PDF",
+                            pdfUri
+                    )
+            );
+
+            shareIntent.addFlags(
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
             );
 
             startActivity(
-                Intent.createChooser(
-                    intent,
-                    "Share PDF Report"
-                )
+                    Intent.createChooser(
+                            shareIntent,
+                            "Share PDF"
+                    )
             );
 
         } catch (Exception e) {
@@ -488,25 +435,38 @@ public class MainActivity extends Activity {
         }
     }
 
-    // ERROR
+    // ------------------------------------
+    // ERROR ONLY
+    // ------------------------------------
 
     private void showError(Exception e) {
 
-        msg(
-            "PDF Error: " + e.getMessage()
+        String message = "PDF Error";
+
+        if (e != null && e.getMessage() != null) {
+            message += ": " + e.getMessage();
+        }
+
+        final String finalMessage = message;
+
+        handler.post(() ->
+                Toast.makeText(
+                        MainActivity.this,
+                        finalMessage,
+                        Toast.LENGTH_LONG
+                ).show()
         );
     }
 
-    // BACK BUTTON
+    // ------------------------------------
+    // ANDROID BACK BUTTON
+    // ------------------------------------
 
     @Override
     public void onBackPressed() {
 
-        if (webView != null &&
-            webView.canGoBack()) {
-
+        if (webView != null && webView.canGoBack()) {
             webView.goBack();
-
         } else {
             super.onBackPressed();
         }
