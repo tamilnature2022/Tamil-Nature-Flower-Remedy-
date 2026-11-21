@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V131</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V145</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -458,28 +458,13 @@ main, .sticky-shell, #assessment, #assessmentWorkspace,
 }
 
 
-/* Mobile report table alignment: keep columns distinct and scroll only wide tables. */
-.report-table-scroll{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;}
-.report-table-scroll .scoretable{margin:0;}
-.category-score-table{min-width:0;}
-.remedy-score-table{min-width:620px;table-layout:fixed;}
-.remedy-score-table th:nth-child(1),.remedy-score-table td:nth-child(1){width:22%;}
-.remedy-score-table th:nth-child(2),.remedy-score-table td:nth-child(2){width:38%;}
-.remedy-score-table th:nth-child(3),.remedy-score-table td:nth-child(3){width:14%;white-space:nowrap;}
-.remedy-score-table th:nth-child(4),.remedy-score-table td:nth-child(4){width:16%;white-space:nowrap;}
-.remedy-score-table th:nth-child(5),.remedy-score-table td:nth-child(5){width:10%;white-space:nowrap;}
-.top7-score-table{min-width:430px;}
-.top7-score-table th:nth-child(1),.top7-score-table td:nth-child(1){width:9%;text-align:center;}
-.top7-score-table th:nth-child(2),.top7-score-table td:nth-child(2){width:43%;}
-.top7-score-table th:nth-child(3),.top7-score-table td:nth-child(3){width:20%;white-space:nowrap;}
-.top7-score-table th:nth-child(4),.top7-score-table td:nth-child(4){width:28%;white-space:nowrap;}
-@media(max-width:560px){
- .category-score-table th,.category-score-table td{padding:8px 6px;font-size:.82rem;}
- .category-score-table th:nth-child(1),.category-score-table td:nth-child(1){width:58%;}
- .category-score-table th:nth-child(2),.category-score-table td:nth-child(2){width:21%;}
- .category-score-table th:nth-child(3),.category-score-table td:nth-child(3){width:21%;}
- .remedy-score-table th,.remedy-score-table td,.top7-score-table th,.top7-score-table td{padding:9px 8px;}
-}
+/* TAMIL NATURE 108 Combination Library */
+#tnCombinationList .tn-combo-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;margin:10px 0;box-shadow:0 2px 7px #203c2a08}
+#tnCombinationList .tn-combo-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+#tnCombinationList .tn-combo-id{font-weight:800;color:var(--green);font-variant-numeric:tabular-nums}
+#tnCombinationList .tn-combo-name{font-weight:800;margin:3px 0 7px}
+#tnCombinationList .tn-combo-remedies{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+#tnCombinationList .tn-remedy-chip{background:#eef5ef;border:1px solid #dbe8dd;color:#315b45;border-radius:99px;padding:4px 9px;font-size:.82rem;font-weight:650}
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -494,6 +479,7 @@ main, .sticky-shell, #assessment, #assessmentWorkspace,
     <button class="home-card" type="button" data-home-tab="records"><span class="home-icon">▤</span><strong>Client Records</strong><span>Add / View / Edit / Delete<br>சேர் / பார் / திருத்து / நீக்கு</span></button>
     <button class="home-card" type="button" data-home-tab="dashboard"><span class="home-icon">▥</span><strong>Research Dashboard</strong><span>ஆய்வு மற்றும் புள்ளிவிவரங்கள்</span></button>
     <button class="home-card" type="button" data-home-tab="bachInfo"><span class="home-icon">❀</span><strong>38 Bach Flower Remedies</strong><span>முழு அறிமுகம் மற்றும் விளக்கம்</span></button>
+    <button class="home-card" type="button" data-home-tab="combinations"><span class="home-icon">✿</span><strong>108 Flower Remedy Combinations</strong><span>12 Categories · தமிழ் + English<br>Combination Library · Draft</span></button>
   </div>
   <div class="notice">Screening results are preliminary signals for educational/research use and are not a medical diagnosis or a substitute for professional care.</div>
 </section>
@@ -505,6 +491,21 @@ main, .sticky-shell, #assessment, #assessmentWorkspace,
 <p>Dr. Edward Bach உருவாக்கிய மலர் மருந்து முறையில் 38 தனித்தனி remedies உள்ளன. ஒவ்வொரு remedy-யும் ஒரு குறிப்பிட்ட உணர்ச்சி நிலை அல்லது மனப்பாங்கை மையமாகக் கொண்டு பாரம்பரியமாக விவரிக்கப்படுகிறது.</p>
 <p class="muted">The Bach system describes 38 flower remedies associated with different emotional states and patterns. This page introduces the traditional framework in Tamil and English.</p></div>
 <div id="bachRemedyGuide"><div class="category"><h3>1. Fear · பயம்</h3><p class="muted">பயம், அச்சம் மற்றும் கவலை சார்ந்த உணர்வுகள்.</p><div class="remedy"><div class="remedy-title">Rock Rose · ராக் ரோஸ்</div>திடீர் அதீத பயம் அல்லது பீதி. <span class="muted">Terror, panic or acute fear.</span></div><div class="remedy"><div class="remedy-title">Mimulus · மிமுலஸ்</div>காரணம் தெரிந்த குறிப்பிட்ட விஷயங்கள் குறித்த பயம். <span class="muted">Fear of known things or situations.</span></div><div class="remedy"><div class="remedy-title">Cherry Plum · செர்ரி பிளம்</div>தன்னுடைய கட்டுப்பாட்டை இழந்துவிடுவோமோ என்ற அச்சம். <span class="muted">Fear of losing control.</span></div><div class="remedy"><div class="remedy-title">Aspen · ஆஸ்பென்</div>காரணம் தெளிவாகத் தெரியாத அச்சம் அல்லது பதற்றம். <span class="muted">Vague or unexplained apprehension.</span></div><div class="remedy"><div class="remedy-title">Red Chestnut · ரெட் செஸ்ட்நட்</div>அன்புக்குரியவர்களுக்கு ஏதாவது நேருமோ என்ற மிகையான கவலை. <span class="muted">Excessive worry about loved ones.</span></div></div><div class="category"><h3>2. Uncertainty · உறுதியின்மை</h3><p class="muted">முடிவு, நம்பிக்கை அல்லது வாழ்க்கைத் திசை குறித்த தயக்கம்.</p><div class="remedy"><div class="remedy-title">Cerato · செராட்டோ</div>தன் முடிவை நம்பாமல் பிறரிடம் உறுதிப்படுத்திக் கொள்வது. <span class="muted">Doubting one’s judgement.</span></div><div class="remedy"><div class="remedy-title">Scleranthus · ஸ்க்ளெராந்தஸ்</div>இரண்டு தேர்வுகளுக்கிடையே முடிவெடுக்க முடியாமை. <span class="muted">Indecision between two choices.</span></div><div class="remedy"><div class="remedy-title">Gentian · ஜென்ஷியன்</div>தடை அல்லது பின்னடைவு ஏற்பட்டால் மனம் தளர்தல். <span class="muted">Discouragement after setbacks.</span></div><div class="remedy"><div class="remedy-title">Gorse · கோர்ஸ்</div>நம்பிக்கை இழந்து முன்னேற்றம் இல்லை என உணர்தல். <span class="muted">Hopelessness and loss of hope.</span></div><div class="remedy"><div class="remedy-title">Hornbeam · ஹார்ன்பீம்</div>ஒரு செயலைத் தொடங்குவதற்கு முன்பே மனச் சோர்வு. <span class="muted">Mental tiredness before starting.</span></div><div class="remedy"><div class="remedy-title">Wild Oat · வைல்ட் ஓட்</div>வாழ்க்கையில் எந்தப் பாதையைத் தேர்ந்தெடுப்பது என்ற குழப்பம். <span class="muted">Uncertainty about life direction.</span></div></div><div class="category"><h3>3. Insufficient Interest in Present Circumstances · நிகழ்காலத்தில் போதிய ஈடுபாடின்மை</h3><p class="muted">நிகழ்காலத்தில் கவனம், ஆர்வம் அல்லது மன ஈடுபாடு குறைதல்.</p><div class="remedy"><div class="remedy-title">Clematis · கிளெமாட்டிஸ்</div>நிகழ்காலத்தை விட கற்பனை அல்லது எதிர்காலக் கனவுகளில் மூழ்கியிருத்தல். <span class="muted">Being dreamy or preoccupied with the future.</span></div><div class="remedy"><div class="remedy-title">Honeysuckle · ஹனிசக்கிள்</div>கடந்தகால நினைவுகளில் அதிகம் வாழ்தல். <span class="muted">Living in memories of the past.</span></div><div class="remedy"><div class="remedy-title">Wild Rose · வைல்ட் ரோஸ்</div>மாற்ற முயற்சியின்றி சூழ்நிலையை அப்படியே ஏற்றுக்கொள்ளுதல். <span class="muted">Resignation and passive acceptance.</span></div><div class="remedy"><div class="remedy-title">Olive · ஆலிவ்</div>நீண்ட முயற்சிக்குப் பின் உடல் அல்லது மன ஆற்றல் தீர்ந்த உணர்வு. <span class="muted">Exhaustion after prolonged effort.</span></div><div class="remedy"><div class="remedy-title">White Chestnut · வைட் செஸ்ட்நட்</div>மீண்டும் மீண்டும் வரும் எண்ணங்களால் மன அமைதி பாதிக்கப்படுதல். <span class="muted">Repetitive, unwanted thoughts.</span></div><div class="remedy"><div class="remedy-title">Mustard · மஸ்டர்ட்</div>காரணம் புரியாத திடீர் சோகம் அல்லது மன இருள். <span class="muted">Gloom or sadness without a clear cause.</span></div><div class="remedy"><div class="remedy-title">Chestnut Bud · செஸ்ட்நட் பட்</div>அதே தவறுகளை மீண்டும் செய்து அனுபவத்திலிருந்து கற்றுக்கொள்ள சிரமம். <span class="muted">Repeating patterns without learning.</span></div></div><div class="category"><h3>4. Loneliness · தனிமை</h3><p class="muted">தனிமை உணர்வு அல்லது பிறருடன் தொடர்பு கொள்ளும் முறையில் சிரமம்.</p><div class="remedy"><div class="remedy-title">Water Violet · வாட்டர் வயலெட்</div>தனியாக இருக்க விரும்பி உணர்வுகளைப் பகிர்வதில் விலகி இருப்பது. <span class="muted">Reserved independence and emotional distance.</span></div><div class="remedy"><div class="remedy-title">Impatiens · இம்பேஷன்ஸ்</div>அவசரம், பொறுமையின்மை மற்றும் தாமதத்தால் எரிச்சல். <span class="muted">Impatience and irritation with delays.</span></div><div class="remedy"><div class="remedy-title">Heather · ஹீதர்</div>தனிமையைத் தவிர்க்க பிறரின் கவனத்தையும் துணையையும் நாடுதல். <span class="muted">Strong need for company and attention.</span></div></div><div class="category"><h3>5. Oversensitivity to Influences and Ideas · பிறர் தாக்கங்களுக்கு மிகை உணர்திறன்</h3><p class="muted">பிறரின் கருத்துகள் அல்லது சூழலால் எளிதில் பாதிக்கப்படுதல்.</p><div class="remedy"><div class="remedy-title">Agrimony · அக்ரிமனி</div>உள்ளுக்குள் கவலை இருந்தாலும் வெளியில் மகிழ்ச்சியாகக் காட்டிக்கொள்வது. <span class="muted">Hiding worries behind a cheerful appearance.</span></div><div class="remedy"><div class="remedy-title">Centaury · சென்டாரி</div>இல்லை என்று சொல்ல முடியாமல் தன் தேவைகளைப் புறக்கணித்தல். <span class="muted">Difficulty saying no.</span></div><div class="remedy"><div class="remedy-title">Walnut · வால்நட்</div>மாற்றங்கள் அல்லது வெளித் தாக்கங்களால் தன் பாதையில் நிலைத்திருக்க சிரமம். <span class="muted">Difficulty adapting to change or outside influence.</span></div><div class="remedy"><div class="remedy-title">Holly · ஹாலி</div>பொறாமை, சந்தேகம், கோபம் அல்லது பகைமை போன்ற உணர்வுகள். <span class="muted">Jealousy, suspicion, anger or resentment.</span></div></div><div class="category"><h3>6. Despondency or Despair · மனச்சோர்வு அல்லது நம்பிக்கையிழப்பு</h3><p class="muted">தன்னம்பிக்கை குறைவு, மனவேதனை, சுமை அல்லது தளர்ச்சி.</p><div class="remedy"><div class="remedy-title">Larch · லார்ச்</div>தோல்வியடைவேன் என்ற எண்ணத்தால் முயற்சிக்க முன்வராமை. <span class="muted">Lack of confidence and fear of failure.</span></div><div class="remedy"><div class="remedy-title">Pine · பைன்</div>தவறு செய்ததாகத் தொடர்ந்து குற்றவுணர்ச்சி கொள்வது. <span class="muted">Self-blame and guilt.</span></div><div class="remedy"><div class="remedy-title">Elm · எல்ம்</div>பொறுப்புகள் அதிகமாகி சமாளிக்க முடியாத உணர்வு. <span class="muted">Feeling overwhelmed by responsibilities.</span></div><div class="remedy"><div class="remedy-title">Sweet Chestnut · ஸ்வீட் செஸ்ட்நட்</div>தாங்க முடியாத மனவேதனை அல்லது நெருக்கடி உணர்வு. <span class="muted">Extreme mental anguish or despair.</span></div><div class="remedy"><div class="remedy-title">Star of Bethlehem · ஸ்டார் ஆஃப் பெத்லெஹெம்</div>அதிர்ச்சி அல்லது துயர அனுபவத்திற்குப் பிந்தைய மனத் தாக்கம். <span class="muted">Distress following shock or upsetting events.</span></div><div class="remedy"><div class="remedy-title">Willow · வில்லோ</div>தனக்கு அநீதி நடந்ததாக எண்ணி கசப்பு அல்லது மனக்குறை வைத்திருத்தல். <span class="muted">Resentment and feeling unfairly treated.</span></div><div class="remedy"><div class="remedy-title">Oak · ஓக்</div>சோர்வாக இருந்தாலும் ஓய்வெடுக்காமல் தொடர்ந்து போராடுதல். <span class="muted">Persisting with duties despite exhaustion.</span></div><div class="remedy"><div class="remedy-title">Crab Apple · கிராப் ஆப்பிள்</div>தன்னிடம் குறை அல்லது அசுத்தம் இருப்பதாக உணர்ந்து அதில் அதிக கவனம். <span class="muted">Preoccupation with perceived flaws or uncleanliness.</span></div></div><div class="category"><h3>7. Over-care for the Welfare of Others · பிறர் நலனில் மிகையான அக்கறை</h3><p class="muted">பிறரை கட்டுப்படுத்துதல் அல்லது அவர்களின் நலனில் மிகையாக ஈடுபடுதல்.</p><div class="remedy"><div class="remedy-title">Chicory · சிக்கரி</div>அன்புக்குரியவர்களிடம் அதிக எதிர்பார்ப்பு வைத்து கட்டுப்படுத்த முயற்சித்தல். <span class="muted">Possessive care and demanding attention.</span></div><div class="remedy"><div class="remedy-title">Vervain · வெர்வெயின்</div>ஒரு கருத்து அல்லது நோக்கத்தில் அளவுக்கு மீறிய தீவிரம். <span class="muted">Over-enthusiasm and intense conviction.</span></div><div class="remedy"><div class="remedy-title">Vine · வைன்</div>பிறர் தன் வழியிலேயே நடக்க வேண்டும் என்று ஆதிக்கம் செலுத்துதல். <span class="muted">Dominance and insistence on one’s own way.</span></div><div class="remedy"><div class="remedy-title">Beech · பீச்</div>பிறரின் குறைகளை எளிதில் விமர்சித்து சகிப்புத்தன்மை குறைதல். <span class="muted">Criticism and intolerance of others.</span></div><div class="remedy"><div class="remedy-title">Rock Water · ராக் வாட்டர்</div>தன்னிடம் மிகக் கடுமையான கட்டுப்பாடுகள் மற்றும் எதிர்பார்ப்புகள். <span class="muted">Rigid self-discipline and high personal standards.</span></div></div></div><div class="panel"><p class="muted">குறிப்பு: இந்தப் பக்கம் 38 Bach Flower Remedies பற்றிய கல்வி அறிமுகம் மட்டுமே. இவை மருத்துவ நோயறிதல் அல்லது நிரூபிக்கப்பட்ட சிகிச்சைக்கு மாற்றாகாது. Screening மதிப்பெண்கள் தனியாக நோயறிதல் அல்ல.</p></div></section>
+
+<section id="combinations" class="page-section hidden" style="display:none">
+  <div class="panel">
+    <button type="button" class="secondary" onclick="showTab('home')">← Home · முகப்பு</button>
+    <h2 style="margin-top:14px">108 Flower Remedy Combination Library</h2>
+    <p class="muted">108 முன்மொழியப்பட்ட மலர் மருந்து கலவைகள் · 12 Categories · 38 Bach Remedies அடிப்படையில்</p>
+    <div class="notice"><strong>Draft Library / ஆய்வு வரைவு:</strong> இவை TAMIL NATURE R&amp;D-க்கான முன்மொழிவுகள் மட்டுமே. அதிகாரப்பூர்வ Dr. Bach கலவைகள் அல்ல; மருத்துவ நோயறிதல் அல்லது நிரூபிக்கப்பட்ட சிகிச்சை முறையாகக் கருதக்கூடாது. ஒவ்வொரு கலவையும் தனித்தனியாக ஆய்வு செய்து Approved செய்ய வேண்டும்.</div>
+    <div class="grid" style="margin:12px 0">
+      <div class="field"><label for="tnCombinationSearch">Search / தேடல்</label><input id="tnCombinationSearch" type="search" placeholder="Combination name, remedy, ID..."></div>
+      <div class="field"><label for="tnCombinationCategory">Category / பிரிவு</label><select id="tnCombinationCategory"><option value="all">All Categories / அனைத்தும்</option></select></div>
+    </div>
+    <div class="actions" style="align-items:center;justify-content:space-between"><span class="pill" id="tnCombinationCount">108 Combinations</span><span class="muted small">Status: Draft / ஆய்வு வரைவு</span></div>
+  </div>
+  <div id="tnCombinationList" aria-live="polite"></div>
+</section>
 
 <section id="assessment" class="page-section">
 <div class="page-heading"><h1>Flower Remedy Assessment</h1><p class="muted">மலர் மருந்து மதிப்பீடு</p></div>
@@ -723,10 +724,10 @@ function reportHTML(r) {
   const cats = Object.values(r.categoryScores).sort((a,b)=>b.score-a.score || b.answered-a.answered).map(c=>`<tr><td>${escv(c.name)} · ${escv(c.tamil)}</td><td>${c.score}/${c.maxScore}</td><td>${c.answered}/${c.questionCount}</td></tr>`).join('');
   const rem = r.remedies.filter(x=>x.answered>0).sort((a,b)=>b.score-a.score).map(x=>`<tr><td>${escv(x.remedy)}</td><td>${escv(x.category)}</td><td>${x.score}/${x.maxScore}</td><td>${x.answered}/${x.questionCount}</td><td>${x.percentage}%</td></tr>`).join('');
   return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p><strong>Task Name:</strong> ${escv(taskName)}</p><p><strong>Assessor Name:</strong> ${escv(assessorName)}</p><h3>${assessmentLabel}</h3><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(reportDate)}</p><p>Assessment Status: ${escv(r.status||'Completed')}</p><p>PSS = ${r.pss.answered}/10 Responses · Bach = ${r.bachAnswered}/77 Responses</p></div>
-  <section class="report-section"><h3>1. 7 Emotional Category Scores</h3><div class="report-table-scroll"><table class="scoretable category-score-table"><thead><tr><th>Category</th><th>Score</th><th>Answered</th></tr></thead><tbody>${cats}</tbody></table></div></section>
-  <section class="report-section"><h3>2. Remedy-wise Scores</h3><div class="report-table-scroll"><table class="scoretable remedy-score-table"><thead><tr><th>Remedy</th><th>Category</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="5">No answered remedy questions</td></tr>'}</tbody></table></div></section>
+  <section class="report-section"><h3>1. 7 Emotional Category Scores</h3><table class="scoretable category-score-table"><thead><tr><th>Category</th><th>Score</th><th>Answered</th></tr></thead><tbody>${cats}</tbody></table></section>
+  <section class="report-section"><h3>2. Remedy-wise Scores</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Category</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="5">No answered remedy questions</td></tr>'}</tbody></table></section>
   <section class="report-section"><h3>3. PSS-10 Score (Separate Stress Measure)</h3><p>Score: <strong>${r.pss.score}/40</strong> · Answered: ${r.pss.answered}/10</p><p class="muted small">Items 4, 5, 7 and 8 are reverse-scored. PSS-10 is reported separately from Bach remedy screening.</p></section>
-  <section class="report-section"><h3>4. Top 7 Remedy Screening Signals</h3><div class="report-table-scroll"><table class="scoretable top7-score-table"><thead><tr><th>#</th><th>Remedy</th><th>Score</th><th>Percentage</th></tr></thead><tbody>${top}</tbody></table></div><p class="muted small">Screening signals only; not a diagnosis or a prescription.</p></section>`;
+  <section class="report-section"><h3>4. Top 7 Remedy Screening Signals</h3><table class="scoretable"><thead><tr><th>#</th><th>Remedy</th><th>Score</th><th>Percentage</th></tr></thead><tbody>${top}</tbody></table><p class="muted small">Screening signals only; not a diagnosis or a prescription.</p></section>`;
 }
 
 function updateProgress() {
@@ -866,7 +867,7 @@ document.getElementById("startAssessmentBtn").addEventListener("click",()=>{
 /* V7: Records view and navigation. The earlier build called these functions
    but did not define them, so saved local records were never rendered. */
 function showTab(tabId) {
-  const allowed = ['home', 'assessment', 'records', 'dashboard', 'bachInfo'];
+  const allowed = ['home', 'assessment', 'records', 'dashboard', 'bachInfo', 'combinations'];
   if (!allowed.includes(tabId)) tabId = 'home';
 
   document.querySelectorAll('section.page-section').forEach(section => {
@@ -1814,33 +1815,10 @@ function tnShareElementAsPdf(elementId, fileName) {
     return;
   }
   try {
-    let pdfContent = target.innerHTML;
-    // Assessment Share PDF contains only the header and Top 7 remedy signals.
-    if (elementId === 'tnSingleVisitReport') {
-      const head = target.querySelector('.report-head');
-      const topSection = Array.from(target.querySelectorAll('.report-section')).find(section => /Top 7 Remedy Screening Signals/i.test(section.querySelector('h3')?.textContent || ''));
-      if (head && topSection) {
-        const ps = head.querySelectorAll('p');
-        const participantLine = ps[2]?.textContent || '';
-        const pick = label => {
-          const m = participantLine.match(new RegExp(label + ':\\s*([^|]+)', 'i'));
-          return m ? m[1].trim() : '—';
-        };
-        const escPdf = value => String(value ?? '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
-        const rows = Array.from(topSection.querySelectorAll('tbody tr')).map((tr, index) => {
-          const cells = tr.querySelectorAll('td');
-          if (cells.length < 4) return `<tr><td colspan="4">${escPdf(cells[0]?.textContent || 'No remedy signals available')}</td></tr>`;
-          const remedy = cells[1].textContent.trim(), scoreText = cells[2].textContent.trim(), pctText = cells[3].textContent.trim();
-          const pct = Math.max(0, Math.min(100, parseFloat(pctText) || 0));
-          return `<tr><td class="rank">${index+1}</td><td class="remedy"><strong>${escPdf(remedy)}</strong><div class="bar"><span style="width:${pct}%"></span></div></td><td class="score">${escPdf(scoreText)}</td><td class="percent">${escPdf(pctText)}</td></tr>`;
-        }).join('');
-        pdfContent = `<div class="tn-pdf-report"><header class="tn-pdf-head"><h1>${head.querySelector('h2')?.textContent || 'Tamil Nature Flower Remedy Screening Report'}</h1><p>${ps[0]?.innerHTML || ''}</p><p>${ps[1]?.innerHTML || ''}</p><h2>${head.querySelector('h3')?.textContent || 'Assessment Report'}</h2><p><strong>Participant ID:</strong> ${escPdf(pick('Participant ID'))}<span class="date"><strong>Date:</strong> ${escPdf(pick('Date'))}</span></p><p><strong>Name:</strong> ${escPdf(pick('Name'))}</p><p><strong>Mobile:</strong> ${escPdf(pick('Mobile'))}</p><p>${ps[3]?.innerHTML || ''}</p><p>${ps[4]?.innerHTML || ''}</p></header><div class="tn-pdf-rule"></div><section class="tn-pdf-top7"><h2>Top 7 Remedy Screening Signals</h2><table><thead><tr><th>Rank</th><th>Remedy (Flower Remedy)</th><th>Score</th><th>Percentage</th></tr></thead><tbody>${rows}</tbody></table></section></div>`;
-      }
-    }
-    const styleText = Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\\n') + '\\n.tn-pdf-report{color:#20342a;font-size:12px}.tn-pdf-head h1{font-size:25px;line-height:1.2;color:#183b2b;margin:0 0 18px;font-weight:800}.tn-pdf-head h2{font-size:17px;color:#183b2b;margin:18px 0 12px}.tn-pdf-head p{font-size:12px;line-height:1.55;margin:7px 0}.tn-pdf-head .date{margin-left:24px}.tn-pdf-rule{height:3px;background:#176344;margin:18px 0 22px}.tn-pdf-top7 h2{background:#176344;color:#fff;padding:10px 14px;border-radius:7px;font-size:17px;margin:0 0 12px}.tn-pdf-top7 table{border:1px solid #a9cbb8}.tn-pdf-top7 th{background:#e2f0e7;color:#173c2b;text-align:left;padding:9px 8px;font-size:11px}.tn-pdf-top7 td{border-top:1px solid #d2e2d8;padding:9px 8px;vertical-align:middle}.tn-pdf-top7 .rank{text-align:center;font-weight:800;width:9%}.tn-pdf-top7 .remedy{width:49%;font-size:12px}.tn-pdf-top7 .score,.tn-pdf-top7 .percent{text-align:center;white-space:nowrap;width:17%;font-weight:700}.tn-pdf-top7 .bar{height:7px;background:#e2e9e5;border-radius:8px;margin-top:6px;overflow:hidden}.tn-pdf-top7 .bar span{display:block;height:100%;background:#16834b;border-radius:8px}';
+    const styleText = Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\\n');
     const html = '<!doctype html><html lang="ta"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + fileName + '</title><style>' + styleText + '\\n' +
       'html,body{background:#fff!important;color:#24352c!important;width:100%;margin:0;padding:0;font-family:Arial,sans-serif}body{font-size:12px}main{max-width:none!important;width:100%!important;margin:0!important;padding:8px!important}.no-print{display:none!important}.panel{box-shadow:none!important;border:0!important;padding:0!important}.report-section{break-inside:avoid;page-break-inside:avoid}table{width:100%;border-collapse:collapse;table-layout:fixed}td,th{overflow-wrap:normal;word-break:normal;vertical-align:top}.category-score-table th:nth-child(1),.category-score-table td:nth-child(1){width:64%}.category-score-table th:nth-child(2),.category-score-table td:nth-child(2){width:18%;white-space:nowrap}.category-score-table th:nth-child(3),.category-score-table td:nth-child(3){width:18%;white-space:nowrap}@page{size:A4;margin:12mm}' +
-      '</style></head><body><main>' + pdfContent + '</main></body></html>';
+      '</style></head><body><main>' + target.innerHTML + '</main></body></html>';
     const encoded = btoa(unescape(encodeURIComponent(html)));
     window.AndroidShare.shareHtmlAsPdf(encoded, fileName);
   } catch (error) {
@@ -2179,6 +2157,50 @@ window.save = async function() {
   }
   return tnOriginalSave();
 };
+
+/* TAMIL NATURE 108 Combination Library — draft data only. */
+const tnCombinationCategories = [
+  'Fear · பயம்','Uncertainty · உறுதியின்மை','Present Circumstances · நிகழ்காலச் சூழ்நிலைகள்',
+  'Loneliness · தனிமை','Oversensitivity · பிறர் தாக்கங்களுக்கு மிகை உணர்திறன்',
+  'Despondency & Despair · மனத்தளர்ச்சி மற்றும் விரக்தி',
+  'Over-care for Others · பிறர் நலனில் அளவுக்கு மீறிய அக்கறை',
+  'Confidence & Self-expression · தன்னம்பிக்கை மற்றும் வெளிப்பாடு',
+  'Focus & Mental Clarity · கவனம் மற்றும் மனத் தெளிவு',
+  'Change & Adaptation · மாற்றம் மற்றும் தழுவுதல்',
+  'Relationship & Emotional Balance · உறவு மற்றும் உணர்ச்சி சமநிலை',
+  'Energy & Resilience · புத்துணர்ச்சி மற்றும் மீள்திறன்'
+];
+const tnCombinationRaw = [
+['Everyday Courage','அன்றாடத் துணிவு','Mimulus|Larch|Gentian'],['Unknown Fear','அறியாத பயம்','Aspen|Walnut|Mimulus'],['Panic Support','திடீர் பீதி','Rock Rose|Cherry Plum|Star of Bethlehem'],['Health Worry','உடல்நலக் கவலை','Mimulus|White Chestnut|Red Chestnut'],['Night Fear','இரவு பயம்','Aspen|Mimulus|Rock Rose'],['Loss of Control Fear','கட்டுப்பாட்டை இழக்கும் பயம்','Cherry Plum|Rock Rose|White Chestnut'],['Fear for Loved Ones','அன்புக்குரியோர் பற்றிய பயம்','Red Chestnut|Mimulus|Walnut'],['Public Speaking Fear','மேடைப் பயம்','Mimulus|Larch|Cerato'],['Inner Security','உள்ளார்ந்த பாதுகாப்பு','Aspen|Walnut|Rock Water'],
+['Decision Clarity','முடிவெடுக்கும் தெளிவு','Scleranthus|Cerato|Wild Oat'],['Self Trust','சுயநம்பிக்கை','Cerato|Larch|Gentian'],['Life Direction','வாழ்க்கைப் பாதை','Wild Oat|Cerato|Walnut'],['Mood Balance','மனநிலை சமநிலை','Scleranthus|Walnut|Cherry Plum'],['Future Confidence','எதிர்கால நம்பிக்கை','Gorse|Gentian|Larch'],['Starting Motivation','தொடக்க ஊக்கம்','Hornbeam|Wild Oat|Gentian'],['Persistence','விடாமுயற்சி','Gentian|Oak|Hornbeam'],['Inner Guidance','உள்ளுணர்வு','Cerato|Scleranthus|Chestnut Bud'],['Hope & Purpose','நம்பிக்கையும் நோக்கமும்','Gorse|Wild Oat|Larch'],
+['Mental Presence','நிகழ்கால விழிப்புணர்வு','Clematis|White Chestnut|Chestnut Bud'],['Past Memories','கடந்தகால நினைவுகள்','Honeysuckle|Walnut|Star of Bethlehem'],['Fresh Start','புதிய தொடக்கம்','Walnut|Wild Oat|Hornbeam'],['Motivation','செயலூக்கம்','Hornbeam|Wild Rose|Olive'],['Interest Revival','ஆர்வ மீட்பு','Wild Rose|Clematis|Mustard'],['Mental Refresh','மனப் புத்துணர்ச்சி','Olive|Hornbeam|White Chestnut'],['Learning Interest','கற்றல் ஆர்வம்','Chestnut Bud|Clematis|Wild Oat'],['Emotional Renewal','உணர்ச்சி புதுப்பிப்பு','Mustard|Star of Bethlehem|Walnut'],['Present Focus','நிகழ்காலக் கவனம்','Clematis|Chestnut Bud|White Chestnut'],
+['Social Connection','சமூகத் தொடர்பு','Water Violet|Heather|Impatiens'],['Listening & Sharing','கேட்டல் மற்றும் பகிர்தல்','Heather|Agrimony|Water Violet'],['Patience with Others','பிறருடன் பொறுமை','Impatiens|Beech|Water Violet'],['Emotional Openness','உணர்வு வெளிப்பாடு','Agrimony|Heather|Walnut'],['Relationship Warmth','உறவு அன்பு','Chicory|Heather|Water Violet'],['Comfortable Togetherness','இணைந்திருத்தல்','Impatiens|Heather|Walnut'],['Independent Connection','சுயத்தன்மையுடன் உறவு','Water Violet|Centaury|Walnut'],['Patience & Calm','பொறுமையும் அமைதியும்','Impatiens|Vervain|Beech'],['Friendly Communication','நட்பான தொடர்பு','Heather|Agrimony|Cerato'],
+['Emotional Boundaries','உணர்ச்சி எல்லைகள்','Walnut|Centaury|Agrimony'],['Peer Pressure','பிறர் அழுத்தம்','Centaury|Walnut|Larch'],['Inner Harmony','உள்ளார்ந்த ஒற்றுமை','Agrimony|Holly|Walnut'],['Anger Balance','கோப உணர்வு சமநிலை','Holly|Cherry Plum|Impatiens'],['Jealousy & Envy','பொறாமை','Holly|Willow|Beech'],['Authentic Expression','உண்மையான வெளிப்பாடு','Agrimony|Centaury|Cerato'],['Personal Boundaries','தனிப்பட்ட எல்லைகள்','Walnut|Centaury|Rock Water'],['Sensitivity Balance','உணர்திறன் சமநிலை','Walnut|Holly|Agrimony'],['Calm Communication','அமைதியான தொடர்பு','Impatiens|Beech|Agrimony'],
+['Self Worth','சுயமதிப்பு','Larch|Pine|Crab Apple'],['Guilt & Self-blame','குற்றவுணர்வு','Pine|Willow|Star of Bethlehem'],['Emotional Recovery','உணர்ச்சி மீட்பு','Star of Bethlehem|Sweet Chestnut|Olive'],['Overwhelmed Mind','மனச் சுமை','Elm|Oak|Olive'],['Inner Strength','உள்ளார்ந்த வலிமை','Oak|Larch|Gentian'],['Self Acceptance','சுய ஏற்றுக்கொள்ளுதல்','Crab Apple|Pine|Larch'],['Disappointment','ஏமாற்றம்','Gentian|Willow|Gorse'],['Deep Despair Support','ஆழ்ந்த விரக்தி','Sweet Chestnut|Star of Bethlehem|Gorse'],['Responsibility Balance','பொறுப்புச் சமநிலை','Elm|Oak|Pine'],
+['Healthy Care','ஆரோக்கியமான அக்கறை','Chicory|Centaury|Walnut'],['Let Others Grow','பிறருக்கு சுதந்திரம்','Vine|Chicory|Beech'],['Respect Others','பிறரை மதித்தல்','Beech|Vine|Rock Water'],['Gentle Leadership','மென்மையான தலைமை','Vine|Vervain|Beech'],['Self-care Balance','சுய பராமரிப்பு','Chicory|Oak|Centaury'],['Reduce Control','கட்டுப்படுத்தும் எண்ணம்','Vine|Chicory|Walnut'],['Flexible Thinking','நெகிழ்வான சிந்தனை','Beech|Rock Water|Walnut'],['Balanced Enthusiasm','சமநிலையான ஆர்வம்','Vervain|Vine|Impatiens'],['Caring Without Control','கட்டுப்பாடில்லாத அக்கறை','Chicory|Vine|Water Violet'],
+['Speak with Confidence','தன்னம்பிக்கையுடன் பேசுதல்','Larch|Mimulus|Cerato'],['Performance Confidence','செயல்திறன் நம்பிக்கை','Larch|Elm|Gentian'],['Self Belief','சுயநம்பிக்கை','Larch|Cerato|Walnut'],['Fear of Criticism','விமர்சனப் பயம்','Mimulus|Larch|Pine'],['Assertive Communication','உறுதியான தொடர்பு','Centaury|Larch|Vine'],['New Challenge','புதிய சவால்கள்','Walnut|Mimulus|Larch'],['Decision Confidence','முடிவில் நம்பிக்கை','Cerato|Scleranthus|Larch'],['Creative Expression','படைப்பாற்றல்','Wild Oat|Clematis|Vervain'],['Self Respect','சுயமரியாதை','Larch|Pine|Rock Water'],
+['Concentration','ஒருமுகக் கவனம்','Clematis|White Chestnut|Chestnut Bud'],['Overthinking','அதிக சிந்தனை','White Chestnut|Impatiens|Aspen'],['Study Focus','படிப்பில் கவனம்','Chestnut Bud|Clematis|Hornbeam'],['Mental Organisation','சிந்தனை ஒழுங்கு','White Chestnut|Scleranthus|Elm'],['Clear Decisions','தெளிவான முடிவுகள்','Cerato|Scleranthus|White Chestnut'],['Reduce Distraction','கவனச் சிதறல்','Clematis|Chestnut Bud|Walnut'],['Task Completion','பணியை முடித்தல்','Hornbeam|Oak|Chestnut Bud'],['Mental Relaxation','மனத் தளர்வு','White Chestnut|Impatiens|Olive'],['Learning from Experience','அனுபவத்திலிருந்து கற்றல்','Chestnut Bud|Cerato|Walnut'],
+['Life Transition','வாழ்க்கை மாற்றம்','Walnut|Honeysuckle|Wild Oat'],['New Environment','புதிய சூழல்','Walnut|Mimulus|Larch'],['Moving Forward','முன்னேற்றம்','Honeysuckle|Wild Oat|Gentian'],['Change Acceptance','மாற்றத்தை ஏற்றல்','Walnut|Beech|Rock Water'],['Career Transition','தொழில் மாற்றம்','Wild Oat|Walnut|Cerato'],['Adapt to Challenges','சவால்களுக்குத் தழுவுதல்','Walnut|Elm|Gentian'],['Let Go of Past','கடந்தகாலத்தை விடுதல்','Honeysuckle|Willow|Star of Bethlehem'],['Fresh Perspective','புதிய பார்வை','Beech|Walnut|Chestnut Bud'],['Life Balance','வாழ்க்கை சமநிலை','Scleranthus|Olive|Walnut'],
+['Relationship Harmony','உறவு ஒற்றுமை','Chicory|Holly|Beech'],['Forgiveness','மன்னிக்கும் மனநிலை','Willow|Holly|Pine'],['Trust & Openness','நம்பிக்கையும் திறந்த மனமும்','Agrimony|Walnut|Cerato'],['Emotional Sensitivity','உணர்ச்சி நுண்ணுணர்வு','Holly|Beech|Walnut'],['Family Harmony','குடும்ப ஒற்றுமை','Chicory|Impatiens|Beech'],['Resentment Balance','மனக்கசப்பைக் கையாளுதல்','Willow|Holly|Star of Bethlehem'],['Healthy Independence','ஆரோக்கியமான சுயாதீனம்','Water Violet|Centaury|Walnut'],['Relationship Patience','உறவில் பொறுமை','Impatiens|Chicory|Beech'],['Emotional Honesty','உணர்ச்சி நேர்மை','Agrimony|Holly|Centaury'],
+['Daily Motivation','அன்றாட ஊக்கம்','Hornbeam|Wild Rose|Olive'],['Mental Fatigue','மனச் சோர்வு','Olive|Hornbeam|Oak'],['Exhaustion Support','சோர்வு நேர ஆதரவு','Olive|Oak|Elm'],['Work-Life Balance','வேலை வாழ்க்கை சமநிலை','Oak|Impatiens|Rock Water'],['Renewed Enthusiasm','புதுப்பிக்கப்பட்ட ஆர்வம்','Vervain|Wild Rose|Olive'],['Emotional Resilience','உணர்ச்சி மீள்திறன்','Star of Bethlehem|Walnut|Gentian'],['Patience & Persistence','பொறுமையும் விடாமுயற்சியும்','Impatiens|Gentian|Oak'],['Inner Peace','உள்ளார்ந்த அமைதி','White Chestnut|Agrimony|Rock Water'],['Emotional Balance','உணர்ச்சி சமநிலை','Walnut|Scleranthus|Olive']
+];
+const tnCombinations = tnCombinationRaw.map((x,i)=>({id:String(i+1).padStart(3,'0'),name:x[0],ta:x[1],remedies:x[2].split('|'),category:Math.floor(i/9),status:'Draft'}));
+function tnRenderCombinations(){
+  const host=document.getElementById('tnCombinationList'); if(!host)return;
+  const q=(document.getElementById('tnCombinationSearch')?.value||'').trim().toLowerCase();
+  const cat=document.getElementById('tnCombinationCategory')?.value||'all';
+  const rows=tnCombinations.filter(x=>(cat==='all'||String(x.category)===cat)&&(!q||[x.id,x.name,x.ta,...x.remedies,tnCombinationCategories[x.category]].join(' ').toLowerCase().includes(q)));
+  document.getElementById('tnCombinationCount').textContent=rows.length+' / 108 Combinations';
+  host.innerHTML=rows.length?rows.map(x=>`<article class="tn-combo-card"><div class="tn-combo-top"><span class="tn-combo-id">TN-${x.id}</span><span class="pill">Draft · ஆய்வு வரைவு</span></div><div class="tn-combo-name">${x.name} · ${x.ta}</div><div class="muted small">${tnCombinationCategories[x.category]}</div><div class="tn-combo-remedies">${x.remedies.map(r=>`<span class="tn-remedy-chip">${r}</span>`).join('')}</div></article>`).join(''):'<div class="panel muted">No combinations found / பொருத்தமான கலவை கிடைக்கவில்லை.</div>';
+}
+function tnInitCombinationLibrary(){
+  const select=document.getElementById('tnCombinationCategory'); if(!select||select.dataset.ready)return;
+  tnCombinationCategories.forEach((c,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=(i+1)+'. '+c;select.appendChild(o)});
+  document.getElementById('tnCombinationSearch').addEventListener('input',tnRenderCombinations);
+  select.addEventListener('change',tnRenderCombinations); select.dataset.ready='1'; tnRenderCombinations();
+}
+document.addEventListener('DOMContentLoaded',tnInitCombinationLibrary);
+
 window.addEventListener('load', () => {
   const d = document.getElementById('date');
   if (d && !d.value) d.value = new Date().toISOString().slice(0,10);
