@@ -1744,31 +1744,58 @@ function tnShowTaskComparison(taskId) {
   const host = document.getElementById('assessmentVisitList');
   const completed = task ? (task.visits || []).filter(v => v.report).sort((a,b) => Number(a.number)-Number(b.number)) : [];
   if (!task || !host || completed.length < 2) { alert('ஒப்பீட்டிற்கு குறைந்தது 2 Completed Assessment Reports தேவை.'); return; }
-  const first = completed[0].report, latest = completed[completed.length-1].report;
-  const delta = (a,b) => Number(b||0)-Number(a||0);
-  const trend = (a,b) => { const d=delta(a,b); return d===0?'No change':(d<0?`${Math.abs(d)} குறைவு`:`${d} அதிகரிப்பு`); };
-  const cats = Object.keys(first.categoryScores || {}).map(id => {
+
+  const first = completed[0].report;
+  const latest = completed[completed.length-1].report;
+  const score = value => Number(value == null ? 0 : value);
+  const delta = (a,b) => score(b)-score(a);
+  const changeText = (a,b) => {
+    const d=delta(a,b);
+    return d===0 ? 'No change' : (d>0 ? '+'+d+' அதிகரிப்பு' : d+' குறைவு');
+  };
+  const dateText = r => tnEsc(r.date || (r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'));
+  const categories = Object.keys(first.categoryScores || {});
+  const cats = categories.map(id => {
     const a=first.categoryScores[id], b=(latest.categoryScores||{})[id];
-    return `<tr><td>${tnEsc(a ? a.name : id)}</td><td>${a ? a.score : '—'}</td><td>${b ? b.score : '—'}</td><td>${a&&b ? tnEsc(trend(a.score,b.score)) : '—'}</td></tr>`;
+    return `<tr><td>${tnEsc(a ? (a.name + (a.tamil ? ' · '+a.tamil : '')) : id)}</td><td>${a ? a.score : '—'}</td><td>${b ? b.score : '—'}</td><td>${a&&b ? changeText(a.score,b.score) : '—'}</td></tr>`;
   }).join('');
-  const remedies = (first.remedies||[]).map(a => {
-    const b=(latest.remedies||[]).find(x=>x.remedy===a.remedy);
-    return `<tr><td>${tnEsc(a.remedy)}</td><td>${a.score}</td><td>${b?b.score:'—'}</td><td>${b?tnEsc(trend(a.score,b.score)):'—'}</td></tr>`;
+
+  const remedyNames = Array.from(new Set([...(first.remedies||[]),...(latest.remedies||[])].map(x=>x.remedy)));
+  const remedies = remedyNames.map(name => {
+    const a=(first.remedies||[]).find(x=>x.remedy===name), b=(latest.remedies||[]).find(x=>x.remedy===name);
+    if ((!a || !a.answered) && (!b || !b.answered)) return '';
+    return `<tr><td>${tnEsc(name)}</td><td>${a ? a.score : '—'}</td><td>${b ? b.score : '—'}</td><td>${a&&b ? changeText(a.score,b.score) : (b ? 'புதிய பதிவு' : 'கடைசி மதிப்பீட்டில் இல்லை')}</td></tr>`;
   }).join('');
+
+  const topNames = Array.from(new Set([...(first.top3||[]),...(latest.top3||[])].map(x=>x.remedy)));
+  const top7 = topNames.map(name => {
+    const a=(first.top3||[]).find(x=>x.remedy===name), b=(latest.top3||[]).find(x=>x.remedy===name);
+    return `<tr><td>${tnEsc(name)}</td><td>${a ? a.score+'/'+a.maxScore+' ('+a.percentage+'%)' : '—'}</td><td>${b ? b.score+'/'+b.maxScore+' ('+b.percentage+'%)' : '—'}</td><td>${a&&b ? changeText(a.score,b.score) : (b ? 'Top 7-ல் புதிதாக' : 'Latest Top 7-ல் இல்லை')}</td></tr>`;
+  }).join('');
+
+  const historyRows = completed.map((v,i) => {
+    const r=v.report;
+    return `<tr><td>Assessment ${tnEsc(v.number)}</td><td>${dateText(r)}</td><td>${r.bachAnswered||0}/77</td><td>${r.pss ? r.pss.score+'/40' : '—'}</td><td>${i===0?'Initial':(i===completed.length-1?'Latest':'Follow-up')}</td></tr>`;
+  }).join('');
+
   tnUpdatePersistentBreadcrumb('compare');
   host.innerHTML = `<nav class="tn-breadcrumb" aria-label="Breadcrumb"><button type="button" id="tnCompareHome">Flower Remedy Assessment</button><span class="sep">›</span><button type="button" id="tnCompareBack">Task Details</button><span class="sep">›</span><span class="current">Task Progress Comparison</span></nav>
-    <h3>Task Progress Comparison</h3><div class="record" style="padding:14px;border-radius:16px;margin-bottom:12px"><strong>${tnEsc(task.name)}</strong><p class="muted small">Initial: Assessment ${completed[0].number} (${tnEsc(first.date||'—')}) · Latest: Assessment ${completed[completed.length-1].number} (${tnEsc(latest.date||'—')})</p>
+    <h3>Task Progress Comparison</h3>
+    <div class="record" style="padding:14px;border-radius:16px;margin-bottom:12px"><strong>${tnEsc(task.name)}</strong><p class="muted small">Initial: Assessment ${completed[0].number} (${dateText(first)}) · Latest: Assessment ${completed[completed.length-1].number} (${dateText(latest)})</p>
     <div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Measure</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>
-    <tr><td>Bach Answered</td><td>${first.bachAnswered}/77</td><td>${latest.bachAnswered}/77</td><td>${trend(first.bachAnswered,latest.bachAnswered)}</td></tr>
-    <tr><td>PSS-10 Score</td><td>${first.pss.score}/40</td><td>${latest.pss.score}/40</td><td>${trend(first.pss.score,latest.pss.score)}</td></tr>
+    <tr><td>Bach Answered</td><td>${first.bachAnswered||0}/77</td><td>${latest.bachAnswered||0}/77</td><td>${changeText(first.bachAnswered,latest.bachAnswered)}</td></tr>
+    <tr><td>PSS-10 Score</td><td>${first.pss ? first.pss.score : '—'}/40</td><td>${latest.pss ? latest.pss.score : '—'}/40</td><td>${first.pss&&latest.pss ? changeText(first.pss.score,latest.pss.score) : '—'}</td></tr>
     </tbody></table></div></div>
-    <h4>7 Category Scores</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Category</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${cats}</tbody></table></div>
-    <h4>Remedy-wise Score Comparison</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Remedy</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${remedies}</tbody></table></div>
-    <p class="muted small">Score மாற்றம் என்பது மதிப்பெண் வேறுபாடு மட்டுமே; தனியாக மருத்துவ முன்னேற்ற முடிவாகக் கருதக்கூடாது.</p>`;
+    <h4>Assessment-wise Progress History</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Assessment</th><th>Date</th><th>Bach Answered</th><th>PSS-10</th><th>Stage</th></tr></thead><tbody>${historyRows}</tbody></table></div>
+    <h4>7 Emotional Category Scores</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Category</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${cats}</tbody></table></div>
+    <h4>Remedy-wise Score Comparison</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Remedy</th><th>Initial</th><th>Latest</th><th>Change</th></tr></thead><tbody>${remedies || '<tr><td colspan="4">Remedy score data இல்லை</td></tr>'}</tbody></table></div>
+    <h4>Top 7 Remedy Screening Signals – Comparison</h4><div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Remedy</th><th>Initial</th><th>Latest</th><th>Status / Change</th></tr></thead><tbody>${top7 || '<tr><td colspan="4">Top 7 data இல்லை</td></tr>'}</tbody></table></div>
+    <p class="muted small">Score மாற்றம் என்பது மதிப்பெண் வேறுபாடு மட்டுமே; தனியாக மருத்துவ முன்னேற்ற முடிவாகக் கருதக்கூடாது. PSS-10 மற்றும் மலர் மருந்து screening தனித்தனி அளவீடுகள்.</p>`;
   document.getElementById('tnCompareBack').onclick=()=>tnShowVisits(taskId);
   document.getElementById('tnCompareHome').onclick=()=>{ tnTaskDetailOpen=false; currentAssessmentTaskId=null; currentAssessmentVisitId=null; tnSetAssessmentScreen('list'); const w=document.getElementById('assessmentWorkspace'); if(w)w.style.display='none'; const panel=document.getElementById('assessmentTaskPanel'); if(panel)panel.style.display='block'; tnRenderTasks(); };
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
 async function tnCopyReportText(elementId) {
   const source = document.getElementById(elementId);
   if (!source) { alert('Report கிடைக்கவில்லை.'); return; }
