@@ -1847,8 +1847,7 @@ function tnShareElementAsPdf(elementId, fileName) {
         alert('Top 7 Remedies முழுமையாகக் கிடைக்கவில்லை. கிடைத்தவை: ' + top7Rows.length);
         return;
       }
-      const pageOneRows = top7Rows.slice(0, 4).join('');
-      const pageTwoRows = top7Rows.slice(4).join('');
+      const allSevenRows = top7Rows.join('');
 
       const participantHtml = participantLine
         ? participantLine.outerHTML
@@ -1865,16 +1864,11 @@ function tnShareElementAsPdf(elementId, fileName) {
             ${participantHtml}
             ${assessorHtml}
           </section>
-          <section class="pdf-top7">
-            <h3>Top 7 Remedy Screening Signals</h3>
-            <div class="pdf-remedy-head"><div>Remedy</div><div>Score</div><div>Percentage</div></div>
-            ${pageOneRows}
-          </section>
         </section>
         <section class="pdf-page pdf-page-two">
-          <h2 style="color:#174d3a;margin:0 0 18px">Top 7 Remedy Screening Signals – Continued</h2>
+          <h2 style="color:#174d3a;margin:0 0 18px">Top 7 Remedy Screening Signals</h2>
           <div class="pdf-remedy-head"><div>Remedy</div><div>Score</div><div>Percentage</div></div>
-          ${pageTwoRows}
+          ${allSevenRows}
         </section>
       `;
     }
