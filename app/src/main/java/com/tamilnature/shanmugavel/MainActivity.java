@@ -11,13 +11,10 @@ import android.webkit.WebViewClient;
 import android.webkit.WebSettings;
 import android.graphics.pdf.PdfDocument;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Color;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import android.content.Intent;
@@ -45,6 +42,7 @@ public class MainActivity extends Activity {
 
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().setNavigationBarColor(Color.WHITE);
+
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         );
@@ -90,15 +88,23 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void sharePdf(String base64Pdf, String fileName) {
+
             try {
-                String cleanBase64 = stripDataPrefix(base64Pdf);
+                String cleanBase64 =
+                        stripDataPrefix(base64Pdf);
 
                 byte[] pdfBytes =
-                        Base64.decode(cleanBase64, Base64.DEFAULT);
+                        Base64.decode(
+                                cleanBase64,
+                                Base64.DEFAULT
+                        );
 
-                File outputFile = writePdfFile(pdfBytes, fileName);
+                File outputFile =
+                        writePdfFile(pdfBytes, fileName);
 
-                handler.post(() -> sharePdfFile(outputFile));
+                handler.post(() ->
+                        sharePdfFile(outputFile)
+                );
 
             } catch (Exception e) {
                 showError(e);
@@ -106,12 +112,20 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void shareHtmlAsPdf(String base64Html, String fileName) {
+        public void shareHtmlAsPdf(
+                String base64Html,
+                String fileName
+        ) {
+
             try {
-                String cleanBase64 = stripDataPrefix(base64Html);
+                String cleanBase64 =
+                        stripDataPrefix(base64Html);
 
                 byte[] htmlBytes =
-                        Base64.decode(cleanBase64, Base64.DEFAULT);
+                        Base64.decode(
+                                cleanBase64,
+                                Base64.DEFAULT
+                        );
 
                 String html = new String(
                         htmlBytes,
@@ -119,7 +133,10 @@ public class MainActivity extends Activity {
                 );
 
                 handler.post(() ->
-                        renderHtmlToPdfAndShare(html, fileName)
+                        renderHtmlToPdfAndShare(
+                                html,
+                                fileName
+                        )
                 );
 
             } catch (Exception e) {
@@ -140,7 +157,9 @@ public class MainActivity extends Activity {
 
         int commaIndex = value.indexOf(",");
 
-        if (value.startsWith("data:") && commaIndex >= 0) {
+        if (value.startsWith("data:")
+                && commaIndex >= 0) {
+
             return value.substring(commaIndex + 1);
         }
 
@@ -159,7 +178,9 @@ public class MainActivity extends Activity {
         );
 
         if (!folder.exists() && !folder.mkdirs()) {
-            throw new IOException("Cannot create PDF folder");
+            throw new IOException(
+                    "Cannot create PDF folder"
+            );
         }
 
         return folder;
@@ -167,11 +188,16 @@ public class MainActivity extends Activity {
 
     private String safePdfName(String fileName) {
 
-        if (fileName == null || fileName.trim().isEmpty()) {
+        if (fileName == null
+                || fileName.trim().isEmpty()) {
+
             fileName = "TamilNature_Report.pdf";
         }
 
-        fileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        fileName = fileName.replaceAll(
+                "[^a-zA-Z0-9._-]",
+                "_"
+        );
 
         if (!fileName.toLowerCase().endsWith(".pdf")) {
             fileName += ".pdf";
@@ -180,8 +206,10 @@ public class MainActivity extends Activity {
         return fileName;
     }
 
-    private File writePdfFile(byte[] bytes, String fileName)
-            throws IOException {
+    private File writePdfFile(
+            byte[] bytes,
+            String fileName
+    ) throws IOException {
 
         File folder = getReportFolder();
 
@@ -211,7 +239,8 @@ public class MainActivity extends Activity {
 
         WebView pdfWebView = new WebView(this);
 
-        WebSettings settings = pdfWebView.getSettings();
+        WebSettings settings =
+                pdfWebView.getSettings();
 
         settings.setJavaScriptEnabled(false);
         settings.setDomStorageEnabled(false);
@@ -228,7 +257,8 @@ public class MainActivity extends Activity {
 
         pdfWebView.setAlpha(0.01f);
 
-        pdfWebView.setWebViewClient(new WebViewClient() {
+        pdfWebView.setWebViewClient(
+                new WebViewClient() {
 
             @Override
             public void onPageFinished(
@@ -239,11 +269,18 @@ public class MainActivity extends Activity {
                 handler.postDelayed(() -> {
 
                     try {
-                        createPdf(pdfWebView, fileName);
+                        createPdf(
+                                pdfWebView,
+                                fileName
+                        );
 
                     } catch (Exception e) {
+
                         showError(e);
-                        removeTemporaryWebView(pdfWebView);
+
+                        removeTemporaryWebView(
+                                pdfWebView
+                        );
                     }
 
                 }, 1500);
@@ -256,8 +293,14 @@ public class MainActivity extends Activity {
                     String description,
                     String failingUrl
             ) {
-                showError(new Exception(description));
-                removeTemporaryWebView(pdfWebView);
+
+                showError(
+                        new Exception(description)
+                );
+
+                removeTemporaryWebView(
+                        pdfWebView
+                );
             }
         });
 
@@ -271,7 +314,7 @@ public class MainActivity extends Activity {
     }
 
     // ------------------------------------
-    // CREATE PDF DOCUMENT
+    // CREATE PDF DOCUMENT - A4 PAGINATION
     // ------------------------------------
 
     private void createPdf(
@@ -281,89 +324,138 @@ public class MainActivity extends Activity {
 
         PdfDocument document = new PdfDocument();
 
-        int pageWidth = 595;
-        int pageHeight = 842;
+        try {
 
-        int screenWidth =
-                getResources().getDisplayMetrics().widthPixels;
+            final int pageWidth = 595;
+            final int pageHeight = 842;
 
-        float scale = (float) pageWidth / screenWidth;
+            final int margin = 28;
 
-        int contentHeight =
-                (int) (source.getContentHeight() *
-                        getResources().getDisplayMetrics().density);
+            final int printableWidth =
+                    pageWidth - (margin * 2);
 
-        if (contentHeight <= 0) {
-            contentHeight = source.getHeight();
-        }
+            final int printableHeight =
+                    pageHeight - (margin * 2);
 
-        int totalPages = (int) Math.ceil(
-                (double) (contentHeight * scale) / pageHeight
-        );
+            int webViewWidth = source.getWidth();
 
-        if (totalPages < 1) {
-            totalPages = 1;
-        }
+            if (webViewWidth <= 0) {
+                throw new IOException(
+                        "Report width is invalid"
+                );
+            }
 
-        for (int i = 0; i < totalPages; i++) {
+            float webViewScale = source.getScale();
 
-            PdfDocument.PageInfo pageInfo =
-                    new PdfDocument.PageInfo.Builder(
-                            pageWidth,
-                            pageHeight,
-                            i + 1
-                    ).create();
+            float contentHeight =
+                    source.getContentHeight()
+                            * webViewScale;
 
-            PdfDocument.Page page =
-                    document.startPage(pageInfo);
+            if (contentHeight <= 0) {
+                throw new IOException(
+                        "Report content is empty"
+                );
+            }
 
-            Canvas canvas = page.getCanvas();
+            // Fit content width to A4 printable width
+            float pdfScale =
+                    (float) printableWidth
+                            / webViewWidth;
 
-            canvas.drawColor(Color.WHITE);
+            // Content height represented by one PDF page
+            float pageContentHeight =
+                    printableHeight / pdfScale;
 
-            canvas.save();
-
-            canvas.scale(scale, scale);
-
-            int scrollY = (int) (
-                    (i * pageHeight) / scale
+            int totalPages = (int) Math.ceil(
+                    contentHeight / pageContentHeight
             );
 
-            source.scrollTo(0, scrollY);
+            if (totalPages < 1) {
+                totalPages = 1;
+            }
 
-            source.draw(canvas);
+            for (int i = 0; i < totalPages; i++) {
 
-            canvas.restore();
+                PdfDocument.PageInfo pageInfo =
+                        new PdfDocument.PageInfo.Builder(
+                                pageWidth,
+                                pageHeight,
+                                i + 1
+                        ).create();
 
-            document.finishPage(page);
+                PdfDocument.Page page =
+                        document.startPage(pageInfo);
+
+                Canvas canvas = page.getCanvas();
+
+                canvas.drawColor(Color.WHITE);
+
+                canvas.save();
+
+                // A4 page margin
+                canvas.translate(margin, margin);
+
+                // Scale WebView to PDF width
+                canvas.scale(
+                        pdfScale,
+                        pdfScale
+                );
+
+                // Scroll to current page content
+                int scrollY = Math.round(
+                        i * pageContentHeight
+                );
+
+                source.scrollTo(0, scrollY);
+
+                // Clip current page content
+                canvas.clipRect(
+                        0,
+                        0,
+                        webViewWidth,
+                        pageContentHeight
+                );
+
+                // Draw WebView content
+                source.draw(canvas);
+
+                canvas.restore();
+
+                document.finishPage(page);
+            }
+
+            File folder = getReportFolder();
+
+            File outputFile = new File(
+                    folder,
+                    safePdfName(fileName)
+            );
+
+            try (FileOutputStream outputStream =
+                         new FileOutputStream(outputFile)) {
+
+                document.writeTo(outputStream);
+                outputStream.flush();
+            }
+
+            removeTemporaryWebView(source);
+
+            // Open Android PDF share directly
+            sharePdfFile(outputFile);
+
+        } finally {
+
+            document.close();
         }
-
-        File folder = getReportFolder();
-
-        File outputFile = new File(
-                folder,
-                safePdfName(fileName)
-        );
-
-        try (FileOutputStream outputStream =
-                     new FileOutputStream(outputFile)) {
-
-            document.writeTo(outputStream);
-            outputStream.flush();
-        }
-
-        document.close();
-
-        removeTemporaryWebView(source);
-
-        sharePdfFile(outputFile);
     }
 
     // ------------------------------------
     // REMOVE TEMPORARY WEBVIEW
     // ------------------------------------
 
-    private void removeTemporaryWebView(WebView view) {
+    private void removeTemporaryWebView(
+            WebView view
+    ) {
 
         if (view == null) {
             return;
@@ -371,14 +463,8 @@ public class MainActivity extends Activity {
 
         handler.post(() -> {
 
-            ViewGroup parent = (ViewGroup) view.getParent();
+            ViewParentCleanup.remove(view);
 
-            if (parent != null) {
-                parent.removeView(view);
-            }
-
-            view.stopLoading();
-            view.destroy();
         });
     }
 
@@ -391,7 +477,10 @@ public class MainActivity extends Activity {
         try {
 
             if (file == null || !file.exists()) {
-                throw new IOException("PDF file not found");
+
+                throw new IOException(
+                        "PDF file not found"
+                );
             }
 
             Uri pdfUri = FileProvider.getUriForFile(
@@ -431,6 +520,7 @@ public class MainActivity extends Activity {
             );
 
         } catch (Exception e) {
+
             showError(e);
         }
     }
@@ -466,9 +556,37 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
 
         if (webView != null && webView.canGoBack()) {
+
             webView.goBack();
+
         } else {
+
             super.onBackPressed();
+        }
+    }
+
+    // ------------------------------------
+    // TEMPORARY WEBVIEW CLEANUP
+    // ------------------------------------
+
+    private static class ViewParentCleanup {
+
+        static void remove(WebView view) {
+
+            if (view == null) {
+                return;
+            }
+
+            android.view.ViewParent parent =
+                    view.getParent();
+
+            if (parent instanceof ViewGroup) {
+
+                ((ViewGroup) parent).removeView(view);
+            }
+
+            view.stopLoading();
+            view.destroy();
         }
     }
 }
