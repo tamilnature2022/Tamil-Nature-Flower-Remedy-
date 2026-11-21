@@ -30,6 +30,12 @@ public class MainActivity extends Activity {
 
     private WebView webView;
 
+    private void msg(String text) {
+        runOnUiThread(() ->
+            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+        );
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +76,6 @@ public class MainActivity extends Activity {
                 );
 
                 File file = writePdfFile(bytes, fileName);
-
                 runOnUiThread(() -> sharePdfFile(file));
 
             } catch (Exception e) {
@@ -81,13 +86,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void shareHtmlAsPdf(String base64Html, String fileName) {
 
-            runOnUiThread(() ->
-                Toast.makeText(
-                    MainActivity.this,
-                    "PDF Share Request Received",
-                    Toast.LENGTH_LONG
-                ).show()
-            );
+            msg("1. PDF Share Request Received");
 
             try {
                 byte[] htmlBytes = Base64.decode(
@@ -154,6 +153,8 @@ public class MainActivity extends Activity {
 
     private void renderHtmlToPdfAndShare(String html, String fileName) {
 
+        msg("2. PDF HTML Loading...");
+
         WebView pdfWebView = new WebView(this);
 
         WebSettings settings = pdfWebView.getSettings();
@@ -162,11 +163,34 @@ public class MainActivity extends Activity {
         settings.setAllowFileAccess(true);
 
         pdfWebView.setWebViewClient(new WebViewClient() {
+
             @Override
             public void onPageFinished(WebView view, String url) {
-                view.post(() ->
-                    writeWebViewPdf(view, fileName, pdfWebView)
-                );
+
+                msg("3. PDF HTML Loaded");
+
+                view.postDelayed(() -> {
+
+                    msg("4. PDF Creating...");
+
+                    writeWebViewPdf(
+                        view,
+                        fileName,
+                        pdfWebView
+                    );
+
+                }, 1500);
+            }
+
+            @Override
+            public void onReceivedError(
+                WebView view,
+                int errorCode,
+                String description,
+                String failingUrl
+            ) {
+                msg("HTML Error: " + description);
+                pdfWebView.destroy();
             }
         });
 
@@ -241,19 +265,13 @@ public class MainActivity extends Activity {
             document.close();
 
             temporaryWebView.post(() -> {
-                Toast.makeText(
-                    MainActivity.this,
-                    "PDF Created Successfully",
-                    Toast.LENGTH_SHORT
-                ).show();
-
+                msg("5. PDF Created Successfully");
                 sharePdfFile(outputFile);
                 temporaryWebView.destroy();
             });
 
         } catch (Exception e) {
             document.close();
-
             temporaryWebView.post(() -> {
                 showError(e);
                 temporaryWebView.destroy();
@@ -263,6 +281,8 @@ public class MainActivity extends Activity {
 
     private void sharePdfFile(File file) {
         try {
+            msg("6. Opening PDF Share...");
+
             Uri uri = FileProvider.getUriForFile(
                 MainActivity.this,
                 getPackageName() + ".fileprovider",
@@ -287,13 +307,7 @@ public class MainActivity extends Activity {
     }
 
     private void showError(Exception e) {
-        runOnUiThread(() ->
-            Toast.makeText(
-                MainActivity.this,
-                "PDF Error: " + e.getMessage(),
-                Toast.LENGTH_LONG
-            ).show()
-        );
+        msg("PDF Error: " + e.getMessage());
     }
 
     @Override
