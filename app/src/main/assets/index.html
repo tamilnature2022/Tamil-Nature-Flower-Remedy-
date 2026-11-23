@@ -454,10 +454,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(5){width:18% !important;white-space:nowrap;}
 }
 </style><style id="tn-track-score-styles">
-.tn-track-table th,.tn-track-table td{vertical-align:top;min-width:115px}
+.tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
 .tn-track-score{display:block;margin-top:4px;font-size:.9em;color:#52635a;white-space:nowrap}
-@media(max-width:600px){.tn-track-table{min-width:590px}.tn-track-table th:first-child,.tn-track-table td:first-child{min-width:72px}}
+@media(max-width:600px){.tn-track-table{min-width:0}.tn-track-table th,.tn-track-table td{padding:9px 6px;font-size:.88em}.tn-track-score{font-size:.82em;white-space:normal}}
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -741,7 +741,7 @@ function reportHTML(r) {
   const trackRows = TN_INNER_TRACKS.map((track,i) => {
     const items = track.map(name => (r.remedies || []).find(x => x.remedy === name)).filter(x => x && x.answered);
     const total = items.reduce((sum,x) => sum + x.score, 0);
-    return { track, index:i+1, total, html:`<tr><td>Track ${String(i+1).padStart(2,'0')}</td>${track.map(name=>`<td>${tnRemedyScoreCell(r,name)}</td>`).join('')}</tr>` };
+    return { track, index:i+1, total, html:`<tr>${track.map(name=>`<td>${tnRemedyScoreCell(r,name)}</td>`).join('')}</tr>` };
   }).sort((a,b)=>b.total-a.total || a.index-b.index).map(x=>x.html).join('');
   const outerRows = TN_OUTER_FLOWERS.map(name=>`<tr><td>${escv(name)}</td><td>${tnRemedyScoreCell(r,name)}</td></tr>`).join('');
   const foundationRow = `<tr><td>Larch · Foundation Flower</td><td>${tnRemedyScoreCell(r,'Larch')}</td></tr>`;
@@ -749,8 +749,8 @@ function reportHTML(r) {
   <section class="report-section"><h3>1. 7 Emotional Category Scores</h3><table class="scoretable category-score-table"><thead><tr><th>Category</th><th>Score</th><th>Answered</th></tr></thead><tbody>${cats}</tbody></table></section>
   <section class="report-section"><h3>2. Remedy-wise Scores</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="4">No answered remedy questions</td></tr>'}</tbody></table>
   <h3 style="margin-top:18px">Inner Track Analysis · 12 Inner Tracks</h3>
-  <p class="muted small">ஒவ்வொரு Track-லும் உள்ள மூன்று remedies ஒரே வரிசையில் காட்டப்படும். ஒவ்வொரு remedy-க்கும் Score / 8 மற்றும் Percentage காட்டப்படும். Track வரிசை மொத்த score அடிப்படையில் அமைக்கப்பட்டுள்ளது.</p>
-  <div class="scoretable-wrap"><table class="scoretable tn-track-table"><thead><tr><th>Track</th><th>Remedy 1</th><th>Remedy 2</th><th>Remedy 3</th></tr></thead><tbody>${trackRows}</tbody></table></div>
+  <p class="muted small">ஒவ்வொரு குழுவிலும் உள்ள மூன்று remedies மட்டும் ஒரே வரிசையில் காட்டப்படும். ஒவ்வொரு remedy-க்கும் Score / 8 மற்றும் Percentage காட்டப்படும்.</p>
+  <div class="scoretable-wrap"><table class="scoretable tn-track-table"><thead><tr><th>Remedy 1</th><th>Remedy 2</th><th>Remedy 3</th></tr></thead><tbody>${trackRows}</tbody></table></div>
   <h3 style="margin-top:18px">Outer Flowers · 5 Outer Flowers</h3>
   <div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Outer Flower</th><th>Score / 8 · Percentage</th></tr></thead><tbody>${outerRows}</tbody></table></div>
   <h3 style="margin-top:18px">Foundation Flower</h3>
