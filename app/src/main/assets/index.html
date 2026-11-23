@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | V164</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V164</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -453,44 +453,65 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(5),
   #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(5){width:18% !important;white-space:nowrap;}
 }
+
+/* V164 AUTH */
+#tnAuthGate{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#eaf2ec,#f8faf8);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
+#tnAuthGate .tn-auth-card{width:min(100%,460px);background:#fff;border:1px solid #dbe4dc;border-radius:20px;padding:24px;box-shadow:0 18px 55px #183b2820}
+#tnAuthGate h2{margin:0 0 6px;color:#244b38;font-size:1.45rem}
+#tnAuthGate .tn-auth-sub{margin:0 0 18px;color:#647168;font-size:.92rem}
+#tnAuthGate .tn-auth-field{margin:12px 0}
+#tnAuthGate label{display:block;font-weight:700;font-size:.9rem;margin-bottom:5px}
+#tnAuthGate input{width:100%;padding:12px;border:1px solid #cbd8ce;border-radius:10px;font:inherit}
+#tnAuthGate button{width:100%;margin-top:9px}
+#tnAuthGate .tn-auth-msg{margin-top:12px;padding:10px;border-radius:9px;background:#eef5ef;color:#315b45;font-size:.9rem;white-space:pre-wrap}
+#tnAuthGate .tn-auth-error{background:#fff0ed;color:#8c3022}
+#tnAuthGate .tn-auth-link{border:0;background:transparent;color:#315b45;text-decoration:underline;padding:8px;margin-top:10px}
+#tnAdminUsers{margin:12px 0;padding:14px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
+#tnAdminUsers table{width:100%;border-collapse:collapse;font-size:.88rem}
+#tnAdminUsers th,#tnAdminUsers td{padding:8px;border-bottom:1px solid #e5ece6;text-align:left;vertical-align:top}
+#tnAdminUsers select{padding:7px;border:1px solid #cbd8ce;border-radius:8px}
+#tnAccountBar{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;padding:8px 12px;background:#eef5ef;border-bottom:1px solid #dbe4dc;font-size:.85rem}
+#tnAccountBar button{padding:7px 11px}
+
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
 .tn-track-score{display:block;margin-top:4px;font-size:.9em;color:#52635a;white-space:nowrap}
 @media(max-width:600px){.tn-track-table{min-width:0}.tn-track-table th,.tn-track-table td{padding:9px 6px;font-size:.88em}.tn-track-score{font-size:.82em;white-space:normal}}
-</style>
-<style id="tn-auth-styles">
-#tnAuthGate{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#eaf2eb,#f7f9f6)}
-.tn-auth-card{width:min(100%,460px);background:#fff;border:1px solid #dbe4dc;border-radius:20px;padding:24px;box-shadow:0 12px 38px #173c2818}
-.tn-auth-brand{text-align:center;color:#24563d;font-weight:900;font-size:1.45rem;letter-spacing:.02em}
-.tn-auth-sub{text-align:center;color:#647168;margin:4px 0 20px}
-.tn-auth-tabs{display:flex;gap:8px;margin:14px 0}.tn-auth-tabs button{flex:1;background:#edf3ee;color:#315b45}.tn-auth-tabs button.active{background:#315b45;color:#fff}
-.tn-auth-field{margin:12px 0}.tn-auth-field label{display:block;font-weight:700;margin-bottom:5px}.tn-auth-field input{width:100%;padding:12px;border:1px solid #cbd8ce;border-radius:10px;font:inherit}
-#tnAuthMessage{padding:10px;border-radius:10px;margin-top:12px;display:none;white-space:pre-wrap}.tn-auth-ok{background:#e9f5eb;color:#245b35}.tn-auth-error{background:#fff0ed;color:#9b3022}
-#tnAdminApprovals{margin:0 0 14px}#tnAdminApprovals .tn-pending-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #dbe4dc;border-radius:10px;padding:10px;margin:8px 0;flex-wrap:wrap}
-</style>
-</head>
+</style></head>
 <body>
-<section id="tnAuthGate">
- <div class="tn-auth-card">
-  <div class="tn-auth-brand">TAMIL NATURE</div>
-  <div class="tn-auth-sub">FLOWER REMEDY · Screening & Research App</div>
-  <div class="tn-auth-tabs"><button type="button" id="tnLoginTab" class="active">Login</button><button type="button" id="tnSignupTab">Sign Up</button></div>
-  <form id="tnAuthForm">
-   <div class="tn-auth-field" id="tnNameWrap" hidden><label for="tnAuthName">Full Name / முழுப் பெயர்</label><input id="tnAuthName" autocomplete="name" maxlength="100"></div>
-   <div class="tn-auth-field"><label for="tnAuthEmail">Email</label><input id="tnAuthEmail" type="email" required autocomplete="username"></div>
-   <div class="tn-auth-field"><label for="tnAuthPassword">Password</label><input id="tnAuthPassword" type="password" required minlength="8" autocomplete="current-password"></div>
-   <button class="primary" id="tnAuthSubmit" type="submit" style="width:100%;margin-top:8px">LOGIN</button>
-  </form>
-  <div id="tnAuthMessage" role="status" aria-live="polite"></div>
-  <p class="muted small" style="margin:14px 0 0;text-align:center">New registrations require Admin approval. புதிய கணக்குகளுக்கு நிர்வாகி அனுமதி தேவை.</p>
- </div>
-</section>
-<div id="tnAppShell" hidden><main>
+
+<div id="tnAccountBar" class="hidden">
+  <span id="tnAccountLabel"></span>
+  <button type="button" class="secondary" id="tnAdminToggle" style="display:none">Admin · Users</button>
+  <button type="button" class="secondary" id="tnSyncNow">Sync now</button>
+  <button type="button" class="danger" id="tnLogout">Logout</button>
+</div>
+<div id="tnAdminUsers" class="hidden"></div>
+<div id="tnAuthGate" aria-modal="true" role="dialog">
+  <div class="tn-auth-card">
+    <h2>TAMIL NATURE</h2>
+    <p class="tn-auth-sub">Flower Remedy · Secure Account Login</p>
+    <div id="tnLoginView">
+      <div class="tn-auth-field"><label for="tnLoginEmail">Email</label><input id="tnLoginEmail" type="email" autocomplete="username" placeholder="Enter your email"></div>
+      <div class="tn-auth-field"><label for="tnLoginPassword">Password</label><input id="tnLoginPassword" type="password" autocomplete="current-password" placeholder="Enter password"></div>
+      <button type="button" class="primary" id="tnLoginBtn">Sign In</button>
+      <button type="button" class="tn-auth-link" id="tnShowSignup">Create Customer Account / Sign Up</button>
+    </div>
+    <div id="tnSignupView" class="hidden">
+      <div class="tn-auth-field"><label for="tnSignupName">Full Name</label><input id="tnSignupName" autocomplete="name" placeholder="Your name"></div>
+      <div class="tn-auth-field"><label for="tnSignupPhone">Phone (optional)</label><input id="tnSignupPhone" type="tel" autocomplete="tel" placeholder="Phone number"></div>
+      <div class="tn-auth-field"><label for="tnSignupEmail">Email</label><input id="tnSignupEmail" type="email" autocomplete="email" placeholder="Email address"></div>
+      <div class="tn-auth-field"><label for="tnSignupPassword">Password (minimum 6 characters)</label><input id="tnSignupPassword" type="password" autocomplete="new-password" placeholder="Create password"></div>
+      <button type="button" class="primary" id="tnSignupBtn">Create Account</button>
+      <button type="button" class="tn-auth-link" id="tnShowLogin">Back to Sign In</button>
+    </div>
+    <div id="tnAuthMessage" class="tn-auth-msg hidden" aria-live="polite"></div>
+  </div>
+</div>
+<main>
 <div class="sticky-shell">
 <header class="app-header"><div class="app-header-title">TAMIL NATURE <span>FLOWER REMEDY</span></div><div class="app-header-subtitle">மலர் மருந்து மதிப்பீடு மற்றும் ஆய்வு செயலி</div></header>
-<div class="panel no-print" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><strong id="tnSignedInLabel">Signed in</strong><div class="muted" id="tnSignedInRole"></div></div><button type="button" class="secondary" id="tnLogoutBtn">Logout</button></div>
-<section id="tnAdminApprovals" class="panel no-print" hidden><h2>Customer Approvals · வாடிக்கையாளர் அனுமதி</h2><p class="muted">Approve செய்தால் Customer account active ஆகும்.</p><div id="tnPendingUsers">Loading...</div></section>
 <nav class="tabs no-print" aria-label="Main navigation"><button type="button" class="tab active" data-tab="home" onclick="return showTab('home')">Home · முகப்பு</button></nav>
 <nav id="tnPersistentBreadcrumb" class="tn-breadcrumb" aria-label="Breadcrumb"></nav>
 </div>
@@ -633,6 +654,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </section>
 <div class="footer">TamilNatureShanmugam · Professional screening & research app · Not a diagnostic or treatment tool</div>TamilNatureShanmugam · Research screening prototype only · Not a diagnostic or treatment tool</div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+document.addEventListener('DOMContentLoaded',tnInitAuth);
+</script>
 <script>
 const REMEDIES = [["healers", "Impatiens", "பொறுமையின்மை", ["I become impatient when others work more slowly than I do.", "I want tasks to be completed immediately.", "Waiting often makes me feel tense or irritated."], ["மற்றவர்கள் மெதுவாகச் செயல்படும்போது பொறுமையிழக்கிறேன்.", "வேலைகள் உடனே முடிக்கப்பட வேண்டும் என்று விரும்புகிறேன்.", "காத்திருப்பது எனக்கு பதற்றம் அல்லது எரிச்சலை ஏற்படுத்துகிறது."]], ["healers", "Mimulus", "குறிப்பிட்ட பயங்கள்", ["I feel afraid of specific situations or things.", "I avoid situations because I expect something specific to go wrong.", "I find it difficult to talk about identifiable fears."], ["குறிப்பிட்ட சூழ்நிலைகள் அல்லது விஷயங்களைப் பற்றி பயப்படுகிறேன்.", "ஏதாவது குறிப்பிட்ட தவறு நடக்கும் என நினைத்து சில சூழ்நிலைகளைத் தவிர்க்கிறேன்.", "எனக்குத் தெரிந்த குறிப்பிட்ட பயங்களைப் பற்றிப் பேச சிரமப்படுகிறேன்."]], ["healers", "Clematis", "நிகழ்கால கவனம்", ["I often drift into daydreams instead of focusing on what is happening now.", "I sometimes miss details because my attention wanders.", "I spend a lot of time imagining a different future."], ["நிகழ்காலத்தில் கவனம் செலுத்தாமல் கற்பனையில் மூழ்குகிறேன்.", "கவனம் சிதறுவதால் சில விவரங்களைத் தவறவிடுகிறேன்.", "வேறொரு எதிர்காலத்தை கற்பனை செய்வதில் அதிக நேரம் செலவிடுகிறேன்."]], ["healers", "Agrimony", "உள்ளக் கவலையை மறைத்தல்", ["I hide worries behind a cheerful appearance.", "I avoid discussing difficult feelings to keep things pleasant.", "I distract myself rather than acknowledge inner discomfort."], ["மகிழ்ச்சியாக இருப்பது போலத் தோன்றி கவலைகளை மறைக்கிறேன்.", "சூழல் இனிமையாக இருக்க வேண்டும் என்பதற்காகக் கடினமான உணர்வுகளைப் பேசாமல் தவிர்க்கிறேன்.", "உள்ளக் கலக்கத்தை ஏற்றுக்கொள்வதற்குப் பதிலாக கவனத்தைத் திசைதிருப்புகிறேன்."]], ["healers", "Chicory", "அதிகப் பற்றுதல்", ["I feel hurt when loved ones do not respond as I expect.", "I try to influence how close people behave toward me.", "I often need reassurance that others care about me."], ["நெருக்கமானவர்கள் நான் எதிர்பார்த்தபடி நடக்காவிட்டால் மனம் புண்படுகிறது.", "எனக்கு நெருக்கமானவர்கள் எப்படி நடந்துகொள்ள வேண்டும் என்பதை மாற்ற முயல்கிறேன்.", "பிறர் என்னைப் பற்றிக் கவலைப்படுகிறார்கள் என்ற உறுதி அடிக்கடி தேவைப்படுகிறது."]], ["healers", "Vervain", "அளவுக்கு மீறிய ஆர்வம்", ["I become intensely enthusiastic about causes or ideas.", "I find it hard to relax when I care deeply about something.", "I often try to persuade others to share my views."], ["ஒரு கொள்கை அல்லது கருத்தில் மிகுந்த உற்சாகம் கொள்கிறேன்.", "முக்கியமாக நினைக்கும் விஷயங்களில் ஈடுபட்டால் ஓய்வெடுக்க சிரமப்படுகிறேன்.", "என் கருத்துகளை மற்றவர்களும் ஏற்கச் செய்ய அடிக்கடி முயல்கிறேன்."]], ["healers", "Cerato", "முடிவில் நம்பிக்கையின்மை", ["I often doubt decisions I have already made.", "I frequently ask others to confirm my choices.", "I trust outside opinions more than my own judgement."], ["ஏற்கெனவே எடுத்த முடிவுகளையும் அடிக்கடி சந்தேகிக்கிறேன்.", "என் தேர்வுகளைப் பிறர் உறுதிப்படுத்த வேண்டும் என்று அடிக்கடி கேட்கிறேன்.", "என் சொந்த முடிவைவிட பிறரின் கருத்துகளை அதிகம் நம்புகிறேன்."]], ["healers", "Scleranthus", "தேர்வில் தடுமாற்றம்", ["I struggle to choose between two options.", "My preferences can change repeatedly while deciding.", "I find it hard to settle on one course of action."], ["இரண்டு தேர்வுகளில் ஒன்றைத் தேர்ந்தெடுக்க சிரமப்படுகிறேன்.", "முடிவெடுக்கும்போது என் விருப்பம் மீண்டும் மீண்டும் மாறுகிறது.", "ஒரு செயல் திட்டத்தில் உறுதியாக இருக்க சிரமப்படுகிறேன்."]], ["healers", "Water Violet", "தனிமை விருப்பம்", ["I prefer to handle difficulties on my own.", "I find it hard to let others get emotionally close.", "I may appear distant even when I care about people."], ["சிரமங்களை நானே தனியாகச் சமாளிக்க விரும்புகிறேன்.", "மற்றவர்கள் உணர்ச்சிப்பூர்வமாக நெருக்கமாக வர அனுமதிக்க சிரமப்படுகிறேன்.", "பிறரைப் பற்றிக் கவலை இருந்தாலும் விலகியிருப்பது போலத் தோன்றலாம்."]], ["healers", "Gentian", "தடை வந்தால் மனத்தளர்ச்சி", ["A setback quickly reduces my confidence.", "I become discouraged when progress is slower than expected.", "I tend to focus on obstacles after a disappointment."], ["ஒரு தடை ஏற்பட்டால் என் நம்பிக்கை விரைவாகக் குறைகிறது.", "எதிர்பார்த்ததைவிட முன்னேற்றம் மெதுவாக இருந்தால் மனம் தளர்கிறது.", "ஏமாற்றத்திற்குப் பிறகு தடைகளையே அதிகம் கவனிக்கிறேன்."]], ["healers", "Rock Rose", "தீவிரமான பயம்", ["In frightening situations I can feel overwhelmed by panic.", "At times of acute fear I struggle to think clearly.", "A sudden alarming event can leave me feeling frozen."], ["பயமூட்டும் சூழலில் பீதியால் நிலைகுலைகிறேன்.", "கடுமையான பயத்தின்போது தெளிவாகச் சிந்திக்க சிரமப்படுகிறேன்.", "திடீரென அச்சமூட்டும் நிகழ்வு என்னைச் செயலற்றவராக உணரச் செய்யலாம்."]], ["healers", "Centaury", "தனது தேவைகளைப் புறக்கணித்தல்", ["I find it difficult to say no to requests.", "I put others' needs ahead of my own too often.", "I agree to things even when I do not really want to."], ["கோரிக்கைகளுக்கு இல்லை என்று சொல்ல சிரமப்படுகிறேன்.", "என் தேவைகளைவிட பிறரின் தேவைகளுக்கு அடிக்கடி முன்னுரிமை தருகிறேன்.", "விருப்பமில்லாவிட்டாலும் சில விஷயங்களுக்கு ஒப்புக்கொள்கிறேன்."]], ["helpers", "Gorse", "நம்பிக்கையின்மை", ["I have felt hopeless about a difficult situation for some time.", "I struggle to believe that my circumstances can improve.", "I sometimes stop trying because I expect no change."], ["ஒரு கடினமான சூழ்நிலை குறித்து சில காலமாக நம்பிக்கையின்றி உணர்கிறேன்.", "என் நிலைமை மேம்படும் என்று நம்ப சிரமப்படுகிறேன்.", "மாற்றம் ஏற்படாது என நினைத்து முயற்சியை நிறுத்திவிடுகிறேன்."]], ["helpers", "Oak", "ஓய்வின்றி போராடுதல்", ["I keep working even when I am exhausted.", "I feel uncomfortable allowing myself to rest.", "I persist with duties while ignoring signs that I need a break."], ["சோர்வாக இருந்தாலும் தொடர்ந்து வேலை செய்கிறேன்.", "ஓய்வெடுக்க அனுமதித்துக்கொள்வதில் அசௌகரியம் உணர்கிறேன்.", "இடைவேளை தேவை என்பதற்கான அறிகுறிகளைப் புறக்கணித்து கடமைகளைத் தொடர்கிறேன்."]], ["helpers", "Heather", "தனது பிரச்சினையில் கவனம்", ["I strongly need others to listen to my concerns.", "I often bring conversations back to my own experiences.", "I feel unsettled when I have no one to talk to about myself."], ["என் கவலைகளைப் பிறர் கேட்க வேண்டும் என்று அதிகம் விரும்புகிறேன்.", "உரையாடலை அடிக்கடி என் அனுபவங்களுக்குத் திருப்புகிறேன்.", "என்னைப் பற்றி பேச யாரும் இல்லாதபோது அமைதியின்மை ஏற்படுகிறது."]], ["helpers", "Rock Water", "தன்னிடம் கடுமையான கட்டுப்பாடு", ["I set rigid rules for myself.", "I feel guilty when I do not meet my own strict standards.", "I find it hard to be flexible with my routines or habits."], ["எனக்காகக் கடுமையான விதிகளை அமைத்துக்கொள்கிறேன்.", "என் கடுமையான எதிர்பார்ப்புகளைப் பூர்த்தி செய்யாவிட்டால் குற்றவுணர்ச்சி ஏற்படுகிறது.", "என் வழக்கங்கள் அல்லது பழக்கங்களில் நெகிழ்வாக இருக்க சிரமப்படுகிறேன்."]], ["helpers", "Wild Oat", "வாழ்க்கைப் பாதைத் தெளிவின்மை", ["I feel unsure about which direction to take in life.", "I have several interests but struggle to choose a path.", "I feel my abilities are not being used in a meaningful way."], ["வாழ்க்கையில் எந்தப் பாதையைத் தேர்வு செய்வது எனத் தெளிவில்லை.", "பல ஆர்வங்கள் இருந்தாலும் ஒரு பாதையைத் தேர்வு செய்ய சிரமப்படுகிறேன்.", "என் திறன்கள் அர்த்தமுள்ள வகையில் பயன்படுத்தப்படவில்லை என்று உணர்கிறேன்."]], ["helpers", "Olive", "ஆழ்ந்த சோர்வு", ["I feel depleted after prolonged effort or stress.", "Ordinary tasks feel harder when I have been overextended.", "I need substantial rest after a demanding period."], ["நீண்டகால முயற்சி அல்லது அழுத்தத்திற்குப் பிறகு முழுமையாகச் சோர்வடைகிறேன்.", "அளவுக்கு மீறி உழைத்த பிறகு சாதாரண பணிகளும் கடினமாகத் தோன்றுகின்றன.", "கடினமான காலத்திற்குப் பிறகு அதிக ஓய்வு தேவைப்படுகிறது."]], ["helpers", "Vine", "ஆதிக்கம் செலுத்துதல்", ["I expect others to follow my decisions.", "I can become forceful when people disagree with me.", "I often take control rather than share decision-making."], ["மற்றவர்கள் என் முடிவுகளைப் பின்பற்ற வேண்டும் என எதிர்பார்க்கிறேன்.", "பிறர் உடன்படாவிட்டால் வற்புறுத்தும் விதமாக நடக்கலாம்.", "முடிவுகளைப் பகிர்ந்து எடுப்பதற்குப் பதிலாக நானே கட்டுப்பாட்டை ஏற்கிறேன்."]], ["second", "Cherry Plum", "கட்டுப்பாட்டை இழப்போமோ என்ற பயம்", ["I fear I may lose control of my actions or reactions.", "Strong feelings sometimes make me worry about what I might do.", "I feel tense when emotions seem difficult to contain."], ["என் செயல்கள் அல்லது எதிர்வினைகளின் கட்டுப்பாட்டை இழந்துவிடுவேனோ எனப் பயப்படுகிறேன்.", "தீவிர உணர்வுகள் என்னை என்ன செய்ய வைக்கும் எனக் கவலைப்படுகிறேன்.", "உணர்வுகளைக் கட்டுப்படுத்துவது கடினமாகத் தோன்றும்போது பதற்றமடைகிறேன்."]], ["second", "Elm", "பொறுப்புச் சுமை", ["I temporarily feel overwhelmed by my responsibilities.", "I doubt whether I can manage all the tasks expected of me.", "A heavy workload can make me feel unable to cope."], ["என் பொறுப்புகளால் சில நேரங்களில் தற்காலிகமாகச் சுமையடைந்ததாக உணர்கிறேன்.", "என்னிடம் எதிர்பார்க்கப்படும் பணிகளைச் சமாளிக்க முடியுமா எனச் சந்தேகிக்கிறேன்.", "அதிக வேலைச்சுமை என்னால் சமாளிக்க முடியாது போல உணரச் செய்கிறது."]], ["second", "Pine", "குற்றவுணர்ச்சி", ["I blame myself even when responsibility is shared or unclear.", "I often feel I should have done more or done better.", "I find it hard to forgive myself for mistakes."], ["பொறுப்பு பகிரப்பட்டிருந்தாலும் தெளிவில்லாவிட்டாலும் என்னையே குற்றம் சாட்டுகிறேன்.", "இன்னும் அதிகமாக அல்லது சிறப்பாகச் செய்திருக்க வேண்டும் என்று அடிக்கடி நினைக்கிறேன்.", "தவறுகளுக்காக என்னை மன்னிக்க சிரமப்படுகிறேன்."]], ["second", "Larch", "தன்னம்பிக்கைக் குறைவு", ["I assume I will fail before trying something new.", "I avoid opportunities because others seem more capable.", "I underestimate my abilities when comparing myself with others."], ["புதியதை முயற்சிப்பதற்கு முன்பே தோல்வியடைவேன் என்று நினைக்கிறேன்.", "மற்றவர்கள் அதிகத் திறமையுள்ளவர்களாகத் தோன்றுவதால் வாய்ப்புகளைத் தவிர்க்கிறேன்.", "பிறருடன் ஒப்பிடும்போது என் திறன்களை குறைவாக மதிப்பிடுகிறேன்."]], ["second", "Willow", "மனக்கசப்பு", ["I feel resentful about how I have been treated.", "I often focus on unfairness in my circumstances.", "It is difficult for me to let go of bitterness after a disappointment."], ["என்னை நடத்திய விதம் குறித்து மனக்கசப்பு உணர்கிறேன்.", "என் சூழ்நிலைகளில் உள்ள அநீதியை அடிக்கடி நினைக்கிறேன்.", "ஏமாற்றத்திற்குப் பிறகு கசப்பான உணர்வை விடுவது கடினமாக உள்ளது."]], ["second", "Aspen", "காரணம் தெளிவில்லாத அச்சம்", ["I feel uneasy or fearful without knowing exactly why.", "Vague worries sometimes disturb my peace of mind.", "I feel apprehensive even when I cannot identify a clear threat."], ["காரணம் தெளிவாகத் தெரியாமல் அச்சம் அல்லது அமைதியின்மை ஏற்படுகிறது.", "தெளிவற்ற கவலைகள் சில நேரங்களில் மன அமைதியைக் குலைக்கின்றன.", "தெளிவான ஆபத்தைச் சுட்டிக்காட்ட முடியாவிட்டாலும் அச்சமாக உணர்கிறேன்."]], ["second", "Hornbeam", "பணியைத் தொடங்க மனத்தடை", ["I feel mentally reluctant to start routine tasks.", "I expect ordinary tasks to be tiring before I begin them.", "I postpone starting tasks because getting started feels difficult."], ["வழக்கமான பணிகளைத் தொடங்க மனதளவில் தயக்கம் ஏற்படுகிறது.", "சாதாரண பணிகளைத் தொடங்குவதற்கு முன்பே அவை சோர்வூட்டும் என நினைக்கிறேன்.", "தொடங்குவது கடினமாக இருப்பதால் பணிகளைத் தள்ளிப்போடுகிறேன்."]], ["second", "Sweet Chestnut", "தாங்க முடியாத மனவேதனை", ["At times, distress feels almost unbearable.", "I have moments when I cannot see a way through a difficult situation.", "During intense distress, I feel at the limit of my coping ability."], ["சில நேரங்களில் மனவேதனை கிட்டத்தட்ட தாங்க முடியாததாக உணரப்படுகிறது.", "கடினமான சூழ்நிலையிலிருந்து வெளியேறும் வழி தெரியாத தருணங்கள் உள்ளன.", "தீவிர மனவேதனையில் சமாளிக்கும் திறனின் எல்லையை அடைந்ததாக உணர்கிறேன்."]], ["second", "Beech", "விமர்சன மனப்பாங்கு", ["I am easily irritated by other people's habits or differences.", "I quickly notice faults in other people.", "I find it hard to accept ways of doing things that differ from mine."], ["பிறரின் பழக்கங்கள் அல்லது வேறுபாடுகள் எனக்கு எளிதில் எரிச்சல் தருகின்றன.", "பிறரின் குறைகளை விரைவாகக் கவனிக்கிறேன்.", "என்னுடைய முறையிலிருந்து மாறுபட்ட வழிகளை ஏற்றுக்கொள்ள சிரமப்படுகிறேன்."]], ["second", "Crab Apple", "தன்னைப் பற்றிய அதிருப்தி", ["I focus strongly on a flaw I perceive in myself.", "I feel uncomfortable about aspects of my appearance or personal condition.", "I can become preoccupied with feeling unclean, flawed, or imperfect."], ["என்னிடம் இருப்பதாக நினைக்கும் ஒரு குறையில் அதிகமாகக் கவனம் செலுத்துகிறேன்.", "என் தோற்றம் அல்லது தனிப்பட்ட நிலையின் சில அம்சங்கள் அசௌகரியத்தை ஏற்படுத்துகின்றன.", "அசுத்தம், குறை அல்லது முழுமையின்மை பற்றிய எண்ணங்களில் மூழ்குகிறேன்."]], ["second", "Walnut", "மாற்றத்துக்கு ஏற்ப சிரமம்", ["I find it hard to adjust during a life transition.", "Other people's opinions can unsettle a change I have decided to make.", "I feel vulnerable to outside influences when starting something new."], ["வாழ்க்கை மாற்றத்தின் போது பொருந்திக்கொள்ள சிரமப்படுகிறேன்.", "நான் முடிவு செய்த மாற்றத்தைப் பற்றி பிறரின் கருத்துகள் என்னைத் தடுமாறச் செய்கின்றன.", "புதியதைத் தொடங்கும்போது வெளிப்புறத் தாக்கங்களுக்கு எளிதில் ஆளாகிறேன்."]], ["second", "Chestnut Bud", "அதே தவறை மீண்டும் செய்தல்", ["I notice myself repeating a mistake despite past experience.", "I sometimes fail to reflect on what happened before acting again.", "I find it hard to change a pattern even after seeing its consequences."], ["முந்தைய அனுபவம் இருந்தும் அதே தவறை மீண்டும் செய்கிறேன்.", "மீண்டும் செயல்படுவதற்கு முன் நடந்ததைச் சிந்திக்கத் தவறுகிறேன்.", "விளைவுகளைப் பார்த்த பிறகும் ஒரு பழக்கத்தை மாற்ற சிரமப்படுகிறேன்."]], ["second", "White Chestnut", "மீண்டும் வரும் எண்ணங்கள்", ["Unwanted thoughts repeat in my mind.", "I replay conversations or events even when I want to stop.", "Repeated thinking makes it difficult to focus on the present."], ["வேண்டாத எண்ணங்கள் மீண்டும் மீண்டும் மனதில் வருகின்றன.", "நிறுத்த விரும்பினாலும் உரையாடல்கள் அல்லது நிகழ்வுகளை மீண்டும் நினைக்கிறேன்.", "மீண்டும் மீண்டும் சிந்திப்பதால் நிகழ்காலத்தில் கவனம் செலுத்த சிரமமாகிறது."]], ["second", "Red Chestnut", "பிறருக்கான மிகையான கவலை", ["I worry excessively that something bad may happen to loved ones.", "I find it hard to relax when people I care about are away.", "I imagine negative outcomes for people close to me."], ["எனக்குப் பிரியமானவர்களுக்கு ஏதாவது கெடுதல் நடக்குமோ என்று அதிகமாகக் கவலைப்படுகிறேன்.", "எனக்குப் பிரியமானவர்கள் அருகில் இல்லாதபோது ஓய்வாக இருக்க முடியவில்லை.", "நெருக்கமானவர்களுக்கு எதிர்மறையான நிகழ்வுகள் நடப்பதை மனதில் கற்பனை செய்கிறேன்."]], ["second", "Holly", "பொறாமை அல்லது சந்தேகம்", ["I experience jealousy or suspicion toward others.", "I feel strong anger or resentment toward someone.", "It is difficult to feel warm toward someone I believe has wronged me."], ["பிறர்மீது பொறாமை அல்லது சந்தேகம் ஏற்படுகிறது.", "ஒருவர்மீது கடுமையான கோபம் அல்லது மனக்கசப்பு உணர்கிறேன்.", "எனக்குத் தவறு செய்ததாக நினைக்கும் ஒருவரிடம் அன்பாக உணர சிரமப்படுகிறேன்."]], ["second", "Honeysuckle", "கடந்தகாலத்தில் மூழ்குதல்", ["I often long for the past.", "Memories of earlier times make it difficult to engage with the present.", "I frequently think about how things used to be."], ["கடந்தகாலத்தை நினைத்து அடிக்கடி ஏங்குகிறேன்.", "பழைய நினைவுகள் நிகழ்காலத்தில் ஈடுபடுவதை கடினமாக்குகின்றன.", "முன்பு விஷயங்கள் எப்படி இருந்தன என்று அடிக்கடி நினைக்கிறேன்."]], ["second", "Star of Bethlehem", "அதிர்ச்சி அல்லது துயரம்", ["A distressing event still feels emotionally upsetting.", "I find it hard to settle after a shocking or painful experience.", "Memories of a difficult event still affect my feelings."], ["ஒரு வேதனையான நிகழ்வு இன்னும் உணர்ச்சிப்பூர்வமாகப் பாதிக்கிறது.", "அதிர்ச்சியூட்டும் அல்லது வேதனையான அனுபவத்திற்குப் பிறகு அமைதியடைய சிரமப்படுகிறேன்.", "கடினமான நிகழ்வின் நினைவுகள் இன்னும் என் உணர்வுகளைப் பாதிக்கின்றன."]], ["second", "Mustard", "காரணமற்ற சோகம்", ["I experience periods of sadness without a clear reason.", "My mood can become low even when nothing obvious has happened.", "A wave of gloom sometimes appears unexpectedly."], ["தெளிவான காரணமின்றி சில நேரங்களில் சோகம் ஏற்படுகிறது.", "வெளிப்படையான காரணம் இல்லாவிட்டாலும் மனநிலை தாழ்கிறது.", "எதிர்பாராத விதமாக மன இருள் அல்லது சோகம் தோன்றுகிறது."]], ["second", "Wild Rose", "விலகிய ஒப்புக்கொடுத்தல்", ["I have stopped trying to change situations I find unsatisfying.", "I feel resigned rather than engaged with daily life.", "I sometimes go along with things without much interest or hope."], ["திருப்தியளிக்காத சூழ்நிலைகளை மாற்ற முயற்சிப்பதை நிறுத்திவிட்டேன்.", "அன்றாட வாழ்க்கையில் ஈடுபடுவதற்குப் பதிலாக அப்படியே ஏற்றுக்கொள்கிறேன்.", "அதிக ஆர்வமோ நம்பிக்கையோ இல்லாமல் சில விஷயங்களை அப்படியே ஏற்றுக்கொள்கிறேன்."]]];
 const CAT={healers:{en:"Twelve Healers",ta:"12 Healers – அடிப்படை ஆளுமை"},helpers:{en:"Seven Helpers",ta:"7 Helpers – நீண்டகால மனப்பாங்கு"},second:{en:"Second Nineteen",ta:"Second 19 – தற்போதைய உணர்ச்சி நிலை"}};
@@ -836,26 +860,18 @@ function getPssAnswers() {
 
 function localRead() {
   try {
-    const data = localStorage.getItem("tns_bach_records_v4");
+    const key = tnScopedStorageKey("tns_bach_records_v4");
+    const data = localStorage.getItem(key);
     const records = JSON.parse(data || "[]");
     return Array.isArray(records) ? records : [];
-  } catch (error) {
-    console.error("Read error:", error);
-    return [];
-  }
+  } catch (error) { console.error("Read error:", error); return []; }
 }
-
 function localWrite(records) {
   try {
-    localStorage.setItem(
-      "tns_bach_records_v4",
-      JSON.stringify(records)
-    );
+    localStorage.setItem(tnScopedStorageKey("tns_bach_records_v4"), JSON.stringify(records));
+    tnQueueCloudSync();
     return true;
-  } catch (error) {
-    alert("Save failed: " + error.message);
-    return false;
-  }
+  } catch (error) { alert("Save failed: " + error.message); return false; }
 }
 
 function score() {
@@ -1069,12 +1085,12 @@ const CLIENT_STORE_KEY = 'tns_client_profiles_v1';
 let editingClientId = null;
 function readClients() {
   try {
-    const rows = JSON.parse(localStorage.getItem(CLIENT_STORE_KEY) || '[]');
+    const rows = JSON.parse(localStorage.getItem(tnScopedStorageKey(CLIENT_STORE_KEY)) || '[]');
     return Array.isArray(rows) ? rows : [];
   } catch (_) { return []; }
 }
 function writeClients(rows) {
-  try { localStorage.setItem(CLIENT_STORE_KEY, JSON.stringify(rows)); return true; }
+  try { localStorage.setItem(tnScopedStorageKey(CLIENT_STORE_KEY), JSON.stringify(rows)); tnQueueCloudSync(); return true; }
   catch (e) { alert('Could not save client: ' + e.message); return false; }
 }
 window.addEventListener('storage', event => {
@@ -1481,11 +1497,11 @@ let currentAssessmentNo = null;
 let currentAssessmentVisitId = null;
 
 function tnReadTasks() {
-  try { const x = JSON.parse(localStorage.getItem(TN_TASK_KEY) || '[]'); return Array.isArray(x) ? x : []; }
+  try { const x = JSON.parse(localStorage.getItem(tnScopedStorageKey(TN_TASK_KEY)) || '[]'); return Array.isArray(x) ? x : []; }
   catch (_) { return []; }
 }
 function tnWriteTasks(rows) {
-  try { localStorage.setItem(TN_TASK_KEY, JSON.stringify(rows)); return true; }
+  try { localStorage.setItem(tnScopedStorageKey(TN_TASK_KEY), JSON.stringify(rows)); tnQueueCloudSync(); return true; }
   catch (e) { alert('Task சேமிக்க முடியவில்லை: ' + e.message); return false; }
 }
 function tnEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -2032,33 +2048,7 @@ function tnShareElementAsPdf(elementId, fileName) {
   #tnSingleVisitReport .report-section .scoretable td:nth-child(3){width:30% !important;white-space:nowrap !important;}
 }
 </style>
-      </head><body><main>${shareContent}</main>
-</main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script id="tn-auth-integration">
-(() => {
- const SUPABASE_URL = 'https://nyvnhinqwjveoqnojmke.supabase.co';
- const SUPABASE_KEY = 'sb_publishable_HNAB_BDLg804J74xiWZqTg_yB_V0mEL';
- const gate=document.getElementById('tnAuthGate'), app=document.getElementById('tnAppShell');
- const form=document.getElementById('tnAuthForm'), msg=document.getElementById('tnAuthMessage');
- const loginTab=document.getElementById('tnLoginTab'), signupTab=document.getElementById('tnSignupTab');
- const nameWrap=document.getElementById('tnNameWrap'), submit=document.getElementById('tnAuthSubmit');
- let mode='login', client=null, busy=false;
- const say=(text,ok=false)=>{msg.textContent=text;msg.style.display='block';msg.className=ok?'tn-auth-ok':'tn-auth-error'};
- const setMode=m=>{mode=m;loginTab.classList.toggle('active',m==='login');signupTab.classList.toggle('active',m==='signup');nameWrap.hidden=m!=='signup';submit.textContent=m==='login'?'LOGIN':'CREATE ACCOUNT';document.getElementById('tnAuthPassword').autocomplete=m==='login'?'current-password':'new-password';msg.style.display='none'};
- loginTab.addEventListener('click',()=>setMode('login')); signupTab.addEventListener('click',()=>setMode('signup'));
- const showApp=(user,profile)=>{gate.hidden=true;app.hidden=false;document.getElementById('tnSignedInLabel').textContent=user.email||'Signed in';document.getElementById('tnSignedInRole').textContent=(profile.role==='admin'?'Admin':'Customer')+' · '+profile.approval_status;document.getElementById('tnAdminApprovals').hidden=profile.role!=='admin';if(profile.role==='admin')loadPending();};
- const checkProfile=async user=>{const {data,error}=await client.from('tn_user_profiles').select('user_id,email,role,approval_status,full_name').eq('user_id',user.id).single();if(error||!data){await client.auth.signOut();throw new Error('Account profile not found. Please contact Admin.');}if(data.approval_status!=='active'){await client.auth.signOut();throw new Error(data.approval_status==='pending'?'Your account is waiting for Admin approval. உங்கள் கணக்கு நிர்வாகி அனுமதிக்காக காத்திருக்கிறது.':'Your account is disabled. நிர்வாகியைத் தொடர்புகொள்ளவும்.');}showApp(user,data);};
- const loadPending=async()=>{const host=document.getElementById('tnPendingUsers');host.textContent='Loading...';const {data,error}=await client.from('tn_user_profiles').select('user_id,email,full_name,created_at').eq('role','customer').eq('approval_status','pending').order('created_at',{ascending:true});if(error){host.textContent='Could not load pending users: '+error.message;return;}if(!data.length){host.textContent='No pending customer registrations.';return;}host.innerHTML=data.map(u=>`<div class="tn-pending-row"><div><strong>${escapeText(u.full_name||u.email||'Customer')}</strong><div class="muted">${escapeText(u.email||'')} · ${new Date(u.created_at).toLocaleString()}</div></div><button type="button" class="primary" data-approve="${u.user_id}">Approve</button></div>`).join('');host.querySelectorAll('[data-approve]').forEach(b=>b.addEventListener('click',()=>approveUser(b.dataset.approve,b)));};
- const escapeText=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const approveUser=async(id,button)=>{button.disabled=true;const {error}=await client.from('tn_user_profiles').update({approval_status:'active',updated_at:new Date().toISOString()}).eq('user_id',id);if(error){button.disabled=false;alert('Approval failed: '+error.message);return;}loadPending();};
- form.addEventListener('submit',async e=>{e.preventDefault();if(busy)return;busy=true;submit.disabled=true;const email=document.getElementById('tnAuthEmail').value.trim();const password=document.getElementById('tnAuthPassword').value;try{if(!client)throw new Error('Authentication library did not load. Check internet and refresh.');if(mode==='signup'){const full_name=document.getElementById('tnAuthName').value.trim();if(!full_name)throw new Error('Please enter your full name.');const {data,error}=await client.auth.signUp({email,password,options:{data:{full_name}}});if(error)throw error;if(data.session){say('Account created. Please wait for Admin approval.',true);await client.auth.signOut();}else{say('Sign-up submitted. Verify your email, then wait for Admin approval. பதிவு வெற்றிகரமாக அனுப்பப்பட்டது.',true);}form.reset();}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;await checkProfile(data.user);}}catch(err){say(err.message||'Something went wrong.');}finally{busy=false;submit.disabled=false;}});
- document.getElementById('tnLogoutBtn').addEventListener('click',async()=>{await client.auth.signOut();app.hidden=true;gate.hidden=false;setMode('login');});
- const start=async()=>{try{if(!window.supabase?.createClient)throw new Error('Could not load Supabase client. Check internet connection.');client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const {data,error}=await client.auth.getSession();if(error)throw error;if(data.session)await checkProfile(data.session.user);}catch(err){say(err.message||'Authentication setup error.');}};
- start();
-})();
-</script>
-</body></html>`;
+      </head><body><main>${shareContent}</main></body></html>`;
     const encoded = btoa(unescape(encodeURIComponent(html)));
     window.AndroidShare.shareHtmlAsPdf(encoded, fileName);
   } catch (error) {
@@ -2435,6 +2425,216 @@ window.addEventListener('load', () => {
   tnRenderTasks();
 });
 
+
+/* V164 AUTHENTICATION + TENANT DATA ISOLATION */
+const TN_SUPABASE_URL = 'https://nyvnhinqwjveoqnojmke.supabase.co';
+const TN_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_HNAB_BDLg804J74xiWZqTg_yB_V0mEL';
+const TN_ADMIN_UID = 'ffc2efcb-1f65-48ee-a349-eca25a9a4707';
+let tnSupabase = null;
+let tnCurrentUser = null;
+let tnCurrentProfile = null;
+let tnCloudSyncTimer = null;
+let tnCloudReady = false;
+
+function tnScopedStorageKey(base) {
+  const uid = tnCurrentUser && tnCurrentUser.id;
+  if (!uid) return 'tns_locked_' + base;
+  const scoped = base + '__' + uid;
+  // Existing shared data is moved into the owner's Admin namespace only.
+  if (uid === TN_ADMIN_UID && localStorage.getItem(scoped) === null && localStorage.getItem(base) !== null) {
+    localStorage.setItem(scoped, localStorage.getItem(base));
+    localStorage.removeItem(base);
+  }
+  return scoped;
+}
+function tnAuthMessage(message, isError=false) {
+  const el=document.getElementById('tnAuthMessage');
+  if(!el)return;
+  el.textContent=message; el.classList.remove('hidden','tn-auth-error');
+  if(isError)el.classList.add('tn-auth-error');
+}
+function tnAuthBusy(busy) {
+  ['tnLoginBtn','tnSignupBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!!busy;});
+}
+function tnShowAuthView(which) {
+  document.getElementById('tnLoginView').classList.toggle('hidden',which!=='login');
+  document.getElementById('tnSignupView').classList.toggle('hidden',which!=='signup');
+  document.getElementById('tnAuthMessage').classList.add('hidden');
+}
+function tnShowAuthGate(message, error=false) {
+  document.getElementById('tnAuthGate').classList.remove('hidden');
+  document.getElementById('tnAccountBar').classList.add('hidden');
+  document.getElementById('tnAdminUsers').classList.add('hidden');
+  if(message)tnAuthMessage(message,error);
+}
+function tnEnterApp(user, profile) {
+  tnCurrentUser=user; tnCurrentProfile=profile;
+  document.getElementById('tnAuthGate').classList.add('hidden');
+  document.getElementById('tnAccountBar').classList.remove('hidden');
+  const label=document.getElementById('tnAccountLabel');
+  if(label)label.textContent=(profile.full_name||user.email||'User')+' · '+profile.role;
+  const adminBtn=document.getElementById('tnAdminToggle');
+  if(adminBtn)adminBtn.style.display=profile.role==='admin'?'inline-block':'none';
+  // Refresh views only after the account-specific storage namespace is active.
+  try { loadRecords(); loadClientProfiles(); tnRenderTasks(); } catch(e){console.warn('View refresh:',e);}
+  tnLoadCloudData().catch(e=>console.warn('Cloud restore:',e));
+}
+async function tnHandleSession(session) {
+  if(!session || !session.user) {
+    tnCurrentUser=null; tnCurrentProfile=null; tnCloudReady=false;
+    tnShowAuthGate();
+    return;
+  }
+  const user=session.user;
+  const {data:profile,error}=await tnSupabase.from('tn_user_profiles')
+    .select('user_id,email,full_name,phone,role,approval_status')
+    .eq('user_id',user.id).maybeSingle();
+  if(error) { tnShowAuthGate('Profile loading failed: '+error.message,true); return; }
+  if(!profile) { tnShowAuthGate('Account profile not found. Please contact Admin.',true); return; }
+  if(profile.approval_status!=='active') {
+    await tnSupabase.auth.signOut();
+    tnShowAuthGate(profile.approval_status==='disabled'
+      ? 'Your account is disabled. Please contact Admin.'
+      : 'Sign up successful. Your account is waiting for Admin approval.',true);
+    return;
+  }
+  if(user.id===TN_ADMIN_UID && profile.role!=='admin') {
+    tnShowAuthGate('Admin role is not configured for this account.',true); return;
+  }
+  tnEnterApp(user,profile);
+}
+async function tnLogin() {
+  const email=document.getElementById('tnLoginEmail').value.trim();
+  const password=document.getElementById('tnLoginPassword').value;
+  if(!email||!password){tnAuthMessage('Email and password are required.',true);return;}
+  tnAuthBusy(true);
+  const {data,error}=await tnSupabase.auth.signInWithPassword({email,password});
+  tnAuthBusy(false);
+  if(error){tnAuthMessage(error.message,true);return;}
+  await tnHandleSession(data.session);
+}
+async function tnSignup() {
+  const full_name=document.getElementById('tnSignupName').value.trim();
+  const phone=document.getElementById('tnSignupPhone').value.trim();
+  const email=document.getElementById('tnSignupEmail').value.trim();
+  const password=document.getElementById('tnSignupPassword').value;
+  if(!full_name||!email||password.length<6){tnAuthMessage('Name, valid email and password (minimum 6 characters) are required.',true);return;}
+  tnAuthBusy(true);
+  const {data,error}=await tnSupabase.auth.signUp({
+    email,password,options:{data:{full_name,phone}}
+  });
+  tnAuthBusy(false);
+  if(error){tnAuthMessage(error.message,true);return;}
+  if(data.session) {
+    await tnSupabase.auth.signOut();
+  }
+  tnShowAuthView('login');
+  tnAuthMessage('Account created. Admin approval is required before you can sign in. Check your email if confirmation is enabled.');
+}
+async function tnLogout() {
+  if(!confirm('Logout from this account?'))return;
+  await tnSupabase.auth.signOut();
+  tnCurrentUser=null;tnCurrentProfile=null;tnCloudReady=false;
+  tnShowAuthGate('Logged out successfully.');
+}
+async function tnLoadAdminUsers() {
+  if(!tnCurrentProfile||tnCurrentProfile.role!=='admin')return;
+  const host=document.getElementById('tnAdminUsers');
+  host.classList.remove('hidden');host.innerHTML='<strong>Loading accounts…</strong>';
+  const {data,error}=await tnSupabase.from('tn_user_profiles')
+    .select('user_id,email,full_name,phone,role,approval_status,created_at')
+    .order('created_at',{ascending:false});
+  if(error){host.innerHTML='<p class="notice">Could not load accounts: '+tnEscapeHtml(error.message)+'</p>';return;}
+  host.innerHTML='<h3 style="margin:0 0 10px">Admin · Customer Accounts</h3><p class="muted">Approve customer sign-ups or disable access. Customer records remain private to each account.</p>'+
+    '<div style="overflow:auto"><table><thead><tr><th>Name / Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
+    (data||[]).map(u=>`<tr><td><strong>${tnEscapeHtml(u.full_name||'—')}</strong><br>${tnEscapeHtml(u.email||'')}<br><small>${tnEscapeHtml(u.phone||'')}</small></td><td>${tnEscapeHtml(u.role)}</td><td>${tnEscapeHtml(u.approval_status)}</td><td>${u.user_id===TN_ADMIN_UID?'Owner Admin':`<select data-tn-user-status="${tnEscapeHtml(u.user_id)}"><option value="pending" ${u.approval_status==='pending'?'selected':''}>Pending</option><option value="active" ${u.approval_status==='active'?'selected':''}>Active</option><option value="disabled" ${u.approval_status==='disabled'?'selected':''}>Disabled</option></select><button type="button" class="secondary" data-tn-save-user="${tnEscapeHtml(u.user_id)}">Save</button>`}</td></tr>`).join('')+
+    '</tbody></table></div>';
+  host.querySelectorAll('[data-tn-save-user]').forEach(btn=>btn.addEventListener('click',async()=>{
+    const id=btn.getAttribute('data-tn-save-user');
+    const status=host.querySelector(`[data-tn-user-status="${id}"]`).value;
+    btn.disabled=true;
+    const {error}=await tnSupabase.from('tn_user_profiles').update({approval_status:status,updated_at:new Date().toISOString()}).eq('user_id',id);
+    btn.disabled=false;
+    if(error)alert('Update failed: '+error.message);else{alert('Account status updated.');tnLoadAdminUsers();}
+  }));
+}
+function tnMergeRows(remote,local,keyFn) {
+  const map=new Map();
+  [...(remote||[]),...(local||[])].forEach((row,i)=>{
+    const key=keyFn(row)||('row-'+i);
+    map.set(String(key),row);
+  });
+  return Array.from(map.values());
+}
+function tnBuildCloudPayload() {
+  return {
+    records:localRead(),
+    clients:readClients(),
+    tasks:tnReadTasks(),
+    updated_at:new Date().toISOString(),
+    schema_version:1
+  };
+}
+function tnQueueCloudSync() {
+  if(!tnCurrentUser||!tnCloudReady||!tnSupabase)return;
+  clearTimeout(tnCloudSyncTimer);
+  tnCloudSyncTimer=setTimeout(()=>tnSaveCloudData().catch(e=>console.warn('Cloud sync:',e)),1200);
+}
+async function tnSaveCloudData() {
+  if(!tnCurrentUser||!tnSupabase||!tnCloudReady)return;
+  const payload=tnBuildCloudPayload();
+  const {error}=await tnSupabase.from('tn_user_data').upsert({
+    user_id:tnCurrentUser.id,payload,updated_at:new Date().toISOString()
+  },{onConflict:'user_id'});
+  if(error)throw error;
+}
+async function tnLoadCloudData() {
+  if(!tnCurrentUser||!tnSupabase)return;
+  const {data,error}=await tnSupabase.from('tn_user_data').select('payload').eq('user_id',tnCurrentUser.id).maybeSingle();
+  if(error) {
+    tnCloudReady=false;
+    if(error.code==='42P01'||error.code==='PGRST205'||String(error.message||'').toLowerCase().includes('tn_user_data')) {
+      console.warn('Cloud data table is not created yet. Local offline data remains available.');
+      return;
+    }
+    console.warn('Cloud restore failed:',error.message);return;
+  }
+  const payload=data&&data.payload?data.payload:{};
+  const localRecords=localRead(),localClients=readClients(),localTasks=tnReadTasks();
+  const mergedRecords=tnMergeRows(payload.records,localRecords,r=>r.assessmentVisitId||((r.participantId||'')+'_'+(r.date||'')));
+  const mergedClients=tnMergeRows(payload.clients,localClients,r=>r.id||r.clientId||r.phone||r.name);
+  const mergedTasks=tnMergeRows(payload.tasks,localTasks,r=>r.id||r.taskId||r.name);
+  localStorage.setItem(tnScopedStorageKey('tns_bach_records_v4'),JSON.stringify(mergedRecords));
+  localStorage.setItem(tnScopedStorageKey(CLIENT_STORE_KEY),JSON.stringify(mergedClients));
+  localStorage.setItem(tnScopedStorageKey(TN_TASK_KEY),JSON.stringify(mergedTasks));
+  tnCloudReady=true;
+  await tnSaveCloudData();
+  const label=document.getElementById('tnAccountLabel');
+  if(label)label.textContent=(tnCurrentProfile.full_name||tnCurrentUser.email)+' · '+tnCurrentProfile.role+' · Synced';
+}
+async function tnInitAuth() {
+  try {
+    if(!window.supabase||!window.supabase.createClient)throw new Error('Supabase library could not load. Check internet connection.');
+    tnSupabase=window.supabase.createClient(TN_SUPABASE_URL,TN_SUPABASE_PUBLISHABLE_KEY,{
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+    });
+    document.getElementById('tnLoginBtn').addEventListener('click',tnLogin);
+    document.getElementById('tnSignupBtn').addEventListener('click',tnSignup);
+    document.getElementById('tnShowSignup').addEventListener('click',()=>tnShowAuthView('signup'));
+    document.getElementById('tnShowLogin').addEventListener('click',()=>tnShowAuthView('login'));
+    document.getElementById('tnLogout').addEventListener('click',tnLogout);
+    document.getElementById('tnAdminToggle').addEventListener('click',tnLoadAdminUsers);
+    document.getElementById('tnSyncNow').addEventListener('click',async()=>{
+      if(!tnCurrentUser)return;
+      try { await tnSaveCloudData(); alert('Cloud sync completed.'); }
+      catch(e){alert('Cloud sync unavailable: '+e.message);}
+    });
+    tnSupabase.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>tnHandleSession(session),0);});
+    const {data:{session}}=await tnSupabase.auth.getSession();
+    await tnHandleSession(session);
+  } catch(e) { tnShowAuthGate('App startup error: '+e.message,true); }
+}
+
 </script>
 
 
@@ -2443,4 +2643,4 @@ window.addEventListener('load', () => {
 
 </body></html>
 
-<!-- V49: integrated TamilNature 77-question Draft 2.0 question bank and primary remedy mapping; PSS-10 retained separately. -->
+<!-- V164: Supabase authentication, approval workflow, account-scoped offline storage and cloud backup. -->
