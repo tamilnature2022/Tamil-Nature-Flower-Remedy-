@@ -427,31 +427,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* V153: Fix ONLY the Individual Assessment Report page on Android mobile.
    Task Assessment table and Share PDF output are intentionally untouched. */
 @media screen and (max-width:560px){
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table){
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table){
     width:100% !important;
     min-width:0 !important;
     table-layout:fixed !important;
     font-size:13px !important;
   }
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th,
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td{
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th,
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td{
     padding:8px 5px !important;
     vertical-align:top;
     overflow-wrap:break-word;
     word-break:normal;
   }
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(2),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(2){
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(2),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(2){
     display:none !important;
   }
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(1),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(1){width:42% !important;}
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(3),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(3){width:18% !important;white-space:nowrap;}
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(4),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(4){width:22% !important;white-space:nowrap;}
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(5),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(5){width:18% !important;white-space:nowrap;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(1),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(1){width:42% !important;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(3),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(3){width:18% !important;white-space:nowrap;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(4),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(4){width:22% !important;white-space:nowrap;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(5),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(5){width:18% !important;white-space:nowrap;}
 }
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
@@ -738,11 +738,11 @@ function reportHTML(r) {
   const top = r.top3.length ? r.top3.map((x,i)=>`<tr><td>${i+1}. ${escv(x.remedy)}</td><td>${x.score}/${x.maxScore}</td><td>${x.percentage}%</td></tr>`).join('') : '<tr><td colspan="3">No answered Bach remedy questions</td></tr>';
   const cats = Object.values(r.categoryScores).sort((a,b)=>b.score-a.score || b.answered-a.answered).map(c=>`<tr><td>${escv(c.name)} · ${escv(c.tamil)}</td><td>${c.score}/${c.maxScore}</td><td>${c.answered}/${c.questionCount}</td></tr>`).join('');
   const rem = r.remedies.filter(x=>x.answered>0).sort((a,b)=>b.score-a.score).map(x=>`<tr><td>${escv(x.remedy)}</td><td>${x.score}/${x.maxScore}</td><td>${x.answered}/${x.questionCount}</td><td>${x.percentage}%</td></tr>`).join('');
-  const trackRows = TN_INNER_TRACKS.map((track,i) => {
-    const items = track.map(name => (r.remedies || []).find(x => x.remedy === name)).filter(x => x && x.answered);
-    const total = items.reduce((sum,x) => sum + x.score, 0);
-    return { track, index:i+1, total, html:`<tr>${track.map(name=>`<td>${tnRemedyScoreCell(r,name)}</td>`).join('')}</tr>` };
-  }).sort((a,b)=>b.total-a.total || a.index-b.index).map(x=>x.html).join('');
+  // Keep the 12 Inner Tracks in the original 12 Healers sequence.
+  // Do not rank or reorder tracks by assessment score.
+  const trackRows = TN_INNER_TRACKS.map(track =>
+    `<tr>${track.map(name=>`<td>${tnRemedyScoreCell(r,name)}</td>`).join('')}</tr>`
+  ).join('');
   const outerRows = TN_OUTER_FLOWERS.map(name=>`<tr><td>${escv(name)}</td><td>${tnRemedyScoreCell(r,name)}</td></tr>`).join('');
   const foundationRow = `<tr><td>Larch · Foundation Flower</td><td>${tnRemedyScoreCell(r,'Larch')}</td></tr>`;
   return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p><strong>Task Name:</strong> ${escv(taskName)}</p><p><strong>Assessor Name:</strong> ${escv(assessorName)}</p><h3>${assessmentLabel}</h3><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(reportDate)}</p><p>Assessment Status: ${escv(r.status||'Completed')}</p><p>PSS = ${r.pss.answered}/10 Responses · Bach = ${r.bachAnswered}/77 Responses</p></div>
@@ -1976,16 +1976,16 @@ function tnShareElementAsPdf(elementId, fileName) {
       <style>${styleText}\n${pdfCss}
 /* V157: Remedy-wise table now has four columns; keep Score visible. */
 @media screen and (max-width:560px){
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(1),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(1){width:42% !important;}
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(2),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(2){
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(1),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(1){width:42% !important;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(2),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(2){
     display:table-cell !important;width:18% !important;white-space:nowrap !important;
   }
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(3),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(3){width:22% !important;white-space:nowrap !important;}
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(4),
-  #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(4){width:18% !important;white-space:nowrap !important;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(3),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(3){width:22% !important;white-space:nowrap !important;}
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) th:nth-child(4),
+  #tnSingleVisitReport .report-section:nth-of-type(2) > .scoretable:not(.category-score-table) td:nth-child(4){width:18% !important;white-space:nowrap !important;}
 }
 
 /* V158: Top-7 rank is attached to the remedy label; no separate # column gap. */
