@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V149</title>
+<title>TAMIL NATURE FLOWER REMEDY | V164</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -458,10 +458,39 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
 .tn-track-score{display:block;margin-top:4px;font-size:.9em;color:#52635a;white-space:nowrap}
 @media(max-width:600px){.tn-track-table{min-width:0}.tn-track-table th,.tn-track-table td{padding:9px 6px;font-size:.88em}.tn-track-score{font-size:.82em;white-space:normal}}
-</style></head>
-<body><main>
+</style>
+<style id="tn-auth-styles">
+#tnAuthGate{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#eaf2eb,#f7f9f6)}
+.tn-auth-card{width:min(100%,460px);background:#fff;border:1px solid #dbe4dc;border-radius:20px;padding:24px;box-shadow:0 12px 38px #173c2818}
+.tn-auth-brand{text-align:center;color:#24563d;font-weight:900;font-size:1.45rem;letter-spacing:.02em}
+.tn-auth-sub{text-align:center;color:#647168;margin:4px 0 20px}
+.tn-auth-tabs{display:flex;gap:8px;margin:14px 0}.tn-auth-tabs button{flex:1;background:#edf3ee;color:#315b45}.tn-auth-tabs button.active{background:#315b45;color:#fff}
+.tn-auth-field{margin:12px 0}.tn-auth-field label{display:block;font-weight:700;margin-bottom:5px}.tn-auth-field input{width:100%;padding:12px;border:1px solid #cbd8ce;border-radius:10px;font:inherit}
+#tnAuthMessage{padding:10px;border-radius:10px;margin-top:12px;display:none;white-space:pre-wrap}.tn-auth-ok{background:#e9f5eb;color:#245b35}.tn-auth-error{background:#fff0ed;color:#9b3022}
+#tnAdminApprovals{margin:0 0 14px}#tnAdminApprovals .tn-pending-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #dbe4dc;border-radius:10px;padding:10px;margin:8px 0;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<section id="tnAuthGate">
+ <div class="tn-auth-card">
+  <div class="tn-auth-brand">TAMIL NATURE</div>
+  <div class="tn-auth-sub">FLOWER REMEDY · Screening & Research App</div>
+  <div class="tn-auth-tabs"><button type="button" id="tnLoginTab" class="active">Login</button><button type="button" id="tnSignupTab">Sign Up</button></div>
+  <form id="tnAuthForm">
+   <div class="tn-auth-field" id="tnNameWrap" hidden><label for="tnAuthName">Full Name / முழுப் பெயர்</label><input id="tnAuthName" autocomplete="name" maxlength="100"></div>
+   <div class="tn-auth-field"><label for="tnAuthEmail">Email</label><input id="tnAuthEmail" type="email" required autocomplete="username"></div>
+   <div class="tn-auth-field"><label for="tnAuthPassword">Password</label><input id="tnAuthPassword" type="password" required minlength="8" autocomplete="current-password"></div>
+   <button class="primary" id="tnAuthSubmit" type="submit" style="width:100%;margin-top:8px">LOGIN</button>
+  </form>
+  <div id="tnAuthMessage" role="status" aria-live="polite"></div>
+  <p class="muted small" style="margin:14px 0 0;text-align:center">New registrations require Admin approval. புதிய கணக்குகளுக்கு நிர்வாகி அனுமதி தேவை.</p>
+ </div>
+</section>
+<div id="tnAppShell" hidden><main>
 <div class="sticky-shell">
 <header class="app-header"><div class="app-header-title">TAMIL NATURE <span>FLOWER REMEDY</span></div><div class="app-header-subtitle">மலர் மருந்து மதிப்பீடு மற்றும் ஆய்வு செயலி</div></header>
+<div class="panel no-print" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><strong id="tnSignedInLabel">Signed in</strong><div class="muted" id="tnSignedInRole"></div></div><button type="button" class="secondary" id="tnLogoutBtn">Logout</button></div>
+<section id="tnAdminApprovals" class="panel no-print" hidden><h2>Customer Approvals · வாடிக்கையாளர் அனுமதி</h2><p class="muted">Approve செய்தால் Customer account active ஆகும்.</p><div id="tnPendingUsers">Loading...</div></section>
 <nav class="tabs no-print" aria-label="Main navigation"><button type="button" class="tab active" data-tab="home" onclick="return showTab('home')">Home · முகப்பு</button></nav>
 <nav id="tnPersistentBreadcrumb" class="tn-breadcrumb" aria-label="Breadcrumb"></nav>
 </div>
@@ -2003,7 +2032,33 @@ function tnShareElementAsPdf(elementId, fileName) {
   #tnSingleVisitReport .report-section .scoretable td:nth-child(3){width:30% !important;white-space:nowrap !important;}
 }
 </style>
-      </head><body><main>${shareContent}</main></body></html>`;
+      </head><body><main>${shareContent}</main>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script id="tn-auth-integration">
+(() => {
+ const SUPABASE_URL = 'https://nyvnhinqwjveoqnojmke.supabase.co';
+ const SUPABASE_KEY = 'sb_publishable_HNAB_BDLg804J74xiWZqTg_yB_V0mEL';
+ const gate=document.getElementById('tnAuthGate'), app=document.getElementById('tnAppShell');
+ const form=document.getElementById('tnAuthForm'), msg=document.getElementById('tnAuthMessage');
+ const loginTab=document.getElementById('tnLoginTab'), signupTab=document.getElementById('tnSignupTab');
+ const nameWrap=document.getElementById('tnNameWrap'), submit=document.getElementById('tnAuthSubmit');
+ let mode='login', client=null, busy=false;
+ const say=(text,ok=false)=>{msg.textContent=text;msg.style.display='block';msg.className=ok?'tn-auth-ok':'tn-auth-error'};
+ const setMode=m=>{mode=m;loginTab.classList.toggle('active',m==='login');signupTab.classList.toggle('active',m==='signup');nameWrap.hidden=m!=='signup';submit.textContent=m==='login'?'LOGIN':'CREATE ACCOUNT';document.getElementById('tnAuthPassword').autocomplete=m==='login'?'current-password':'new-password';msg.style.display='none'};
+ loginTab.addEventListener('click',()=>setMode('login')); signupTab.addEventListener('click',()=>setMode('signup'));
+ const showApp=(user,profile)=>{gate.hidden=true;app.hidden=false;document.getElementById('tnSignedInLabel').textContent=user.email||'Signed in';document.getElementById('tnSignedInRole').textContent=(profile.role==='admin'?'Admin':'Customer')+' · '+profile.approval_status;document.getElementById('tnAdminApprovals').hidden=profile.role!=='admin';if(profile.role==='admin')loadPending();};
+ const checkProfile=async user=>{const {data,error}=await client.from('tn_user_profiles').select('user_id,email,role,approval_status,full_name').eq('user_id',user.id).single();if(error||!data){await client.auth.signOut();throw new Error('Account profile not found. Please contact Admin.');}if(data.approval_status!=='active'){await client.auth.signOut();throw new Error(data.approval_status==='pending'?'Your account is waiting for Admin approval. உங்கள் கணக்கு நிர்வாகி அனுமதிக்காக காத்திருக்கிறது.':'Your account is disabled. நிர்வாகியைத் தொடர்புகொள்ளவும்.');}showApp(user,data);};
+ const loadPending=async()=>{const host=document.getElementById('tnPendingUsers');host.textContent='Loading...';const {data,error}=await client.from('tn_user_profiles').select('user_id,email,full_name,created_at').eq('role','customer').eq('approval_status','pending').order('created_at',{ascending:true});if(error){host.textContent='Could not load pending users: '+error.message;return;}if(!data.length){host.textContent='No pending customer registrations.';return;}host.innerHTML=data.map(u=>`<div class="tn-pending-row"><div><strong>${escapeText(u.full_name||u.email||'Customer')}</strong><div class="muted">${escapeText(u.email||'')} · ${new Date(u.created_at).toLocaleString()}</div></div><button type="button" class="primary" data-approve="${u.user_id}">Approve</button></div>`).join('');host.querySelectorAll('[data-approve]').forEach(b=>b.addEventListener('click',()=>approveUser(b.dataset.approve,b)));};
+ const escapeText=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const approveUser=async(id,button)=>{button.disabled=true;const {error}=await client.from('tn_user_profiles').update({approval_status:'active',updated_at:new Date().toISOString()}).eq('user_id',id);if(error){button.disabled=false;alert('Approval failed: '+error.message);return;}loadPending();};
+ form.addEventListener('submit',async e=>{e.preventDefault();if(busy)return;busy=true;submit.disabled=true;const email=document.getElementById('tnAuthEmail').value.trim();const password=document.getElementById('tnAuthPassword').value;try{if(!client)throw new Error('Authentication library did not load. Check internet and refresh.');if(mode==='signup'){const full_name=document.getElementById('tnAuthName').value.trim();if(!full_name)throw new Error('Please enter your full name.');const {data,error}=await client.auth.signUp({email,password,options:{data:{full_name}}});if(error)throw error;if(data.session){say('Account created. Please wait for Admin approval.',true);await client.auth.signOut();}else{say('Sign-up submitted. Verify your email, then wait for Admin approval. பதிவு வெற்றிகரமாக அனுப்பப்பட்டது.',true);}form.reset();}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;await checkProfile(data.user);}}catch(err){say(err.message||'Something went wrong.');}finally{busy=false;submit.disabled=false;}});
+ document.getElementById('tnLogoutBtn').addEventListener('click',async()=>{await client.auth.signOut();app.hidden=true;gate.hidden=false;setMode('login');});
+ const start=async()=>{try{if(!window.supabase?.createClient)throw new Error('Could not load Supabase client. Check internet connection.');client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const {data,error}=await client.auth.getSession();if(error)throw error;if(data.session)await checkProfile(data.session.user);}catch(err){say(err.message||'Authentication setup error.');}};
+ start();
+})();
+</script>
+</body></html>`;
     const encoded = btoa(unescape(encodeURIComponent(html)));
     window.AndroidShare.shareHtmlAsPdf(encoded, fileName);
   } catch (error) {
