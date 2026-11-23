@@ -453,6 +453,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) th:nth-child(5),
   #tnSingleVisitReport .report-section:nth-of-type(2) .scoretable:not(.category-score-table) td:nth-child(5){width:18% !important;white-space:nowrap;}
 }
+</style><style id="tn-track-score-styles">
+.tn-track-table th,.tn-track-table td{vertical-align:top;min-width:115px}
+.tn-track-remedy{display:block;font-weight:700;white-space:normal}
+.tn-track-score{display:block;margin-top:4px;font-size:.9em;color:#52635a;white-space:nowrap}
+@media(max-width:600px){.tn-track-table{min-width:590px}.tn-track-table th:first-child,.tn-track-table td:first-child{min-width:72px}}
 </style></head>
 <body><main>
 <div class="sticky-shell">
@@ -699,6 +704,28 @@ function makeReport() {
     totalAnswered:Object.keys(answers).length+Object.keys(pssAnswers).length
   };
 }
+const TN_INNER_TRACKS = [
+  ["Impatiens","Olive","Oak"],
+  ["Mimulus","Heather","Mustard"],
+  ["Clematis","Impatiens","Mustard"],
+  ["Agrimony","Vervain","Sweet Chestnut"],
+  ["Chicory","Red Chestnut","Honeysuckle"],
+  ["Vervain","Hornbeam","Chestnut Bud"],
+  ["Centaury","Holly","Pine"],
+  ["Cerato","Vine","Wild Oat"],
+  ["Scleranthus","Rock Water","Crab Apple"],
+  ["Water Violet","Chestnut Bud","Beech"],
+  ["Gentian","Willow","Wild Rose"],
+  ["Rock Rose","Agrimony","Cherry Plum"]
+];
+const TN_OUTER_FLOWERS = ["Star of Bethlehem","Aspen","Elm","Walnut","Gorse"];
+
+function tnRemedyScoreCell(r, name) {
+  const item = (r.remedies || []).find(x => x.remedy === name);
+  if (!item || !item.answered) return `<span class="tn-track-remedy">${esc(name)}</span><span class="tn-track-score">—</span>`;
+  return `<span class="tn-track-remedy">${esc(name)}</span><span class="tn-track-score">${item.score}/${item.maxScore} · ${item.percentage}%</span>`;
+}
+
 function reportHTML(r) {
   const escv = esc;
   const rawDate = String(r.date || '');
@@ -711,9 +738,24 @@ function reportHTML(r) {
   const top = r.top3.length ? r.top3.map((x,i)=>`<tr><td>${i+1}. ${escv(x.remedy)}</td><td>${x.score}/${x.maxScore}</td><td>${x.percentage}%</td></tr>`).join('') : '<tr><td colspan="3">No answered Bach remedy questions</td></tr>';
   const cats = Object.values(r.categoryScores).sort((a,b)=>b.score-a.score || b.answered-a.answered).map(c=>`<tr><td>${escv(c.name)} · ${escv(c.tamil)}</td><td>${c.score}/${c.maxScore}</td><td>${c.answered}/${c.questionCount}</td></tr>`).join('');
   const rem = r.remedies.filter(x=>x.answered>0).sort((a,b)=>b.score-a.score).map(x=>`<tr><td>${escv(x.remedy)}</td><td>${x.score}/${x.maxScore}</td><td>${x.answered}/${x.questionCount}</td><td>${x.percentage}%</td></tr>`).join('');
+  const trackRows = TN_INNER_TRACKS.map((track,i) => {
+    const items = track.map(name => (r.remedies || []).find(x => x.remedy === name)).filter(x => x && x.answered);
+    const total = items.reduce((sum,x) => sum + x.score, 0);
+    return { track, index:i+1, total, html:`<tr><td>Track ${String(i+1).padStart(2,'0')}</td>${track.map(name=>`<td>${tnRemedyScoreCell(r,name)}</td>`).join('')}</tr>` };
+  }).sort((a,b)=>b.total-a.total || a.index-b.index).map(x=>x.html).join('');
+  const outerRows = TN_OUTER_FLOWERS.map(name=>`<tr><td>${escv(name)}</td><td>${tnRemedyScoreCell(r,name)}</td></tr>`).join('');
+  const foundationRow = `<tr><td>Larch · Foundation Flower</td><td>${tnRemedyScoreCell(r,'Larch')}</td></tr>`;
   return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p><strong>Task Name:</strong> ${escv(taskName)}</p><p><strong>Assessor Name:</strong> ${escv(assessorName)}</p><h3>${assessmentLabel}</h3><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(reportDate)}</p><p>Assessment Status: ${escv(r.status||'Completed')}</p><p>PSS = ${r.pss.answered}/10 Responses · Bach = ${r.bachAnswered}/77 Responses</p></div>
   <section class="report-section"><h3>1. 7 Emotional Category Scores</h3><table class="scoretable category-score-table"><thead><tr><th>Category</th><th>Score</th><th>Answered</th></tr></thead><tbody>${cats}</tbody></table></section>
-  <section class="report-section"><h3>2. Remedy-wise Scores</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="4">No answered remedy questions</td></tr>'}</tbody></table></section>
+  <section class="report-section"><h3>2. Remedy-wise Scores</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="4">No answered remedy questions</td></tr>'}</tbody></table>
+  <h3 style="margin-top:18px">Inner Track Analysis · 12 Inner Tracks</h3>
+  <p class="muted small">ஒவ்வொரு Track-லும் உள்ள மூன்று remedies ஒரே வரிசையில் காட்டப்படும். ஒவ்வொரு remedy-க்கும் Score / 8 மற்றும் Percentage காட்டப்படும். Track வரிசை மொத்த score அடிப்படையில் அமைக்கப்பட்டுள்ளது.</p>
+  <div class="scoretable-wrap"><table class="scoretable tn-track-table"><thead><tr><th>Track</th><th>Remedy 1</th><th>Remedy 2</th><th>Remedy 3</th></tr></thead><tbody>${trackRows}</tbody></table></div>
+  <h3 style="margin-top:18px">Outer Flowers · 5 Outer Flowers</h3>
+  <div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Outer Flower</th><th>Score / 8 · Percentage</th></tr></thead><tbody>${outerRows}</tbody></table></div>
+  <h3 style="margin-top:18px">Foundation Flower</h3>
+  <div class="scoretable-wrap"><table class="scoretable"><thead><tr><th>Foundation</th><th>Score / 8 · Percentage</th></tr></thead><tbody>${foundationRow}</tbody></table></div>
+  </section>
   <section class="report-section"><h3>3. PSS-10 Score (Separate Stress Measure)</h3><p>Score: <strong>${r.pss.score}/40</strong> · Answered: ${r.pss.answered}/10</p><p class="muted small">Items 4, 5, 7 and 8 are reverse-scored. PSS-10 is reported separately from Bach remedy screening.</p></section>
   <section class="report-section"><h3>4. Top 7 Remedy Screening Signals</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Score</th><th>Percentage</th></tr></thead><tbody>${top}</tbody></table><p class="muted small">Screening signals only; not a diagnosis or a prescription.</p></section>`;
 }
