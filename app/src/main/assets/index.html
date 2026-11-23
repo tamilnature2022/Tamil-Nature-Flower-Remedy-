@@ -725,6 +725,11 @@ function tnRemedyScoreCell(r, name) {
   if (!item || !item.answered) return `<span class="tn-track-remedy">${esc(name)}</span><span class="tn-track-score">—</span>`;
   return `<span class="tn-track-remedy">${esc(name)}</span><span class="tn-track-score">${item.score}/${item.maxScore} · ${item.percentage}%</span>`;
 }
+function tnRemedyScoreOnly(r, name) {
+  const item = (r.remedies || []).find(x => x.remedy === name);
+  if (!item || !item.answered) return `<span class="tn-track-score">—</span>`;
+  return `<span class="tn-track-score">${item.score}/${item.maxScore} · ${item.percentage}%</span>`;
+}
 
 function reportHTML(r) {
   const escv = esc;
@@ -743,8 +748,8 @@ function reportHTML(r) {
   const trackRows = TN_INNER_TRACKS.map(track =>
     `<tr>${track.map(name=>`<td>${tnRemedyScoreCell(r,name)}</td>`).join('')}</tr>`
   ).join('');
-  const outerRows = TN_OUTER_FLOWERS.map(name=>`<tr><td>${escv(name)}</td><td>${tnRemedyScoreCell(r,name)}</td></tr>`).join('');
-  const foundationRow = `<tr><td>Larch · Foundation Flower</td><td>${tnRemedyScoreCell(r,'Larch')}</td></tr>`;
+  const outerRows = TN_OUTER_FLOWERS.map(name=>`<tr><td>${escv(name)}</td><td>${tnRemedyScoreOnly(r,name)}</td></tr>`).join('');
+  const foundationRow = `<tr><td>Larch · Foundation Flower</td><td>${tnRemedyScoreOnly(r,'Larch')}</td></tr>`;
   return `<div class="report-head"><h2>Tamil Nature Flower Remedy Screening Report</h2><p><strong>Task Name:</strong> ${escv(taskName)}</p><p><strong>Assessor Name:</strong> ${escv(assessorName)}</p><h3>${assessmentLabel}</h3><p>Participant ID: ${escv(r.participantId||'—')} | Name: ${escv(r.name||'—')} | Mobile: ${escv(r.mobile||'—')} | Date: ${escv(reportDate)}</p><p>Assessment Status: ${escv(r.status||'Completed')}</p><p>PSS = ${r.pss.answered}/10 Responses · Bach = ${r.bachAnswered}/77 Responses</p></div>
   <section class="report-section"><h3>1. 7 Emotional Category Scores</h3><table class="scoretable category-score-table"><thead><tr><th>Category</th><th>Score</th><th>Answered</th></tr></thead><tbody>${cats}</tbody></table></section>
   <section class="report-section"><h3>2. Remedy-wise Scores</h3><table class="scoretable"><thead><tr><th>Remedy</th><th>Score</th><th>Answered</th><th>%</th></tr></thead><tbody>${rem||'<tr><td colspan="4">No answered remedy questions</td></tr>'}</tbody></table>
