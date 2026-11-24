@@ -2119,25 +2119,28 @@ async function tnGenerateAssessmentLink(taskId, visitId, button) {
     shareUrl.hash = '';
     const link = shareUrl.toString();
     const message = `வணக்கம் ${client?.name || ''},\\nTamilNatureShanmugam Flower Remedy Assessment ${visit.number || ''} பூர்த்தி செய்ய கீழே உள்ள இணைப்பைத் திறக்கவும்:\\n${link}\\nஇந்த இணைப்பு 7 நாட்கள் மட்டுமே செல்லுபடியாகும்.`;
-    // Prefer the Android native share sheet (same sharing flow users expect from PDF Share).
-    // Do not use whatsapp:// URLs: Android WebView may reject that URL scheme.
-    if (navigator.share) {
+    // Use the same Android native chooser mechanism as PDF Share.
+    if (window.AndroidShare && typeof window.AndroidShare.shareText === 'function') {
+      window.AndroidShare.shareText(message, 'Share Assessment Link');
+    } else if (navigator.share) {
       try {
         await navigator.share({
           title: 'TamilNatureShanmugam Assessment Link',
           text: message
         });
       } catch (shareError) {
-        // User cancellation is not a link-generation failure.
         if (shareError && shareError.name !== 'AbortError') {
           console.warn('Native share sheet was unavailable:', shareError);
-          await navigator.clipboard?.writeText(message);
-          alert('Assessment Link உருவாக்கப்பட்டது. Share திறக்கவில்லை; Link மற்றும் செய்தி Clipboard-ல் நகலெடுக்கப்பட்டது.');
+          try {
+            await navigator.clipboard.writeText(message);
+            alert('Assessment Link உருவாக்கப்பட்டது. செய்தி Clipboard-ல் நகலெடுக்கப்பட்டது.');
+          } catch (_) {
+            alert('Assessment Link உருவாக்கப்பட்டது. ஆனால் Share வசதி கிடைக்கவில்லை.');
+          }
         }
       }
     } else {
-      // HTTPS universal link lets Android resolve WhatsApp without an unsupported custom scheme.
-      window.location.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
+      alert('Assessment Link உருவாக்கப்பட்டது. Android Share வசதி கிடைக்கவில்லை.');
     }
     const status = document.querySelector(`[data-tn-link-status="${CSS.escape(visit.id)}"]`);
     if (status) { status.textContent = 'Link status: Pending / நிலுவையில்'; status.dataset.status = 'pending'; }
