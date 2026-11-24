@@ -2114,9 +2114,10 @@ async function tnGenerateAssessmentLink(taskId, visitId, button) {
       expires_at: expiry
     });
     if (error) throw error;
-    const shareUrl = new URL(window.location.href);
+    // Public client assessment is hosted separately on GitHub Pages.
+    // Never share the Android file:/// URL or the practitioner app URL.
+    const shareUrl = new URL('https://tamilnature2022.github.io/Tamil-Nature-Flower-Remedy-/public-assessment.html');
     shareUrl.searchParams.set('tn_assessment', token);
-    shareUrl.hash = '';
     const link = shareUrl.toString();
     const message = `வணக்கம் ${client?.name || ''},\\nTamilNatureShanmugam Flower Remedy Assessment ${visit.number || ''} பூர்த்தி செய்ய கீழே உள்ள இணைப்பைத் திறக்கவும்:\\n${link}\\nஇந்த இணைப்பு 7 நாட்கள் மட்டுமே செல்லுபடியாகும்.`;
     // Use the same Android native chooser mechanism as PDF Share.
