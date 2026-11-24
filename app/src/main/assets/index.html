@@ -624,6 +624,7 @@ body.tn-admin-mode .sticky-shell{display:none!important}
   <div id="tnAdminSyncMonitor" class="panel hidden" style="margin-top:14px"></div>
   <div id="tnAdminLicense" class="panel hidden" style="margin-top:14px"></div>
   <div id="tnAdminActivity" class="panel hidden" style="margin-top:14px"></div>
+  <div id="tnAdminAnnouncements" class="panel hidden" style="margin-top:14px"></div>
   <div id="tnAdminModuleInfo" class="panel hidden" style="margin-top:14px"></div>
 </section>
 <main id="tnCustomerApp">
@@ -2617,9 +2618,13 @@ function tnLocalLicenseCheck(profile) {
   if(profile.license_status!=='active')return {allowed:false,reason:'A valid active license is required. Please contact Admin.'};
   const today=new Date();
   const localToday=new Date(today.getFullYear(),today.getMonth(),today.getDate());
-  if(!profile.license_expiry_date)return {allowed:false,reason:'Your license expiry date is not assigned. Please contact Admin.'};
-  const expiry=new Date(profile.license_expiry_date+'T00:00:00');
-  if(expiry<localToday)return {allowed:false,reason:'Your license has expired. Please contact Admin to renew it.'};
+  if(profile.license_type!=='free'&&profile.license_type!=='trial'&&profile.license_type!=='paid')
+    return {allowed:false,reason:'A valid license type is required. Please contact Admin.'};
+  if(profile.license_type!=='free'){
+    if(!profile.license_expiry_date)return {allowed:false,reason:'Your license expiry date is not assigned. Please contact Admin.'};
+    const expiry=new Date(profile.license_expiry_date+'T00:00:00');
+    if(expiry<localToday)return {allowed:false,reason:'Your license has expired. Please contact Admin to renew it.'};
+  }
   if(profile.license_start_date){
     const start=new Date(profile.license_start_date+'T00:00:00');
     if(start>localToday)return {allowed:false,reason:'Your license is not active yet. Please contact Admin.'};
@@ -2667,6 +2672,7 @@ function tnEnterApp(user, profile) {
     try { loadRecords(); loadClientProfiles(); tnRenderTasks(); } catch(e){console.warn('View refresh:',e);}
   }
   tnLoadCloudData().catch(e=>console.warn('Cloud restore:',e));
+  setTimeout(()=>tnShowCustomerAnnouncements(),1200);
   if(tnAccessCheckTimer)clearInterval(tnAccessCheckTimer);
   tnAccessCheckTimer=setInterval(()=>tnCheckAccountAccess(),60000);
   document.addEventListener('visibilitychange',()=>{
@@ -2772,20 +2778,66 @@ async function tnLogout() {
     if (logoutButton) logoutButton.disabled = false;
   }
 }
+
+async function tnLoadAdminAnnouncements(){
+  const host=document.getElementById('tnAdminAnnouncements');if(!host)return;
+  host.innerHTML='<h3>6. Announcements</h3><p class="muted">Admin அறிவிப்புகளை உருவாக்கி Customer App-ல் வெளியிடலாம்.</p><div class="muted">Loading announcements...</div>';
+  const {data,error}=await tnSupabase.from('tn_announcements').select('*').order('created_at',{ascending:false}).limit(100);
+  if(error){host.innerHTML='<h3>6. Announcements</h3><p class="error">Announcement table not ready: '+tnEscapeHtml(error.message)+'</p><p>முதலில் SQL அமைப்பை இயக்கவும்.</p>';return;}
+  host.innerHTML='<h3>6. Announcements</h3>'+
+    '<p class="muted">இங்கே Publish செய்யும் அறிவிப்புகள் Customer App-ல் காட்டப்படும்.</p>'+
+    '<div class="panel" style="padding:14px;margin:12px 0">'+
+    '<label>Announcement Title</label><input id="tnAnnTitle" maxlength="120" placeholder="எ.கா. App Update / Class Notice">'+
+    '<label style="margin-top:10px">Message</label><textarea id="tnAnnMessage" rows="4" maxlength="2000" placeholder="அறிவிப்பு விவரங்களை எழுதுங்கள்"></textarea>'+
+    '<div class="form-row" style="margin-top:10px"><label><input type="checkbox" id="tnAnnPublish" checked> Publish immediately</label></div>'+
+    '<button type="button" id="tnAnnCreate" style="margin-top:10px">Publish Announcement</button></div>'+
+    '<h4>Previous Announcements</h4><div id="tnAnnList"></div>';
+  const list=host.querySelector('#tnAnnList');
+  if(!data||!data.length){list.innerHTML='<p class="muted">அறிவிப்புகள் எதுவும் இல்லை.</p>';}
+  else list.innerHTML=data.map(a=>'<div class="panel" style="padding:12px;margin:8px 0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong>'+tnEscapeHtml(a.title)+'</strong><span class="muted">'+(a.is_published?'Published':'Draft')+'</span></div><p style="white-space:pre-wrap">'+tnEscapeHtml(a.message)+'</p><small class="muted">'+new Date(a.created_at).toLocaleString()+'</small><button type="button" class="secondary" data-ann-delete="'+a.id+'" style="margin-left:8px">Delete</button></div>').join('');
+  host.querySelector('#tnAnnCreate').addEventListener('click',async()=>{
+    const title=host.querySelector('#tnAnnTitle').value.trim(),message=host.querySelector('#tnAnnMessage').value.trim(),published=host.querySelector('#tnAnnPublish').checked;
+    if(!title||!message){alert('Title மற்றும் Message இரண்டும் தேவை.');return;}
+    const btn=host.querySelector('#tnAnnCreate');btn.disabled=true;
+    const {error:saveError}=await tnSupabase.from('tn_announcements').insert({title,message,is_published:published,created_by:tnCurrentUser.id});
+    btn.disabled=false;
+    if(saveError){alert('Save failed: '+saveError.message);return;}
+    tnWriteActivity('announcement_created',{title,is_published:published});
+    tnLoadAdminAnnouncements();
+  });
+  host.querySelectorAll('[data-ann-delete]').forEach(btn=>btn.addEventListener('click',async()=>{
+    if(!confirm('இந்த அறிவிப்பை Delete செய்யவா?'))return;
+    const {error:delError}=await tnSupabase.from('tn_announcements').delete().eq('id',btn.dataset.annDelete);
+    if(delError){alert('Delete failed: '+delError.message);return;}
+    tnLoadAdminAnnouncements();
+  }));
+}
+async function tnShowCustomerAnnouncements(){
+  if(!tnCurrentUser||tnCurrentProfile?.role==='admin'||!tnSupabase||!navigator.onLine)return;
+  const {data,error}=await tnSupabase.from('tn_announcements').select('id,title,message,created_at').eq('is_published',true).order('created_at',{ascending:false}).limit(5);
+  if(error||!data||!data.length)return;
+  const existing=document.getElementById('tnCustomerAnnouncements');if(existing)existing.remove();
+  const box=document.createElement('section');box.id='tnCustomerAnnouncements';box.className='panel';
+  box.style.cssText='margin:12px;padding:14px;border:1px solid var(--border,#ddd);border-radius:12px';
+  box.innerHTML='<h3>📢 Announcements</h3>'+data.map(a=>'<article style="padding:10px 0;border-top:1px solid var(--border,#ddd)"><strong>'+tnEscapeHtml(a.title)+'</strong><p style="white-space:pre-wrap;margin:6px 0">'+tnEscapeHtml(a.message)+'</p><small class="muted">'+new Date(a.created_at).toLocaleDateString()+'</small></article>').join('');
+  const app=document.getElementById('tnCustomerApp');if(app)app.prepend(box);
+}
+
 function tnAdminShowMenu(){
-  ['tnAdminMenu','tnAdminUsers','tnAdminStats','tnAdminSyncMonitor','tnAdminLicense','tnAdminActivity','tnAdminModuleInfo'].forEach(id=>{
+  ['tnAdminMenu','tnAdminUsers','tnAdminStats','tnAdminSyncMonitor','tnAdminLicense','tnAdminActivity','tnAdminAnnouncements','tnAdminModuleInfo'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!=='tnAdminMenu');
   });
   const back=document.getElementById('tnAdminBack');if(back)back.classList.add('hidden');
 }
 function tnAdminOpenModule(which){
-  const map={users:'tnAdminUsers',stats:'tnAdminStats',sync:'tnAdminSyncMonitor',license:'tnAdminLicense',activity:'tnAdminActivity'};
+  const map={users:'tnAdminUsers',stats:'tnAdminStats',sync:'tnAdminSyncMonitor',license:'tnAdminLicense',activity:'tnAdminActivity',announcements:'tnAdminAnnouncements'};
   const target=map[which];
   if(which==='sync')tnRenderCloudSyncMonitor();
   if(which==='license')tnLoadAdminLicenses();
   if(which==='activity')tnLoadAdminActivity();
+  if(which==='announcements')tnLoadAdminAnnouncements();
   if(target){
-    ['tnAdminMenu','tnAdminUsers','tnAdminStats','tnAdminSyncMonitor','tnAdminLicense','tnAdminActivity','tnAdminModuleInfo'].forEach(id=>{
+    ['tnAdminMenu','tnAdminUsers','tnAdminStats','tnAdminSyncMonitor','tnAdminLicense','tnAdminActivity','tnAdminAnnouncements','tnAdminModuleInfo'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!==target);
     });
   }else{
@@ -2847,16 +2899,18 @@ async function tnLoadAdminLicenses(){
     return;
   }
   const customers=data||[];
-  const counts={trial:0,paid:0,expired:0,disabled:0};
+  const counts={free:0,trial:0,paid:0,expired:0,disabled:0};
   customers.forEach(u=>{
     if(u.license_status==='disabled')counts.disabled++;
     else if(u.license_status==='expired')counts.expired++;
+    else if(u.license_type==='free')counts.free++;
     else if(u.license_type==='paid')counts.paid++;
     else if(u.license_type==='trial')counts.trial++;
   });
   host.innerHTML='<h3 style="margin:0 0 8px">4. License Management</h3>'+
     '<p class="muted">Assign and maintain each customer account license. Saving these fields does not automatically charge a payment or extend access.</p>'+
     '<div class="tn-admin-stat-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:12px 0">'+
+      '<div class="tn-admin-stat"><span>Free</span><strong>'+counts.free+'</strong></div>'+
       '<div class="tn-admin-stat"><span>Trial</span><strong>'+counts.trial+'</strong></div>'+
       '<div class="tn-admin-stat"><span>Paid</span><strong>'+counts.paid+'</strong></div>'+
       '<div class="tn-admin-stat"><span>Expired</span><strong>'+counts.expired+'</strong></div>'+
@@ -2868,13 +2922,19 @@ async function tnLoadAdminLicenses(){
       return '<div class="tn-license-row" data-license-row="'+tnEscapeHtml(u.user_id)+'">'+
         '<div><strong>'+tnEscapeHtml(u.full_name||'—')+'</strong><br><span class="muted">'+tnEscapeHtml(u.email||'')+'</span><br><small>Account: '+tnEscapeHtml(u.approval_status||'')+' · License: '+tnEscapeHtml(status)+'</small></div>'+
         '<div><div class="tn-license-fields">'+
-          '<div><label>License Type</label><select data-license-type="'+tnEscapeHtml(u.user_id)+'"><option value="">Not assigned</option><option value="trial" '+(u.license_type==='trial'?'selected':'')+'>Trial</option><option value="paid" '+(u.license_type==='paid'?'selected':'')+'>Paid</option></select></div>'+
+          '<div><label>License Type</label><select data-license-type="'+tnEscapeHtml(u.user_id)+'"><option value="">Not assigned</option><option value="free" '+(u.license_type==='free'?'selected':'')+'>Free</option><option value="trial" '+(u.license_type==='trial'?'selected':'')+'>Trial</option><option value="paid" '+(u.license_type==='paid'?'selected':'')+'>Paid</option></select></div>'+
           '<div><label>License Status</label><select data-license-status="'+tnEscapeHtml(u.user_id)+'"><option value="active" '+(status==='active'?'selected':'')+'>Active</option><option value="expired" '+(status==='expired'?'selected':'')+'>Expired</option><option value="disabled" '+(status==='disabled'?'selected':'')+'>Disabled</option></select></div>'+
           '<div><label>Start Date</label><input type="date" data-license-start="'+tnEscapeHtml(u.user_id)+'" value="'+tnEscapeHtml(u.license_start_date||'')+'"></div>'+
-          '<div><label>Expiry Date</label><input type="date" data-license-expiry="'+tnEscapeHtml(u.user_id)+'" value="'+tnEscapeHtml(u.license_expiry_date||'')+'"></div>'+
+          '<div><label>Expiry Date <small>(Free: No Expiry)</small></label><input type="date" data-license-expiry="'+tnEscapeHtml(u.user_id)+'" value="'+tnEscapeHtml(u.license_expiry_date||'')+'" '+(u.license_type==='free'?'disabled':'')+'></div>'+
         '</div><button type="button" class="secondary" data-license-save="'+tnEscapeHtml(u.user_id)+'">Save License</button></div></div>';
     }).join('')+'</div>'+
-    '<p class="muted" style="font-size:.82rem;margin-top:12px">Access is automatically allowed only when the account is active, the license status is Active, today is on/after the start date, and the expiry date has not passed. Admin accounts are exempt.</p>';
+    '<p class="muted" style="font-size:.82rem;margin-top:12px">Free: no expiry date. Trial and Paid: expiry date required. All customer licenses still require Account Active and License Status Active. Admin accounts are exempt.</p>';
+  host.querySelectorAll('[data-license-type]').forEach(sel=>sel.addEventListener('change',()=>{
+    const id=sel.getAttribute('data-license-type');
+    const expiryInput=host.querySelector('[data-license-expiry="'+id+'"]');
+    if(sel.value==='free'){expiryInput.value='';expiryInput.disabled=true;}
+    else{expiryInput.disabled=false;}
+  }));
   const search=document.getElementById('tnLicenseSearch');
   search.addEventListener('input',()=>{
     const q=search.value.trim().toLowerCase();
@@ -2885,7 +2945,7 @@ async function tnLoadAdminLicenses(){
     const type=host.querySelector('[data-license-type="'+id+'"]').value;
     const status=host.querySelector('[data-license-status="'+id+'"]').value;
     const start=host.querySelector('[data-license-start="'+id+'"]').value||null;
-    const expiry=host.querySelector('[data-license-expiry="'+id+'"]').value||null;
+    const expiry=type==='free'?null:(host.querySelector('[data-license-expiry="'+id+'"]').value||null);
     if(!type){alert('Please select a License Type.');return;}
     if(start&&expiry&&expiry<start){alert('Expiry Date cannot be earlier than Start Date.');return;}
     btn.disabled=true;
