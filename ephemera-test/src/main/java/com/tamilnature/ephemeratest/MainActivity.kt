@@ -21,6 +21,18 @@ class MainActivity : Activity() {
         "தனுசு", "மகரம்", "கும்பம்", "மீனம்"
     )
 
+    private val nakshatraNames = arrayOf(
+        "அசுவினி", "பரணி", "கார்த்திகை",
+        "ரோகிணி", "மிருகசீரிடம்", "திருவாதிரை",
+        "புனர்பூசம்", "பூசம்", "ஆயில்யம்",
+        "மகம்", "பூரம்", "உத்திரம்",
+        "அஸ்தம்", "சித்திரை", "சுவாதி",
+        "விசாகம்", "அனுஷம்", "கேட்டை",
+        "மூலம்", "பூராடம்", "உத்திராடம்",
+        "திருவோணம்", "அவிட்டம்", "சதயம்",
+        "பூரட்டாதி", "உத்திரட்டாதி", "ரேவதி"
+    )
+
     private data class Graha(
         val name: String,
         val body: Body
@@ -64,6 +76,24 @@ class MainActivity : Activity() {
         return String.format(Locale.US, "%.8f°", value)
     }
 
+    private fun getNakshatra(longitude: Double): String {
+        val normalized = normalize(longitude)
+
+        val nakshatraSize = 360.0 / 27.0
+        val padaSize = nakshatraSize / 4.0
+
+        val nakshatraIndex =
+            (normalized / nakshatraSize).toInt()
+
+        val withinNakshatra =
+            normalized % nakshatraSize
+
+        val padaIndex =
+            (withinNakshatra / padaSize).toInt()
+
+        return "${nakshatraNames[nakshatraIndex]} - பாதம் ${padaIndex + 1}"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,18 +113,16 @@ class MainActivity : Activity() {
         val result = StringBuilder()
 
         try {
-            // TEST BIRTH DETAILS
+
             val birthYear = 1984
             val birthMonth = 11
             val birthDay = 19
             val birthHour = 19
             val birthMinute = 58
 
-            // Birthplace coordinates: Oddanchatram
             val latitude = 10.48013
             val longitude = 77.74977
 
-            // Convert local IST birth time to UTC
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
             )
@@ -139,7 +167,6 @@ class MainActivity : Activity() {
                 Ayanamsa.LAHIRI, tt
             )
 
-            // Ascendant and Midheaven
             val angles = Ephemera.ascMc(
                 jd, longitude, latitude
             )
@@ -154,21 +181,11 @@ class MainActivity : Activity() {
 
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
-            result.append(
-                "Date: $birthDay-$birthMonth-$birthYear\n"
-            )
-            result.append(
-                "Birth Time: $birthHour:$birthMinute IST\n"
-            )
-            result.append(
-                "UTC Time: $hour:$minute:$second\n"
-            )
-            result.append(
-                "Latitude: $latitude\n"
-            )
-            result.append(
-                "Longitude: $longitude\n\n"
-            )
+            result.append("Date: $birthDay-$birthMonth-$birthYear\n")
+            result.append("Birth Time: $birthHour:$birthMinute IST\n")
+            result.append("UTC Time: $hour:$minute:$second\n")
+            result.append("Latitude: $latitude\n")
+            result.append("Longitude: $longitude\n\n")
 
             result.append("JULIAN DAY\n$jd\n\n")
             result.append("LAHIRI AYANAMSA\n$lahiri°\n\n")
@@ -177,33 +194,21 @@ class MainActivity : Activity() {
             result.append("LAGNA - லக்னம்\n")
             result.append("=============================\n")
 
-            result.append(
-                "Tropical Ascendant:\n"
-            )
-            result.append(
-                "${formatDegree(angles.asc)}\n\n"
-            )
+            result.append("Tropical Ascendant:\n")
+            result.append("${formatDegree(angles.asc)}\n\n")
+
+            result.append("Sidereal Ascendant:\n")
+            result.append("${formatDegree(lagnaSidereal)}\n\n")
+
+            result.append("லக்ன ராசி:\n")
+            result.append("${formatRasi(lagnaSidereal)}\n")
 
             result.append(
-                "Sidereal Ascendant:\n"
-            )
-            result.append(
-                "${formatDegree(lagnaSidereal)}\n\n"
+                "லக்ன நட்சத்திரம்: ${getNakshatra(lagnaSidereal)}\n\n"
             )
 
-            result.append(
-                "லக்ன ராசி:\n"
-            )
-            result.append(
-                "${formatRasi(lagnaSidereal)}\n\n"
-            )
-
-            result.append(
-                "MC - மத்தியான புள்ளி:\n"
-            )
-            result.append(
-                "${formatRasi(mcSidereal)}\n\n"
-            )
+            result.append("MC - மத்தியான புள்ளி:\n")
+            result.append("${formatRasi(mcSidereal)}\n\n")
 
             result.append("=============================\n")
             result.append("9 GRAHA POSITIONS - D1\n")
@@ -234,11 +239,13 @@ class MainActivity : Activity() {
                 result.append(
                     "D1: ${formatRasi(sidereal)}\n"
                 )
+                result.append(
+                    "நட்சத்திரம்: ${getNakshatra(sidereal)}\n"
+                )
                 result.append("நிலை: $motion\n")
                 result.append("--------------------------------\n\n")
             }
 
-            // Mean Rahu and opposite Ketu
             val rahuPosition = Ephemera.position(
                 Body.MEAN_NODE, jd
             ) ?: throw Exception("Mean Node unavailable")
@@ -256,7 +263,10 @@ class MainActivity : Activity() {
                 "Sidereal: ${formatDegree(rahuSidereal)}\n"
             )
             result.append(
-                "D1: ${formatRasi(rahuSidereal)}\n\n"
+                "D1: ${formatRasi(rahuSidereal)}\n"
+            )
+            result.append(
+                "நட்சத்திரம்: ${getNakshatra(rahuSidereal)}\n\n"
             )
 
             result.append("கேது\n")
@@ -266,11 +276,16 @@ class MainActivity : Activity() {
             result.append(
                 "D1: ${formatRasi(ketuSidereal)}\n"
             )
+            result.append(
+                "நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n"
+            )
 
             result.append("\n=============================\n")
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
+            result.append("Nakshatra: 27\n")
+            result.append("Pada: 108\n")
 
         } catch (e: Exception) {
             result.append("\nCALCULATION ERROR\n\n")
