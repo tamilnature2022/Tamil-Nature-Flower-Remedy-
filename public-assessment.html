@@ -783,6 +783,12 @@ body.tn-public-assessment-mode #home .tn-public-card-heading strong {
   margin: 0;
 }
 
+
+/* Public questionnaire: hide remedy names only; keep question text and scoring intact */
+body.tn-public-assessment-mode #questionnaire .prompt-text > .muted.small {
+  display: none !important;
+}
+
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
