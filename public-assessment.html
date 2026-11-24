@@ -708,6 +708,41 @@ body.tn-public-assessment-mode #home .tn-public-client-greeting {
   line-height: 1.35;
 }
 
+
+/* Place the personalized client greeting immediately above Start Assessment */
+body.tn-public-assessment-mode #home .tn-public-welcome .tn-public-client-greeting {
+  display: none !important;
+}
+body.tn-public-assessment-mode #home .tn-public-card-greeting {
+  display: inline-block;
+  margin: 0 0 5px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eaf5ee;
+  color: #176344;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+
+/* Bilingual START label */
+body.tn-public-assessment-mode #home .tn-public-card-action {
+  gap: 12px;
+  min-height: 62px;
+}
+body.tn-public-assessment-mode #home .tn-public-start-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  line-height: 1.25;
+  letter-spacing: .06em;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 850;
+}
+
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
@@ -807,7 +842,6 @@ body.tn-admin-mode .sticky-shell{display:none!important}
 
 <section id="home" class="page-section tn-public-home">
   <div class="tn-public-welcome">
-    <p class="tn-public-client-greeting" id="tnPublicWelcomeGreeting">வணக்கம் / Welcome</p>
     <div class="tn-public-brand-mark">✿</div>
     <h1>Tamil Nature Flower Remedy Assessment</h1>
     <p class="tn-public-welcome-ta">மலர் மருந்து மதிப்பீடு</p>
@@ -815,9 +849,10 @@ body.tn-admin-mode .sticky-shell{display:none!important}
   <div class="tn-public-section-label">உங்கள் மதிப்பீடு · YOUR ASSESSMENT</div>
   <div class="home-grid">
     <button class="home-card tn-public-assessment-card" type="button" data-home-tab="assessment">
+      <p class="tn-public-client-greeting tn-public-card-greeting" id="tnPublicWelcomeGreeting">வணக்கம் / Welcome</p>
       <span class="tn-public-card-icon">☘</span>
       <strong>Start Assessment</strong>
-      <span class="tn-public-card-action">தொடங்கவும் <span aria-hidden="true">→</span></span>
+      <span class="tn-public-card-action"><span class="tn-public-start-label">START<br>தொடங்கவும்</span><span aria-hidden="true">→</span></span>
     </button>
     <button class="home-card" type="button" data-home-tab="records"><span class="home-icon">▤</span><strong>Client Records</strong><span>Add / View / Edit / Delete<br>சேர் / பார் / திருத்து / நீக்கு</span></button>
     <button class="home-card" type="button" data-home-tab="dashboard"><span class="home-icon">▥</span><strong>Research Dashboard</strong><span>ஆய்வு மற்றும் புள்ளிவிவரங்கள்</span></button>
