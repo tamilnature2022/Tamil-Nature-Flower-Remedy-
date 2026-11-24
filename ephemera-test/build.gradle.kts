@@ -1,5 +1,7 @@
+
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -10,11 +12,11 @@ android {
         applicationId = "com.tamilnature.ephemeratest"
         minSdk = 23
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
 }
 
 dependencies {
-    // Ephemera dependency temporarily removed for crash testing
+    // Ephemera temporarily disabled for testing
 }
