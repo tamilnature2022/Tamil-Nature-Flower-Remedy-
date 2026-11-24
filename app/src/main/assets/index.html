@@ -475,8 +475,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #tnAuthGate .tn-auth-msg{margin-top:12px;padding:10px;border-radius:9px;background:#eef5ef;color:#315b45;font-size:.9rem;white-space:pre-wrap}
 #tnAuthGate .tn-auth-error{background:#fff0ed;color:#8c3022}
 #tnAuthGate .tn-auth-link{border:0;background:transparent;color:#315b45;text-decoration:underline;padding:8px;margin-top:10px}
+#tnAdminDashboard .tn-admin-menu-list{display:flex;flex-direction:column;gap:0}
+#tnAdminDashboard .tn-admin-menu-item{display:flex;align-items:center;gap:14px;width:100%;padding:18px 8px;text-align:left;border:0;border-bottom:1px solid #e5ece6;background:transparent;color:inherit;border-radius:0}
+#tnAdminDashboard .tn-admin-menu-item:last-child{border-bottom:0}
+#tnAdminDashboard .tn-admin-menu-icon{display:flex;align-items:center;justify-content:center;flex:0 0 58px;height:58px;border-radius:12px;background:#e8f1eb;color:#176b3c;font-size:28px}
+#tnAdminDashboard .tn-admin-menu-item>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+#tnAdminDashboard .tn-admin-menu-item strong{font-size:1.08rem}
+#tnAdminDashboard .tn-admin-menu-item small{font-size:.9rem;color:#647168;line-height:1.35}
+#tnAdminDashboard .tn-admin-menu-item em{font-style:normal;color:#16834b;background:#e0f3e7;padding:5px 9px;border-radius:18px;font-size:.8rem}
+@media(max-width:600px){#tnAdminDashboard .tn-admin-menu-item{gap:10px;padding:16px 2px}#tnAdminDashboard .tn-admin-menu-icon{flex-basis:50px;height:50px}#tnAdminDashboard .tn-admin-menu-item strong{font-size:1rem}#tnAdminDashboard .tn-admin-menu-item small{font-size:.82rem}}
 #tnAdminUsers{margin:12px 0;padding:14px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
 #tnAdminStats{padding:16px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
+#tnAdminSyncMonitor{padding:16px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
+#tnAdminLicense{padding:16px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
+#tnAdminLicense .tn-license-row{padding:14px 0;border-bottom:1px solid #e5ece6;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,1fr);gap:14px}
+#tnAdminLicense .tn-license-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#tnAdminLicense label{display:block;font-size:.82rem;font-weight:700;color:#52635a;margin-bottom:4px}
+#tnAdminLicense input,#tnAdminLicense select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #cbd8ce;border-radius:8px;background:#fff;font:inherit}
+@media(max-width:600px){#tnAdminLicense .tn-license-row{grid-template-columns:1fr}#tnAdminLicense .tn-license-fields{grid-template-columns:1fr 1fr}}
+
+#tnAdminSyncMonitor .tn-sync-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:14px}
+#tnAdminSyncMonitor .tn-sync-tile{padding:13px;border-radius:11px;background:#f0f5f1;border:1px solid #e0e9e2}
+#tnAdminSyncMonitor .tn-sync-tile span{display:block;color:#607067;font-size:.84rem;margin-bottom:6px}
+#tnAdminSyncMonitor .tn-sync-tile strong{display:block;color:#195b3b;font-size:1.05rem;overflow-wrap:anywhere}
+#tnAdminSyncMonitor .tn-sync-note{color:#647168;font-size:.86rem;line-height:1.45;margin-top:12px}
+
 #tnAdminStats .tn-admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
 #tnAdminStats .tn-admin-stat{padding:13px;border-radius:11px;background:#f0f5f1;border:1px solid #e0e9e2;display:flex;flex-direction:column;gap:6px}
 #tnAdminStats .tn-admin-stat span{font-size:.84rem;color:#607067}
@@ -580,8 +603,23 @@ body.tn-admin-mode .sticky-shell{display:none!important}
     <p class="muted" style="margin:0">Tamil Nature · Account administration</p>
     <div class="notice" style="margin-top:14px">Admin account access only. Customer assessment and client-record workspace is hidden in this view.</div>
   </div>
-  <div id="tnAdminUsers" class="panel" style="margin-top:14px"></div>
-  <div id="tnAdminStats" class="panel" style="margin-top:14px"></div>
+  <div id="tnAdminMenu" class="panel" style="margin-top:14px">
+    <h2 style="margin:0 0 14px">Admin Dashboard – வசதிகள்</h2>
+    <div class="tn-admin-menu-list">
+      <button type="button" class="tn-admin-menu-item" data-admin-open="users"><span class="tn-admin-menu-icon">♙</span><span><strong>1. User Management</strong><small>Customer Approval, Activate, Disable, Delete</small></span><em>Existing</em></button>
+      <button type="button" class="tn-admin-menu-item" data-admin-open="stats"><span class="tn-admin-menu-icon">▥</span><span><strong>2. Dashboard Statistics</strong><small>Total Users, Active Users, Pending Users, Disabled Users</small></span></button>
+      <button type="button" class="tn-admin-menu-item" data-admin-open="sync"><span class="tn-admin-menu-icon">☁</span><span><strong>3. Cloud Sync Monitor</strong><small>Last Sync, Pending Sync, Failed Sync, Storage Status</small><em>Existing</em></button>
+      <button type="button" class="tn-admin-menu-item" data-admin-open="license"><span class="tn-admin-menu-icon">♢</span><span><strong>4. License Management</strong><small>Trial, Paid, Expiry Date, Account Access</small></button>
+      <button type="button" class="tn-admin-menu-item" data-admin-open="activity"><span class="tn-admin-menu-icon">▤</span><span><strong>5. Activity Log</strong><small>Login History, Account Created, Last Active, Sync History</small></button>
+      <button type="button" class="tn-admin-menu-item" data-admin-open="announcements"><span class="tn-admin-menu-icon">▣</span><span><strong>6. Announcements</strong><small>Updates, Notifications, App Messages</small></button>
+    </div>
+  </div>
+  <button type="button" id="tnAdminBack" class="secondary hidden" style="margin:12px 0" onclick="tnAdminShowMenu()">← Back to Admin Dashboard</button>
+  <div id="tnAdminUsers" class="panel hidden" style="margin-top:14px"></div>
+  <div id="tnAdminStats" class="panel hidden" style="margin-top:14px"></div>
+  <div id="tnAdminSyncMonitor" class="panel hidden" style="margin-top:14px"></div>
+  <div id="tnAdminLicense" class="panel hidden" style="margin-top:14px"></div>
+  <div id="tnAdminModuleInfo" class="panel hidden" style="margin-top:14px"></div>
 </section>
 <main id="tnCustomerApp">
 <div class="sticky-shell">
@@ -2511,6 +2549,10 @@ let tnCloudReady = false;
 let tnCloudSyncInFlight = false;
 let tnCloudSyncPending = false;
 let tnCloudRetryDelay = 5000;
+let tnCloudLastSuccessAt = null;
+let tnCloudFailureCount = 0;
+let tnCloudLastError = '';
+let tnCloudLastPayloadBytes = 0;
 
 function tnScopedStorageKey(base) {
   const uid = tnCurrentUser && tnCurrentUser.id;
@@ -2537,9 +2579,12 @@ function tnShowAuthView(which) {
   document.getElementById('tnSignupView').classList.toggle('hidden',which!=='signup');
   document.getElementById('tnAuthMessage').classList.add('hidden');
   const gate=document.getElementById('tnAuthGate');
-  if(gate) gate.scrollTop=0;
-  const nameField=document.getElementById('tnSignupName');
-  if(which==='signup' && nameField) nameField.scrollIntoView({block:'start',behavior:'auto'});
+  if(gate) {
+    gate.scrollTop=0;
+    gate.scrollLeft=0;
+  }
+  document.body.scrollTop=0;
+  document.documentElement.scrollTop=0;
 }
 function tnShowAuthGate(message, error=false) {
   document.body.classList.remove('tn-admin-mode');
@@ -2658,6 +2703,100 @@ async function tnLogout() {
     tnShowAuthGate('Logged out.');
     if (logoutButton) logoutButton.disabled = false;
   }
+}
+function tnAdminShowMenu(){
+  ['tnAdminMenu','tnAdminUsers','tnAdminStats','tnAdminSyncMonitor','tnAdminLicense','tnAdminModuleInfo'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!=='tnAdminMenu');
+  });
+  const back=document.getElementById('tnAdminBack');if(back)back.classList.add('hidden');
+}
+function tnAdminOpenModule(which){
+  const map={users:'tnAdminUsers',stats:'tnAdminStats',sync:'tnAdminSyncMonitor',license:'tnAdminLicense'};
+  const target=map[which];
+  if(which==='sync')tnRenderCloudSyncMonitor();
+  if(which==='license')tnLoadAdminLicenses();
+  if(target){
+    ['tnAdminMenu','tnAdminUsers','tnAdminStats','tnAdminSyncMonitor','tnAdminLicense','tnAdminModuleInfo'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!==target);
+    });
+  }else{
+    ['tnAdminMenu','tnAdminUsers','tnAdminStats'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.classList.add('hidden');
+    });
+    const info=document.getElementById('tnAdminModuleInfo');
+    info.classList.remove('hidden');
+    const names={license:'4. License Management',activity:'5. Activity Log',announcements:'6. Announcements'};
+    info.innerHTML='<h3>'+names[which]+'</h3><p class="muted">இந்த வசதியை அடுத்த கட்டத்தில் உருவாக்குவோம்.</p>';
+  }
+  const back=document.getElementById('tnAdminBack');if(back)back.classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-admin-open]');
+  if(btn)tnAdminOpenModule(btn.getAttribute('data-admin-open'));
+});
+async function tnLoadAdminLicenses(){
+  if(!tnCurrentProfile||tnCurrentProfile.role!=='admin')return;
+  const host=document.getElementById('tnAdminLicense');
+  host.innerHTML='<strong>Loading customer licenses…</strong>';
+  const {data,error}=await tnSupabase.from('tn_user_profiles')
+    .select('user_id,email,full_name,role,approval_status,license_type,license_start_date,license_expiry_date,license_status')
+    .eq('role','customer').order('created_at',{ascending:false});
+  if(error){
+    host.innerHTML='<h3>4. License Management</h3><p class="notice">Could not load licenses: '+tnEscapeHtml(error.message)+'<br><small>Run the License Management SQL update, then reopen this section.</small></p>';
+    return;
+  }
+  const customers=data||[];
+  const counts={trial:0,paid:0,expired:0,disabled:0};
+  customers.forEach(u=>{
+    if(u.license_status==='disabled')counts.disabled++;
+    else if(u.license_status==='expired')counts.expired++;
+    else if(u.license_type==='paid')counts.paid++;
+    else if(u.license_type==='trial')counts.trial++;
+  });
+  host.innerHTML='<h3 style="margin:0 0 8px">4. License Management</h3>'+
+    '<p class="muted">Assign and maintain each customer account license. Saving these fields does not automatically charge a payment or extend access.</p>'+
+    '<div class="tn-admin-stat-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:12px 0">'+
+      '<div class="tn-admin-stat"><span>Trial</span><strong>'+counts.trial+'</strong></div>'+
+      '<div class="tn-admin-stat"><span>Paid</span><strong>'+counts.paid+'</strong></div>'+
+      '<div class="tn-admin-stat"><span>Expired</span><strong>'+counts.expired+'</strong></div>'+
+      '<div class="tn-admin-stat"><span>Disabled</span><strong>'+counts.disabled+'</strong></div>'+
+    '</div>'+
+    '<input id="tnLicenseSearch" type="search" placeholder="Search customer name or email" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd8ce;border-radius:9px;margin:8px 0">'+
+    '<div id="tnLicenseRows">'+customers.map(u=>{
+      const status=u.license_status||'not_assigned';
+      return '<div class="tn-license-row" data-license-row="'+tnEscapeHtml(u.user_id)+'">'+
+        '<div><strong>'+tnEscapeHtml(u.full_name||'—')+'</strong><br><span class="muted">'+tnEscapeHtml(u.email||'')+'</span><br><small>Account: '+tnEscapeHtml(u.approval_status||'')+' · License: '+tnEscapeHtml(status)+'</small></div>'+
+        '<div><div class="tn-license-fields">'+
+          '<div><label>License Type</label><select data-license-type="'+tnEscapeHtml(u.user_id)+'"><option value="">Not assigned</option><option value="trial" '+(u.license_type==='trial'?'selected':'')+'>Trial</option><option value="paid" '+(u.license_type==='paid'?'selected':'')+'>Paid</option></select></div>'+
+          '<div><label>License Status</label><select data-license-status="'+tnEscapeHtml(u.user_id)+'"><option value="active" '+(status==='active'?'selected':'')+'>Active</option><option value="expired" '+(status==='expired'?'selected':'')+'>Expired</option><option value="disabled" '+(status==='disabled'?'selected':'')+'>Disabled</option></select></div>'+
+          '<div><label>Start Date</label><input type="date" data-license-start="'+tnEscapeHtml(u.user_id)+'" value="'+tnEscapeHtml(u.license_start_date||'')+'"></div>'+
+          '<div><label>Expiry Date</label><input type="date" data-license-expiry="'+tnEscapeHtml(u.user_id)+'" value="'+tnEscapeHtml(u.license_expiry_date||'')+'"></div>'+
+        '</div><button type="button" class="secondary" data-license-save="'+tnEscapeHtml(u.user_id)+'">Save License</button></div></div>';
+    }).join('')+'</div>'+
+    '<p class="muted" style="font-size:.82rem;margin-top:12px">License settings are currently stored as administrative records. Automatic login blocking based on expiry will be enabled after the trial duration and paid-license rules are confirmed.</p>';
+  const search=document.getElementById('tnLicenseSearch');
+  search.addEventListener('input',()=>{
+    const q=search.value.trim().toLowerCase();
+    host.querySelectorAll('[data-license-row]').forEach(row=>row.style.display=row.textContent.toLowerCase().includes(q)?'':'none');
+  });
+  host.querySelectorAll('[data-license-save]').forEach(btn=>btn.addEventListener('click',async()=>{
+    const id=btn.getAttribute('data-license-save');
+    const type=host.querySelector('[data-license-type="'+id+'"]').value;
+    const status=host.querySelector('[data-license-status="'+id+'"]').value;
+    const start=host.querySelector('[data-license-start="'+id+'"]').value||null;
+    const expiry=host.querySelector('[data-license-expiry="'+id+'"]').value||null;
+    if(!type){alert('Please select a License Type.');return;}
+    if(start&&expiry&&expiry<start){alert('Expiry Date cannot be earlier than Start Date.');return;}
+    btn.disabled=true;
+    const {error}=await tnSupabase.from('tn_user_profiles').update({
+      license_type:type,license_status:status,license_start_date:start,license_expiry_date:expiry,updated_at:new Date().toISOString()
+    }).eq('user_id',id);
+    btn.disabled=false;
+    if(error){alert('License save failed: '+error.message);return;}
+    alert('License details saved.');
+    tnLoadAdminLicenses();
+  }));
 }
 async function tnLoadAdminUsers() {
   if(!tnCurrentProfile||tnCurrentProfile.role!=='admin')return;
@@ -2789,6 +2928,52 @@ function tnBuildCloudPayload() {
     schema_version:1
   };
 }
+function tnCloudFormatBytes(bytes){
+  if(!Number.isFinite(bytes)||bytes<=0)return '0 B';
+  const units=['B','KB','MB','GB'];let n=bytes,i=0;
+  while(n>=1024&&i<units.length-1){n/=1024;i++;}
+  return n.toFixed(i===0?0:1)+' '+units[i];
+}
+function tnRenderCloudSyncMonitor(){
+  const host=document.getElementById('tnAdminSyncMonitor');
+  if(!host)return;
+  let localBytes=0;
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i)||'';
+      if(k.includes('__'+(tnCurrentUser&&tnCurrentUser.id||'')))localBytes+=(k.length+(localStorage.getItem(k)||'').length)*2;
+    }
+  }catch(e){}
+  const online=navigator.onLine;
+  const pending=tnCloudSyncPending||tnCloudSyncInFlight;
+  const last=tnCloudLastSuccessAt?new Date(tnCloudLastSuccessAt).toLocaleString():'Not synced yet';
+  const cloudStatus=!tnCloudReady?'Not connected':pending?'Sync pending':online?'Connected':'Offline';
+  host.innerHTML=
+    '<h3 style="margin:0 0 6px">3. Cloud Sync Monitor</h3>'+
+    '<p class="muted" style="margin:0">Live sync and local storage status for the signed-in account.</p>'+
+    '<div class="tn-sync-grid">'+
+      '<div class="tn-sync-tile"><span>Internet Connection</span><strong>'+(online?'Online':'Offline')+'</strong></div>'+
+      '<div class="tn-sync-tile"><span>Cloud Status</span><strong>'+cloudStatus+'</strong></div>'+
+      '<div class="tn-sync-tile"><span>Last Successful Sync</span><strong>'+tnEscapeHtml(last)+'</strong></div>'+
+      '<div class="tn-sync-tile"><span>Pending Sync</span><strong>'+(pending?'Yes':'No')+'</strong></div>'+
+      '<div class="tn-sync-tile"><span>Failed Sync Count</span><strong>'+tnCloudFailureCount+'</strong></div>'+
+      '<div class="tn-sync-tile"><span>Last Upload Payload</span><strong>'+tnCloudFormatBytes(tnCloudLastPayloadBytes)+'</strong></div>'+
+      '<div class="tn-sync-tile"><span>Local Device Storage (approx.)</span><strong>'+tnCloudFormatBytes(localBytes)+'</strong></div>'+
+    '</div>'+
+    (tnCloudLastError?'<p class="tn-sync-note">Last sync error: '+tnEscapeHtml(tnCloudLastError)+'</p>':'')+
+    '<p class="tn-sync-note">Local storage estimate is approximate and covers this account’s matching browser storage keys. Cloud storage quota usage is not exposed by the current app connection.</p>'+
+    '<button type="button" class="secondary" id="tnAdminSyncRefresh" style="margin-top:12px">Refresh Status</button>'+
+    '<button type="button" class="primary" id="tnAdminSyncRun" style="margin-top:8px">Sync Now</button>';
+  const refresh=document.getElementById('tnAdminSyncRefresh');
+  if(refresh)refresh.addEventListener('click',tnRenderCloudSyncMonitor);
+  const run=document.getElementById('tnAdminSyncRun');
+  if(run)run.addEventListener('click',async()=>{
+    run.disabled=true;run.textContent='Syncing…';
+    try{await tnSaveCloudData();alert('Cloud sync completed.');}
+    catch(e){alert('Cloud sync failed: '+e.message);}
+    tnRenderCloudSyncMonitor();
+  });
+}
 function tnQueueCloudSync(delay=1200) {
   if(!tnCurrentUser||!tnCloudReady||!tnSupabase||!navigator.onLine)return;
   tnCloudSyncPending=true;
@@ -2814,15 +2999,23 @@ async function tnSaveCloudData() {
       const userId=tnCurrentUser&&tnCurrentUser.id;
       if(!userId)break;
       const payload=tnBuildCloudPayload();
+      tnCloudLastPayloadBytes=new Blob([JSON.stringify(payload)]).size;
       const {error}=await tnSupabase.from('tn_user_data').upsert({
         user_id:userId,payload,updated_at:new Date().toISOString()
       },{onConflict:'user_id'});
       if(error)throw error;
+      tnCloudLastSuccessAt=new Date().toISOString();
+      tnCloudLastError='';
       tnCloudRetryDelay=5000;
     } while(tnCloudSyncPending&&tnCurrentUser&&tnCloudReady);
+  } catch(e) {
+    tnCloudFailureCount++;
+    tnCloudLastError=e&&e.message?e.message:String(e);
+    throw e;
   } finally {
     tnCloudSyncInFlight=false;
     if(tnCloudSyncPending&&tnCurrentUser&&tnCloudReady)tnQueueCloudSync(250);
+    tnRenderCloudSyncMonitor();
   }
 }
 async function tnLoadCloudData() {
