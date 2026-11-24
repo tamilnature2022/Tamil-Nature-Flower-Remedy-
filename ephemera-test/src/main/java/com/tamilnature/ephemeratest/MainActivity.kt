@@ -271,10 +271,6 @@ class MainActivity : Activity() {
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 19)
 
-        // Movable: Aries
-        // Fixed: Sagittarius
-        // Dual: Leo
-
         val startingSign = when (signIndex % 3) {
             0 -> 0
             1 -> 8
@@ -295,11 +291,49 @@ class MainActivity : Activity() {
         )
     }
 
+    // D24 CHATURVIMSHAMSA
+
+    private fun calculateChaturvimshamsa(
+        longitude: Double
+    ): VargaPosition {
+
+        val normalized = normalize(longitude)
+        val signIndex = (normalized / 30.0).toInt()
+        val degreeInSign = normalized % 30.0
+
+        val size = 30.0 / 24.0
+
+        val division =
+            (degreeInSign / size).toInt().coerceIn(0, 23)
+
+        // Odd signs start from Leo
+        // Even signs start from Cancer
+
+        val startingSign = if (signIndex % 2 == 0) {
+            4
+        } else {
+            3
+        }
+
+        val targetSign =
+            (startingSign + division) % 12
+
+        val remaining = degreeInSign - division * size
+        val targetDegree = remaining * 24.0
+        val targetLongitude = targetSign * 30.0 + targetDegree
+
+        return VargaPosition(
+            normalize(targetLongitude),
+            rasiNames[targetSign],
+            formatRasi(targetLongitude)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7 + D12 + D16 + D20"
+            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -400,6 +434,7 @@ class MainActivity : Activity() {
             val lagnaD12 = calculateDwadasamsa(lagnaSidereal)
             val lagnaD16 = calculateShodashamsa(lagnaSidereal)
             val lagnaD20 = calculateVimshamsa(lagnaSidereal)
+            val lagnaD24 = calculateChaturvimshamsa(lagnaSidereal)
 
             // BIRTH DETAILS OUTPUT
 
@@ -452,12 +487,13 @@ class MainActivity : Activity() {
             result.append("D12 Dwadasamsa Lagna:\n${lagnaD12.degree}\n\n")
             result.append("D16 Shodashamsa Lagna:\n${lagnaD16.degree}\n\n")
             result.append("D20 Vimshamsa Lagna:\n${lagnaD20.degree}\n\n")
+            result.append("D24 Chaturvimshamsa Lagna:\n${lagnaD24.degree}\n\n")
             result.append("MC:\n${formatRasi(mcSidereal)}\n\n")
 
             // PLANETARY POSITIONS
 
             result.append("=============================\n")
-            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12 + D16 + D20\n")
+            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
@@ -478,6 +514,7 @@ class MainActivity : Activity() {
                 val d12 = calculateDwadasamsa(sidereal)
                 val d16 = calculateShodashamsa(sidereal)
                 val d20 = calculateVimshamsa(sidereal)
+                val d24 = calculateChaturvimshamsa(sidereal)
 
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
@@ -493,6 +530,7 @@ class MainActivity : Activity() {
                 result.append("D12: ${d12.degree}\n")
                 result.append("D16: ${d16.degree}\n")
                 result.append("D20: ${d20.degree}\n")
+                result.append("D24: ${d24.degree}\n")
                 result.append("நட்சத்திரம்: ${getNakshatra(sidereal)}\n")
                 result.append("நிலை: $motion\n")
                 result.append("--------------------------------\n\n")
@@ -530,6 +568,9 @@ class MainActivity : Activity() {
             val rahuD20 = calculateVimshamsa(rahuSidereal)
             val ketuD20 = calculateVimshamsa(ketuSidereal)
 
+            val rahuD24 = calculateChaturvimshamsa(rahuSidereal)
+            val ketuD24 = calculateChaturvimshamsa(ketuSidereal)
+
             result.append("ராகு - MEAN NODE\n")
             result.append("D1: ${formatRasi(rahuSidereal)}\n")
             result.append("D9: ${rahuD9.degree}\n")
@@ -538,6 +579,7 @@ class MainActivity : Activity() {
             result.append("D12: ${rahuD12.degree}\n")
             result.append("D16: ${rahuD16.degree}\n")
             result.append("D20: ${rahuD20.degree}\n")
+            result.append("D24: ${rahuD24.degree}\n")
             result.append("நட்சத்திரம்: ${getNakshatra(rahuSidereal)}\n\n")
 
             result.append("கேது\n")
@@ -548,6 +590,7 @@ class MainActivity : Activity() {
             result.append("D12: ${ketuD12.degree}\n")
             result.append("D16: ${ketuD16.degree}\n")
             result.append("D20: ${ketuD20.degree}\n")
+            result.append("D24: ${ketuD24.degree}\n")
             result.append("நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n")
 
             // COMPLETION
@@ -556,7 +599,7 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
-            result.append("Charts: D1 + D9 + D10 + D7 + D12 + D16 + D20\n")
+            result.append("Charts: D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
