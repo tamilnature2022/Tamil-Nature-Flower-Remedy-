@@ -1907,7 +1907,7 @@ function tnShowVisits(taskId) {
     <h3 style="margin:0 0 12px">Assessment History</h3>
     ${visits.map(v => {
       const startDate = v.startedAt ? new Date(v.startedAt).toLocaleDateString() : (v.createdAt ? new Date(v.createdAt).toLocaleDateString() : '—');
-      return `<div class="record" style="margin-bottom:10px;padding:16px;border-radius:18px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><strong style="font-size:1.15em">Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small" style="margin-top:10px">Start Date: ${tnEsc(startDate)}</div><div class="tn-visit-actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;align-items:stretch"><button type="button" class="primary" data-tn-visit="${tnEsc(v.id)}" style="width:100%;min-width:0;min-height:44px;padding:8px 6px;font-size:clamp(11px,2.9vw,13px);font-weight:700;line-height:1.2;text-align:center;white-space:normal;display:flex;align-items:center;justify-content:center">Open Assessment</button>${v.report ? `<button type="button" class="secondary" data-tn-report="${tnEsc(v.id)}" style="width:100%;min-width:0;min-height:44px;padding:8px 6px;font-size:clamp(11px,2.9vw,13px);font-weight:700;line-height:1.2;text-align:center;white-space:normal;display:flex;align-items:center;justify-content:center">View Report / மதிப்பீட்டு அறிக்கை</button>` : ''}</div></div>`;
+      return `<div class="record" style="margin-bottom:10px;padding:16px;border-radius:18px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><strong style="font-size:1.15em">Assessment ${v.number}</strong><span class="badge">${statusLabel(v.status)}</span></div><div class="muted small" style="margin-top:10px">Start Date: ${tnEsc(startDate)}</div><div class="tn-visit-actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;align-items:stretch"><button type="button" class="primary" data-tn-visit="${tnEsc(v.id)}" style="width:100%;min-width:0;min-height:44px;padding:8px 6px;font-size:clamp(11px,2.9vw,13px);font-weight:700;line-height:1.2;text-align:center;white-space:normal;display:flex;align-items:center;justify-content:center">Open Assessment</button>${v.report ? `<button type="button" class="secondary" data-tn-report="${tnEsc(v.id)}" style="width:100%;min-width:0;min-height:44px;padding:8px 6px;font-size:clamp(11px,2.9vw,13px);font-weight:700;line-height:1.2;text-align:center;white-space:normal;display:flex;align-items:center;justify-content:center">View Report / மதிப்பீட்டு அறிக்கை</button>` : ''}<button type="button" class="secondary" data-tn-generate-link="${tnEsc(v.id)}" style="grid-column:1/-1;width:100%;min-height:44px;padding:9px 8px;font-size:13px;font-weight:700">🔗 Generate Assessment Link / மதிப்பீட்டு இணைப்பை உருவாக்கு</button><div data-tn-link-status="${tnEsc(v.id)}" class="muted small" style="grid-column:1/-1;margin-top:-3px">Link status: Not generated</div></div></div>`;
     }).join('')}
     ${t.taskStatus === 'completed' || t.taskStatus === 'breakup' ? `<p class="notice">Task ${t.taskStatus === 'completed' ? 'Completed' : 'Break-up'} · ${tnEsc(t.endDate || '')}</p>` : `<button type="button" class="primary" id="tnAddVisitBtn" style="width:100%">＋ New Assessment / புதிய மதிப்பீடு</button>
 `}`;
@@ -1925,6 +1925,8 @@ function tnShowVisits(taskId) {
   if (detailDelete) detailDelete.addEventListener('click', () => tnDeleteTask(taskId));
   host.querySelectorAll('[data-tn-visit]').forEach(b => b.addEventListener('click', () => tnSelectVisit(taskId, b.dataset.tnVisit)));
   host.querySelectorAll('[data-tn-report]').forEach(b => b.addEventListener('click', () => tnShowVisitReport(taskId, b.dataset.tnReport)));
+  host.querySelectorAll('[data-tn-generate-link]').forEach(b => b.addEventListener('click', () => tnGenerateAssessmentLink(taskId, b.dataset.tnGenerateLink, b)));
+  tnLoadAssessmentLinkStatuses(taskId);
   const compareBtn = document.getElementById('tnTaskCompareBtn');
   if (compareBtn) compareBtn.addEventListener('click', () => tnShowTaskComparison(taskId));
   const finalReportBtn = document.getElementById('tnFinalTaskReportBtn');
@@ -1946,6 +1948,105 @@ function tnShowVisits(taskId) {
   const completedBtn = document.getElementById('tnMarkCompletedBtn');
   if (breakupBtn) breakupBtn.addEventListener('click', () => markTask('breakup'));
   if (completedBtn) completedBtn.addEventListener('click', () => markTask('completed'));
+}
+
+
+// V166: one secure, unique share link per individual Assessment visit.
+async function tnHashAssessmentToken(token) {
+  const bytes = new TextEncoder().encode(token);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+function tnCreateAssessmentToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+async function tnLoadAssessmentLinkStatuses(taskId) {
+  const task = tnReadTasks().find(x => x.id === taskId);
+  if (!task || !tnSupabase || !tnCurrentUser || !navigator.onLine) return;
+  const visits = task.visits || [];
+  for (const visit of visits) {
+    const target = document.querySelector(`[data-tn-link-status="${CSS.escape(visit.id)}"]`);
+    if (!target) continue;
+    try {
+      const { data, error } = await tnSupabase.from('tn_assessment_links')
+        .select('status,created_at,expires_at')
+        .eq('user_id', tnCurrentUser.id).eq('task_id', taskId).eq('visit_id', visit.id)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle();
+      if (error) throw error;
+      if (data) {
+        const labels = {pending:'Pending / நிலுவையில்', in_progress:'In Progress / நடைபெறுகிறது', submitted:'Submitted / சமர்ப்பிக்கப்பட்டது', expired:'Expired / காலாவதியானது'};
+        target.textContent = 'Link status: ' + (labels[data.status] || data.status);
+        target.dataset.status = data.status;
+      }
+    } catch (err) {
+      console.warn('Assessment link status could not be loaded:', err.message || err);
+    }
+  }
+}
+async function tnGenerateAssessmentLink(taskId, visitId, button) {
+  if (!tnSupabase || !tnCurrentUser) {
+    alert('Assessment Link உருவாக்க Practitioner account-ல் Login செய்து இணையத்துடன் இணைக்கவும்.');
+    return;
+  }
+  const task = tnReadTasks().find(x => x.id === taskId && x.clientId === tnCurrentClientId());
+  const visit = task && (task.visits || []).find(x => x.id === visitId);
+  if (!task || !visit) { alert('இந்த Assessment Task கிடைக்கவில்லை.'); return; }
+  if (!navigator.onLine) { alert('Link உருவாக்க இணைய இணைப்பு தேவை.'); return; }
+  if (visit.status === 'completed' || visit.report) {
+    if (!confirm('இந்த Assessment ஏற்கனவே முடிக்கப்பட்டுள்ளது. புதிய Link உருவாக்க விரும்புகிறீர்களா?')) return;
+  }
+  const client = readClients().find(c => c.id === task.clientId);
+  const originalText = button ? button.textContent : '';
+  if (button) { button.disabled = true; button.textContent = 'Creating Link…'; }
+  try {
+    const token = tnCreateAssessmentToken();
+    const tokenHash = await tnHashAssessmentToken(token);
+    const expiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { error } = await tnSupabase.from('tn_assessment_links').insert({
+      user_id: tnCurrentUser.id,
+      task_id: task.id,
+      visit_id: visit.id,
+      client_id: String(task.clientId || ''),
+      client_name: String(client?.name || ''),
+      assessment_number: Number(visit.number || 1),
+      token_hash: tokenHash,
+      status: 'pending',
+      language: task.language === 'en' ? 'en' : 'ta',
+      expires_at: expiry
+    });
+    if (error) throw error;
+    const shareUrl = new URL(window.location.href);
+    shareUrl.searchParams.set('tn_assessment', token);
+    shareUrl.hash = '';
+    const link = shareUrl.toString();
+    const message = `வணக்கம் ${client?.name || ''},\\nTamilNatureShanmugam Flower Remedy Assessment ${visit.number || ''} பூர்த்தி செய்ய கீழே உள்ள இணைப்பைத் திறக்கவும்:\\n${link}\\nஇந்த இணைப்பு 7 நாட்கள் மட்டுமே செல்லுபடியாகும்.`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Flower Remedy Assessment', text: message, url: link }); }
+      catch (shareErr) {
+        if (shareErr && shareErr.name !== 'AbortError') {
+          await navigator.clipboard.writeText(link);
+          alert('Assessment Link உருவாக்கப்பட்டது. Link Clipboard-ல் Copy செய்யப்பட்டது.');
+        }
+      }
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(link);
+      alert('Assessment Link உருவாக்கப்பட்டு Copy செய்யப்பட்டது. WhatsApp-ல் Paste செய்து அனுப்பலாம்.');
+    } else {
+      window.prompt('Assessment Link-ஐ Copy செய்யவும்:', link);
+    }
+    const status = document.querySelector(`[data-tn-link-status="${CSS.escape(visit.id)}"]`);
+    if (status) { status.textContent = 'Link status: Pending / நிலுவையில்'; status.dataset.status = 'pending'; }
+    if (typeof tnWriteActivity === 'function') tnWriteActivity('assessment_link_created', {
+      task_id: task.id, visit_id: visit.id, assessment_number: visit.number
+    });
+  } catch (err) {
+    console.error('Assessment link generation failed:', err);
+    alert('Link உருவாக்க முடியவில்லை: ' + (err.message || 'Database error'));
+  } finally {
+    if (button) { button.disabled = false; button.textContent = originalText; }
+  }
 }
 
 function tnShowTaskComparison(taskId) {
