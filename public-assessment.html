@@ -744,8 +744,11 @@ body.tn-public-assessment-mode #home .tn-public-start-label {
 }
 
 
-/* Centered bilingual START button with a gentle attention pulse */
+/* Calm, steady START button — no blinking or pulsing */
 body.tn-public-assessment-mode #home .tn-public-card-action {
+  animation: none !important;
+  opacity: 1 !important;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -754,8 +757,6 @@ body.tn-public-assessment-mode #home .tn-public-card-action {
   width: 100%;
   min-height: 66px;
   box-sizing: border-box;
-  animation: tnStartPulse 1.5s ease-in-out infinite;
-  transform-origin: center;
 }
 body.tn-public-assessment-mode #home .tn-public-start-label {
   align-items: center;
@@ -765,14 +766,21 @@ body.tn-public-assessment-mode #home .tn-public-start-label {
 body.tn-public-assessment-mode #home .tn-public-card-action > span[aria-hidden="true"] {
   display: none;
 }
-@keyframes tnStartPulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(23,99,68,.22); }
-  50% { opacity: .78; box-shadow: 0 0 0 7px rgba(23,99,68,0); }
+
+/* Align Start Assessment title beside the leaf icon */
+body.tn-public-assessment-mode #home .tn-public-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 13px;
+  width: 100%;
 }
-@media (prefers-reduced-motion: reduce) {
-  body.tn-public-assessment-mode #home .tn-public-card-action {
-    animation: none;
-  }
+body.tn-public-assessment-mode #home .tn-public-card-heading .tn-public-card-icon {
+  flex: 0 0 43px;
+  margin: 0;
+}
+body.tn-public-assessment-mode #home .tn-public-card-heading strong {
+  margin: 0;
 }
 
 </style><style id="tn-track-score-styles">
@@ -882,8 +890,10 @@ body.tn-admin-mode .sticky-shell{display:none!important}
   <div class="home-grid">
     <button class="home-card tn-public-assessment-card" type="button" data-home-tab="assessment">
       <p class="tn-public-client-greeting tn-public-card-greeting" id="tnPublicWelcomeGreeting">வணக்கம் / Welcome</p>
-      <span class="tn-public-card-icon">☘</span>
-      <strong>Start Assessment</strong>
+      <span class="tn-public-card-heading">
+        <span class="tn-public-card-icon">☘</span>
+        <strong>Start Assessment</strong>
+      </span>
       <span class="tn-public-card-action"><span class="tn-public-start-label">START<br>தொடங்கவும்</span><span aria-hidden="true">→</span></span>
     </button>
     <button class="home-card" type="button" data-home-tab="records"><span class="home-icon">▤</span><strong>Client Records</strong><span>Add / View / Edit / Delete<br>சேர் / பார் / திருத்து / நீக்கு</span></button>
