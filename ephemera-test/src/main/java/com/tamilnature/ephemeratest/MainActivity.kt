@@ -68,7 +68,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - 9 Graha Test"
+            text = "Tamil Nature - Astrology Test"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -83,16 +83,47 @@ class MainActivity : Activity() {
         val result = StringBuilder()
 
         try {
-            val calendar = Calendar.getInstance(
+            // TEST BIRTH DETAILS
+            val birthYear = 1984
+            val birthMonth = 11
+            val birthDay = 19
+            val birthHour = 19
+            val birthMinute = 58
+
+            // Birthplace coordinates: Oddanchatram
+            val latitude = 10.48013
+            val longitude = 77.74977
+
+            // Convert local IST birth time to UTC
+            val localCalendar = Calendar.getInstance(
+                TimeZone.getTimeZone("Asia/Kolkata")
+            )
+
+            localCalendar.isLenient = false
+            localCalendar.set(
+                birthYear,
+                birthMonth - 1,
+                birthDay,
+                birthHour,
+                birthMinute,
+                0
+            )
+            localCalendar.set(Calendar.MILLISECOND, 0)
+
+            val utcCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("UTC")
             )
 
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH) + 1
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
-            val second = calendar.get(Calendar.SECOND)
+            utcCalendar.timeInMillis =
+                localCalendar.timeInMillis
+
+            val year = utcCalendar.get(Calendar.YEAR)
+            val month = utcCalendar.get(Calendar.MONTH) + 1
+            val day = utcCalendar.get(Calendar.DAY_OF_MONTH)
+
+            val hour = utcCalendar.get(Calendar.HOUR_OF_DAY)
+            val minute = utcCalendar.get(Calendar.MINUTE)
+            val second = utcCalendar.get(Calendar.SECOND)
 
             val fractionalDay =
                 day + (hour * 3600.0 +
@@ -108,15 +139,75 @@ class MainActivity : Activity() {
                 Ayanamsa.LAHIRI, tt
             )
 
-            result.append("9 GRAHA SIDEREAL CALCULATION\n\n")
-            result.append("Date (UTC): $year-$month-$day\n")
-            result.append("Time (UTC): $hour:$minute:$second\n")
-            result.append("Julian Day: $jd\n")
-            result.append("Lahiri Ayanamsa: $lahiri°\n\n")
+            // Ascendant and Midheaven
+            val angles = Ephemera.ascMc(
+                jd, longitude, latitude
+            )
 
-            result.append("================================\n")
-            result.append("GRAHA POSITIONS - D1\n")
-            result.append("================================\n\n")
+            val lagnaSidereal = normalize(
+                angles.asc - lahiri
+            )
+
+            val mcSidereal = normalize(
+                angles.mc - lahiri
+            )
+
+            result.append("BIRTH DETAILS\n")
+            result.append("-----------------------------\n")
+            result.append(
+                "Date: $birthDay-$birthMonth-$birthYear\n"
+            )
+            result.append(
+                "Birth Time: $birthHour:$birthMinute IST\n"
+            )
+            result.append(
+                "UTC Time: $hour:$minute:$second\n"
+            )
+            result.append(
+                "Latitude: $latitude\n"
+            )
+            result.append(
+                "Longitude: $longitude\n\n"
+            )
+
+            result.append("JULIAN DAY\n$jd\n\n")
+            result.append("LAHIRI AYANAMSA\n$lahiri°\n\n")
+
+            result.append("=============================\n")
+            result.append("LAGNA - லக்னம்\n")
+            result.append("=============================\n")
+
+            result.append(
+                "Tropical Ascendant:\n"
+            )
+            result.append(
+                "${formatDegree(angles.asc)}\n\n"
+            )
+
+            result.append(
+                "Sidereal Ascendant:\n"
+            )
+            result.append(
+                "${formatDegree(lagnaSidereal)}\n\n"
+            )
+
+            result.append(
+                "லக்ன ராசி:\n"
+            )
+            result.append(
+                "${formatRasi(lagnaSidereal)}\n\n"
+            )
+
+            result.append(
+                "MC - மத்தியான புள்ளி:\n"
+            )
+            result.append(
+                "${formatRasi(mcSidereal)}\n\n"
+            )
+
+            result.append("=============================\n")
+            result.append("9 GRAHA POSITIONS - D1\n")
+            result.append("=============================\n\n")
 
             for (graha in grahas) {
 
@@ -141,12 +232,9 @@ class MainActivity : Activity() {
                     "Sidereal: ${formatDegree(sidereal)}\n"
                 )
                 result.append(
-                    "D1 Position: ${formatRasi(sidereal)}\n"
+                    "D1: ${formatRasi(sidereal)}\n"
                 )
                 result.append("நிலை: $motion\n")
-                result.append(
-                    "Longitude Speed: ${position.longitudeSpeed}\n"
-                )
                 result.append("--------------------------------\n\n")
             }
 
@@ -168,22 +256,21 @@ class MainActivity : Activity() {
                 "Sidereal: ${formatDegree(rahuSidereal)}\n"
             )
             result.append(
-                "D1 Position: ${formatRasi(rahuSidereal)}\n"
+                "D1: ${formatRasi(rahuSidereal)}\n\n"
             )
-            result.append("--------------------------------\n\n")
 
-            result.append("கேது - OPPOSITE OF RAHU\n")
+            result.append("கேது\n")
             result.append(
                 "Sidereal: ${formatDegree(ketuSidereal)}\n"
             )
             result.append(
-                "D1 Position: ${formatRasi(ketuSidereal)}\n"
+                "D1: ${formatRasi(ketuSidereal)}\n"
             )
 
-            result.append("\n================================\n")
+            result.append("\n=============================\n")
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
-            result.append("Node Method: Mean Node\n")
+            result.append("Node: Mean Node\n")
 
         } catch (e: Exception) {
             result.append("\nCALCULATION ERROR\n\n")
