@@ -678,6 +678,36 @@ body.tn-public-assessment-mode #home .notice {
   body.tn-public-assessment-mode #home .tn-public-assessment-card { padding: 20px 17px 17px; }
 }
 
+
+/* Minimal public assessment title requested */
+body.tn-public-assessment-mode #home .tn-public-section-label {
+  display: none !important;
+}
+body.tn-public-assessment-mode #home .tn-public-welcome {
+  padding-top: 34px;
+  padding-bottom: 34px;
+}
+body.tn-public-assessment-mode #home .tn-public-welcome h1 {
+  max-width: 560px;
+}
+
+
+/* Personalized public assessment greeting */
+body.tn-public-assessment-mode #home .tn-public-client-greeting {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 8px 13px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  color: #f2fff6;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
@@ -777,18 +807,16 @@ body.tn-admin-mode .sticky-shell{display:none!important}
 
 <section id="home" class="page-section tn-public-home">
   <div class="tn-public-welcome">
+    <p class="tn-public-client-greeting" id="tnPublicWelcomeGreeting">வணக்கம் / Welcome</p>
     <div class="tn-public-brand-mark">✿</div>
-    <div class="tn-public-eyebrow">TAMILNATURESHANMUGAM</div>
-    <h1>Flower Remedy Assessment</h1>
+    <h1>Tamil Nature Flower Remedy Assessment</h1>
     <p class="tn-public-welcome-ta">மலர் மருந்து மதிப்பீடு</p>
-    <p class="tn-public-intro">உங்கள் உணர்வு நிலைகள் மற்றும் மனஅழுத்தத்தைப் புரிந்துகொள்ள கீழே உள்ள மதிப்பீட்டைத் தொடங்குங்கள்.</p>
   </div>
   <div class="tn-public-section-label">உங்கள் மதிப்பீடு · YOUR ASSESSMENT</div>
   <div class="home-grid">
     <button class="home-card tn-public-assessment-card" type="button" data-home-tab="assessment">
       <span class="tn-public-card-icon">☘</span>
       <strong>Start Assessment</strong>
-      <span>77 Flower Remedy Questions + PSS-10<br>77 மலர் மருந்து கேள்விகள் + மனஅழுத்த மதிப்பீடு</span>
       <span class="tn-public-card-action">தொடங்கவும் <span aria-hidden="true">→</span></span>
     </button>
     <button class="home-card" type="button" data-home-tab="records"><span class="home-icon">▤</span><strong>Client Records</strong><span>Add / View / Edit / Delete<br>சேர் / பார் / திருத்து / நீக்கு</span></button>
@@ -3652,6 +3680,8 @@ async function tnInitPublicAssessment(token) {
     }
     tnPublicAssessmentLink = data;
     const clientName = data.client_name || 'Client';
+    const welcomeGreeting = document.getElementById('tnPublicWelcomeGreeting');
+    if (welcomeGreeting) welcomeGreeting.textContent = 'வணக்கம் / Welcome, ' + clientName + '!';
     const name = document.getElementById('tnPublicAssessmentClient');
     if (name) name.textContent = 'Client: ' + clientName;
     const meta = document.getElementById('tnPublicAssessmentMeta');
