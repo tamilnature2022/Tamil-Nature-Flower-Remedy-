@@ -2,21 +2,32 @@
 package com.tamilnature.shanmugavel;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
+import android.webkit.JsResult;
+import android.webkit.JsPromptResult;
+
 import android.graphics.pdf.PdfDocument;
 import android.graphics.Canvas;
 import android.graphics.Color;
+
 import android.util.Base64;
+
 import android.view.View;
 import android.view.ViewGroup;
+
 import android.widget.FrameLayout;
 import android.widget.Toast;
+import android.widget.EditText;
+
 import android.content.Intent;
 import android.content.ClipData;
 import android.net.Uri;
@@ -76,6 +87,78 @@ public class MainActivity extends Activity {
         );
 
         webView.setWebViewClient(new WebViewClient());
+
+        // ------------------------------------
+        // JAVASCRIPT DIALOG SUPPORT
+        // ------------------------------------
+
+        webView.setWebChromeClient(new WebChromeClient() {
+
+            @Override
+            public boolean onJsAlert(
+                    WebView view,
+                    String url,
+                    String message,
+                    JsResult result) {
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(message)
+                        .setPositiveButton("OK",
+                                (dialog, which) -> result.confirm())
+                        .setOnCancelListener(
+                                dialog -> result.cancel())
+                        .show();
+
+                return true;
+            }
+
+            @Override
+            public boolean onJsConfirm(
+                    WebView view,
+                    String url,
+                    String message,
+                    JsResult result) {
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(message)
+                        .setPositiveButton("ஆம்",
+                                (dialog, which) -> result.confirm())
+                        .setNegativeButton("இல்லை",
+                                (dialog, which) -> result.cancel())
+                        .setOnCancelListener(
+                                dialog -> result.cancel())
+                        .show();
+
+                return true;
+            }
+
+            @Override
+            public boolean onJsPrompt(
+                    WebView view,
+                    String url,
+                    String message,
+                    String defaultValue,
+                    JsPromptResult result) {
+
+                EditText input = new EditText(MainActivity.this);
+                input.setText(defaultValue);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(message)
+                        .setView(input)
+                        .setPositiveButton("OK",
+                                (dialog, which) ->
+                                        result.confirm(
+                                                input.getText().toString()))
+                        .setNegativeButton("Cancel",
+                                (dialog, which) -> result.cancel())
+                        .setOnCancelListener(
+                                dialog -> result.cancel())
+                        .show();
+
+                return true;
+            }
+        });
 
         webView.loadUrl("file:///android_asset/index.html");
     }
