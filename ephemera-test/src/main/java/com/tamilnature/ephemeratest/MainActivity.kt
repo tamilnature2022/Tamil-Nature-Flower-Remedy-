@@ -78,10 +78,6 @@ class MainActivity : Activity() {
         )
     }
 
-    private fun formatDegree(value: Double): String {
-        return String.format(Locale.US, "%.8f°", value)
-    }
-
     private fun getNakshatra(longitude: Double): String {
         val normalized = normalize(longitude)
 
@@ -158,9 +154,6 @@ class MainActivity : Activity() {
             (degreeInSign / dasamsaSize).toInt()
                 .coerceIn(0, 9)
 
-        // Odd signs: start from same sign
-        // Even signs: start from 9th sign
-
         val startingOffset = if (signIndex % 2 == 0) {
             0
         } else {
@@ -186,11 +179,56 @@ class MainActivity : Activity() {
         )
     }
 
+    // D7 SAPTAMSA
+
+    private fun calculateSaptamsa(
+        longitude: Double
+    ): VargaPosition {
+
+        val normalized = normalize(longitude)
+
+        val signIndex = (normalized / 30.0).toInt()
+        val degreeInSign = normalized % 30.0
+
+        val saptamsaSize = 30.0 / 7.0
+
+        val saptamsaIndex =
+            (degreeInSign / saptamsaSize).toInt()
+                .coerceIn(0, 6)
+
+        // Odd signs: start from same sign
+        // Even signs: start from 7th sign
+
+        val startingOffset = if (signIndex % 2 == 0) {
+            0
+        } else {
+            6
+        }
+
+        val saptamsaSignIndex =
+            (signIndex + startingOffset + saptamsaIndex) % 12
+
+        val degreeWithinSaptamsa =
+            degreeInSign - (saptamsaIndex * saptamsaSize)
+
+        val d7Degree =
+            degreeWithinSaptamsa * 7.0
+
+        val d7Longitude =
+            saptamsaSignIndex * 30.0 + d7Degree
+
+        return VargaPosition(
+            longitude = normalize(d7Longitude),
+            rasi = rasiNames[saptamsaSignIndex],
+            degree = formatRasi(d7Longitude)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology D1 + D9 + D10"
+            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -290,12 +328,16 @@ class MainActivity : Activity() {
             val lagnaD10 =
                 calculateDasamsa(lagnaSidereal)
 
+            val lagnaD7 =
+                calculateSaptamsa(lagnaSidereal)
+
             // BIRTH DETAILS
 
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
             result.append("Date: $birthDay-$birthMonth-$birthYear\n")
             result.append("Birth Time: $birthHour:$birthMinute IST\n")
+            result.append("Place: Dindigul Center\n")
             result.append("UTC Time: $hour:$minute:$second\n")
             result.append("Latitude: $latitude\n")
             result.append("Longitude: $longitude\n\n")
@@ -327,7 +369,7 @@ class MainActivity : Activity() {
                 }″\n\n"
             )
 
-            // LAGNA D1 + D9 + D10
+            // LAGNA D1 + D9 + D10 + D7
 
             result.append("=============================\n")
             result.append("LAGNA - லக்னம்\n")
@@ -350,13 +392,17 @@ class MainActivity : Activity() {
             )
 
             result.append(
+                "D7 Saptamsa Lagna:\n${lagnaD7.degree}\n\n"
+            )
+
+            result.append(
                 "MC:\n${formatRasi(mcSidereal)}\n\n"
             )
 
-            // PLANETS D1 + D9 + D10
+            // PLANETS D1 + D9 + D10 + D7
 
             result.append("=============================\n")
-            result.append("PLANETARY POSITIONS D1 + D9 + D10\n")
+            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
@@ -373,6 +419,7 @@ class MainActivity : Activity() {
 
                 val d9 = calculateNavamsa(sidereal)
                 val d10 = calculateDasamsa(sidereal)
+                val d7 = calculateSaptamsa(sidereal)
 
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
@@ -392,6 +439,10 @@ class MainActivity : Activity() {
 
                 result.append(
                     "D10: ${d10.degree}\n"
+                )
+
+                result.append(
+                    "D7: ${d7.degree}\n"
                 )
 
                 result.append(
@@ -431,6 +482,12 @@ class MainActivity : Activity() {
             val ketuD10 =
                 calculateDasamsa(ketuSidereal)
 
+            val rahuD7 =
+                calculateSaptamsa(rahuSidereal)
+
+            val ketuD7 =
+                calculateSaptamsa(ketuSidereal)
+
             result.append("ராகு - MEAN NODE\n")
 
             result.append(
@@ -443,6 +500,10 @@ class MainActivity : Activity() {
 
             result.append(
                 "D10: ${rahuD10.degree}\n"
+            )
+
+            result.append(
+                "D7: ${rahuD7.degree}\n"
             )
 
             result.append(
@@ -466,6 +527,10 @@ class MainActivity : Activity() {
             )
 
             result.append(
+                "D7: ${ketuD7.degree}\n"
+            )
+
+            result.append(
                 "நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n"
             )
 
@@ -473,7 +538,7 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
-            result.append("Charts: D1 + D9 + D10\n")
+            result.append("Charts: D1 + D9 + D10 + D7\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
