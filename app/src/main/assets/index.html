@@ -2434,6 +2434,9 @@ let tnCurrentUser = null;
 let tnCurrentProfile = null;
 let tnCloudSyncTimer = null;
 let tnCloudReady = false;
+let tnCloudSyncInFlight = false;
+let tnCloudSyncPending = false;
+let tnCloudRetryDelay = 5000;
 
 function tnScopedStorageKey(base) {
   const uid = tnCurrentUser && tnCurrentUser.id;
@@ -2531,10 +2534,24 @@ async function tnSignup() {
   tnAuthMessage('Account created. Admin approval is required before you can sign in. Check your email if confirmation is enabled.');
 }
 async function tnLogout() {
-  if(!confirm('Logout from this account?'))return;
-  await tnSupabase.auth.signOut();
-  tnCurrentUser=null;tnCurrentProfile=null;tnCloudReady=false;
-  tnShowAuthGate('Logged out successfully.');
+  // Do not use window.confirm here: Android WebView may not display JS dialogs
+  // unless the hosting app implements WebChromeClient.onJsConfirm.
+  const logoutButton = document.getElementById('tnLogout');
+  if (logoutButton) logoutButton.disabled = true;
+  try {
+    if (tnSupabase) {
+      const { error } = await tnSupabase.auth.signOut({ scope: 'local' });
+      if (error) console.warn('Supabase sign-out:', error.message);
+    }
+  } catch (e) {
+    console.warn('Sign-out error:', e);
+  } finally {
+    tnCurrentUser = null;
+    tnCurrentProfile = null;
+    tnCloudReady = false;
+    tnShowAuthGate('Logged out.');
+    if (logoutButton) logoutButton.disabled = false;
+  }
 }
 async function tnLoadAdminUsers() {
   if(!tnCurrentProfile||tnCurrentProfile.role!=='admin')return;
@@ -2574,18 +2591,41 @@ function tnBuildCloudPayload() {
     schema_version:1
   };
 }
-function tnQueueCloudSync() {
+function tnQueueCloudSync(delay=1200) {
   if(!tnCurrentUser||!tnCloudReady||!tnSupabase)return;
+  tnCloudSyncPending=true;
   clearTimeout(tnCloudSyncTimer);
-  tnCloudSyncTimer=setTimeout(()=>tnSaveCloudData().catch(e=>console.warn('Cloud sync:',e)),1200);
+  tnCloudSyncTimer=setTimeout(()=>tnSaveCloudData().catch(e=>{
+    console.warn('Cloud sync pending:',e);
+    // Keep local data safe and retry transient failures while the app remains open.
+    if(tnCurrentUser&&tnCloudReady&&navigator.onLine){
+      const retry=Math.min(tnCloudRetryDelay,60000);
+      tnCloudRetryDelay=Math.min(tnCloudRetryDelay*2,60000);
+      tnQueueCloudSync(retry);
+    }
+  }),delay);
 }
 async function tnSaveCloudData() {
   if(!tnCurrentUser||!tnSupabase||!tnCloudReady)return;
-  const payload=tnBuildCloudPayload();
-  const {error}=await tnSupabase.from('tn_user_data').upsert({
-    user_id:tnCurrentUser.id,payload,updated_at:new Date().toISOString()
-  },{onConflict:'user_id'});
-  if(error)throw error;
+  if(tnCloudSyncInFlight){tnCloudSyncPending=true;return;}
+  tnCloudSyncInFlight=true;
+  try {
+    // If local data changes during an upload, send the latest snapshot again.
+    do {
+      tnCloudSyncPending=false;
+      const userId=tnCurrentUser&&tnCurrentUser.id;
+      if(!userId)break;
+      const payload=tnBuildCloudPayload();
+      const {error}=await tnSupabase.from('tn_user_data').upsert({
+        user_id:userId,payload,updated_at:new Date().toISOString()
+      },{onConflict:'user_id'});
+      if(error)throw error;
+      tnCloudRetryDelay=5000;
+    } while(tnCloudSyncPending&&tnCurrentUser&&tnCloudReady);
+  } finally {
+    tnCloudSyncInFlight=false;
+    if(tnCloudSyncPending&&tnCurrentUser&&tnCloudReady)tnQueueCloudSync(250);
+  }
 }
 async function tnLoadCloudData() {
   if(!tnCurrentUser||!tnSupabase)return;
@@ -2616,6 +2656,15 @@ async function tnInitAuth() {
     if(!window.supabase||!window.supabase.createClient)throw new Error('Supabase library could not load. Check internet connection.');
     tnSupabase=window.supabase.createClient(TN_SUPABASE_URL,TN_SUPABASE_PUBLISHABLE_KEY,{
       auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+    });
+    window.addEventListener('online',()=>{
+      if(tnCurrentUser&&tnCloudReady)tnQueueCloudSync(300);
+    });
+    window.addEventListener('offline',()=>{
+      console.info('Offline: changes will remain on this device until connection returns.');
+    });
+    document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='visible'&&navigator.onLine&&tnCurrentUser&&tnCloudReady)tnQueueCloudSync(300);
     });
     document.getElementById('tnLoginBtn').addEventListener('click',tnLogin);
     document.getElementById('tnSignupBtn').addEventListener('click',tnSignup);
