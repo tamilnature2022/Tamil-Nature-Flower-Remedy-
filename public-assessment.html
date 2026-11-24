@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TamilNatureShanmugam · Public Flower Remedy Assessment</title>
+<title>TAMIL NATURE FLOWER REMEDY | Professional Screening App V164</title>
 <style>
 :root{--green:#315b45;--pale:#eef5ef;--ink:#24352c;--muted:#647168;--line:#dbe4dc;--bg:#f7f9f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}header{background:linear-gradient(120deg,#244b38,#477b58);color:white;padding:23px 16px}header>div,main{max-width:1050px;margin:auto}h1{font-size:clamp(1.4rem,4vw,2rem);margin:0}header p{margin:3px 0 0}main{padding:16px 12px 45px}.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -549,28 +549,7 @@ body.tn-admin-mode #tnAdminDashboard{display:block!important}
 body.tn-admin-mode #tnAdminToggle{display:none!important}
 body.tn-admin-mode #tnSyncNow{display:none!important}
 body.tn-admin-mode .sticky-shell{display:none!important}
-</style>
-<style id="tn-public-mobile-first">
-/* Public Assessment page: mobile-first presentation only; assessment/scoring logic unchanged. */
-html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
-body{padding-bottom:env(safe-area-inset-bottom);}
-#tnPublicAssessmentBanner{position:relative; margin:0 0 14px!important; padding:16px!important; border-radius:16px!important;}
-#tnPublicAssessmentBanner h2{font-size:clamp(1.05rem,4.5vw,1.4rem);line-height:1.3;}
-#tnPublicAssessmentMessage{font-size:14px;line-height:1.5;overflow-wrap:anywhere;}
-#assessmentWorkspace{width:100%;max-width:900px;margin:0 auto;}
-#assessmentWorkspace .panel{border-radius:14px;margin-bottom:12px;}
-#questionnaire .prompt,#pssQuestions .prompt{padding:13px 11px;margin:10px 0;border-radius:12px;}
-#questionnaire .prompt-text,#pssQuestions .prompt-text{font-size:15px;line-height:1.55;overflow-wrap:anywhere;}
-#questionnaire .scale,#pssQuestions .scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;}
-#questionnaire .opt,#pssQuestions .opt{min-width:0;min-height:68px;padding:8px 3px;font-size:12px;line-height:1.25;white-space:normal;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow-wrap:anywhere;}
-#questionnaire .opt input,#pssQuestions .opt input{width:19px;height:19px;margin:0 0 5px;accent-color:#315b45;}
-#tnPublicSubmitBtn{position:sticky;bottom:10px;z-index:50;width:100%;min-height:52px;border-radius:14px;box-shadow:0 5px 18px #173c282b;font-size:15px;padding:12px;}
-#assessmentWorkspace input,#assessmentWorkspace textarea{max-width:100%;}
-@media(max-width:380px){#questionnaire .opt,#pssQuestions .opt{min-height:62px;font-size:10.5px;padding:6px 1px}#questionnaire .scale,#pssQuestions .scale{gap:3px}}
-@media(min-width:700px){#assessmentWorkspace{padding:0 16px}#questionnaire .opt,#pssQuestions .opt{min-height:62px;font-size:13px}}
-</style>
-
-</head>
+</style></head>
 <body>
 
 <div id="tnAccountBar" class="hidden">
@@ -733,6 +712,12 @@ body{padding-bottom:env(safe-area-inset-bottom);}
   <p id="tnPublicAssessmentClient" style="font-weight:700;margin:0 0 6px"></p>
   <p id="tnPublicAssessmentMeta" class="muted small" style="margin:0">77 Questions + PSS-10</p>
   <p id="tnPublicAssessmentMessage" class="notice" style="margin-top:10px">இந்த மதிப்பீட்டை முழுமையாக முடித்து Submit செய்யவும்.</p>
+</div>
+<div id="tnPublicAssessmentCompleted" class="panel" style="display:none;border:1px solid #9ac9a8;background:#f1faf3;text-align:center;padding:28px 18px">
+  <div style="font-size:48px;line-height:1.2;color:#23834a">✓</div>
+  <h2 style="color:#23623a;margin:10px 0">Assessment Completed</h2>
+  <p style="font-weight:700;margin:0 0 8px">உங்கள் Assessment ஏற்கனவே வெற்றிகரமாகப் பூர்த்தி செய்யப்பட்டுள்ளது.</p>
+  <p class="muted" style="margin:0">This Assessment Link has already been used.</p>
 </div>
 
 <p id="questionEngineStatus" class="status muted">Questions prepared · PSS-10 first, then 77 Bach questions</p><div class="panel" id="pssPanel"><h2>PSS-10 Stress Assessment · மனஅழுத்த மதிப்பீடு</h2><p class="muted">கடந்த ஒரு மாதத்தில் உங்கள் அனுபவத்தை அடிப்படையாகக் கொண்டு பதிலளிக்கவும். / In the last month, answer based on your experience.</p><div class="grid"><div>0 — ஒருபோதும் இல்லை / Never</div><div>1 — கிட்டத்தட்ட இல்லை / Almost never</div><div>2 — சில நேரங்களில் / Sometimes</div><div>3 — அடிக்கடி / Fairly often</div><div>4 — மிகவும் அடிக்கடி / Very often</div></div><p id="pssProgress" class="muted">0/10 answered</p><div id="pssQuestions"><div class="prompt"><div class="prompt-text"><strong>PSS-1.</strong> கடந்த ஒரு மாதத்தில் எதிர்பாராத நிகழ்வால் எத்தனை முறை மனம் கலங்கினீர்கள்?<br><span class="muted">In the last month, how often have you been upset because of something that happened unexpectedly?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-1" value="0" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-1" value="1" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-1" value="2" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-1" value="3" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-1" value="4" data-pss="1" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-2.</strong> உங்கள் வாழ்க்கையின் முக்கியமான விஷயங்களைக் கட்டுப்படுத்த முடியவில்லை என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt that you were unable to control the important things in your life?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-2" value="0" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-2" value="1" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-2" value="2" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-2" value="3" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-2" value="4" data-pss="2" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-3.</strong> கடந்த ஒரு மாதத்தில் எத்தனை முறை பதற்றமாகவும் மனஅழுத்தத்துடனும் இருந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt nervous and stressed?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-3" value="0" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-3" value="1" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-3" value="2" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-3" value="3" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-3" value="4" data-pss="3" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-4.</strong> உங்கள் தனிப்பட்ட பிரச்சினைகளைச் சமாளிக்கும் திறன் குறித்து எத்தனை முறை நம்பிக்கையுடன் இருந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt confident about your ability to handle your personal problems?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-4" value="0" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-4" value="1" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-4" value="2" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-4" value="3" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-4" value="4" data-pss="4" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-5.</strong> விஷயங்கள் உங்கள் விருப்பப்படி நடக்கின்றன என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt that things were going your way?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-5" value="0" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-5" value="1" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-5" value="2" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-5" value="3" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-5" value="4" data-pss="5" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-6.</strong> செய்ய வேண்டிய எல்லா விஷயங்களையும் சமாளிக்க முடியவில்லை என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you found that you could not cope with all the things that you had to do?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-6" value="0" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-6" value="1" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-6" value="2" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-6" value="3" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-6" value="4" data-pss="6" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-7.</strong> உங்கள் வாழ்க்கையில் ஏற்படும் எரிச்சல்களை எத்தனை முறை கட்டுப்படுத்த முடிந்தது?<br><span class="muted">In the last month, how often have you been able to control irritations in your life?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-7" value="0" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-7" value="1" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-7" value="2" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-7" value="3" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-7" value="4" data-pss="7" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-8.</strong> சூழ்நிலைகளைச் சிறப்பாகக் கையாள்கிறீர்கள் என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt that you were on top of things?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-8" value="0" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-8" value="1" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-8" value="2" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-8" value="3" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-8" value="4" data-pss="8" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-9.</strong> உங்கள் கட்டுப்பாட்டிற்கு வெளியே நடந்த விஷயங்களால் எத்தனை முறை கோபமடைந்தீர்கள்?<br><span class="muted">In the last month, how often have you been angered because of things that happened outside of your control?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-9" value="0" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-9" value="1" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-9" value="2" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-9" value="3" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-9" value="4" data-pss="9" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div><div class="prompt"><div class="prompt-text"><strong>PSS-10.</strong> சிரமங்கள் குவிந்து அவற்றைச் சமாளிக்க முடியாது என்று எத்தனை முறை உணர்ந்தீர்கள்?<br><span class="muted">In the last month, how often have you felt difficulties were piling up so high that you could not overcome them?</span></div><div class="scale"><label class="opt"><input type="radio" name="pss-10" value="0" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 0<br>ஒருபோதும் இல்லை<br><span class="muted">Never</span></label><label class="opt"><input type="radio" name="pss-10" value="1" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 1<br>கிட்டத்தட்ட இல்லை<br><span class="muted">Almost never</span></label><label class="opt"><input type="radio" name="pss-10" value="2" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 2<br>சில நேரங்களில்<br><span class="muted">Sometimes</span></label><label class="opt"><input type="radio" name="pss-10" value="3" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 3<br>அடிக்கடி<br><span class="muted">Fairly often</span></label><label class="opt"><input type="radio" name="pss-10" value="4" data-pss="10" onchange="updateProgress()" onclick="updateProgress()"> 4<br>மிகவும் அடிக்கடி<br><span class="muted">Very often</span></label></div></div></div></div>
@@ -2135,11 +2120,21 @@ async function tnGenerateAssessmentLink(taskId, visitId, button) {
       expires_at: expiry
     });
     if (error) throw error;
-    const shareUrl = new URL(window.location.href);
+    const shareUrl = new URL('https://tamilnature2022.github.io/Tamil-Nature-Flower-Remedy-/public-assessment.html');
     shareUrl.searchParams.set('tn_assessment', token);
-    shareUrl.hash = '';
     const link = shareUrl.toString();
-    const message = `வணக்கம் ${client?.name || ''},\\nTamilNatureShanmugam Flower Remedy Assessment ${visit.number || ''} பூர்த்தி செய்ய கீழே உள்ள இணைப்பைத் திறக்கவும்:\\n${link}\\nஇந்த இணைப்பு 7 நாட்கள் மட்டுமே செல்லுபடியாகும்.`;
+    const message = `வணக்கம் ${client?.name || ''}! 🌸
+
+*TamilNatureShanmugam – Flower Remedy Assessment ${visit.number || ''}*
+
+உங்கள் Assessment-ஐ பூர்த்தி செய்ய கீழே உள்ள இணைப்பைத் திறக்கவும்.
+
+🔗 ${link}
+
+⏳ இந்த இணைப்பு 7 நாட்கள் மட்டுமே செல்லுபடியாகும்.
+
+நன்றி!
+TamilNatureShanmugam 🌿`;
     // Use the same Android native chooser mechanism as PDF Share.
     if (window.AndroidShare && typeof window.AndroidShare.shareText === 'function') {
       window.AndroidShare.shareText(message, 'Share Assessment Link');
@@ -3460,6 +3455,8 @@ function tnPublicHidePractitionerUI() {
   });
   const workspace = document.getElementById('assessmentWorkspace');
   if (workspace) workspace.style.display = 'block';
+  const assessmentPage = document.getElementById('assessment');
+  if (assessmentPage) assessmentPage.style.display = 'block';
   const banner = document.getElementById('tnPublicAssessmentBanner');
   if (banner) banner.style.display = 'block';
   const score = document.getElementById('scoreBtn');
@@ -3478,14 +3475,25 @@ async function tnInitPublicAssessment(token) {
   tnPublicAssessmentToken = token;
   const message = document.getElementById('tnPublicAssessmentMessage');
   const submit = document.getElementById('tnPublicSubmitBtn');
+  const completed = document.getElementById('tnPublicAssessmentCompleted');
+  const formContent = document.querySelectorAll('#assessmentWorkspace > #questionEngineStatus, #assessmentWorkspace > #pssPanel, #assessmentWorkspace > .panel, #assessmentWorkspace > #report');
   if (submit) submit.disabled = true;
+  if (completed) completed.style.display = 'none';
   try {
     const tokenHash = await tnHashAssessmentToken(token);
     const { data, error } = await tnSupabase.rpc('tn_get_assessment_link', { p_token_hash: tokenHash });
     if (error) throw error;
+    if (data && data.success === false && data.message === 'submitted') {
+      if (completed) completed.style.display = 'block';
+      if (submit) submit.style.display = 'none';
+      const banner = document.getElementById('tnPublicAssessmentBanner');
+      if (banner) banner.style.display = 'none';
+      formContent.forEach(el => { el.style.display = 'none'; });
+      document.title = 'Assessment Completed · TamilNatureShanmugam';
+      return;
+    }
     if (!data || data.success !== true) {
       throw new Error(data && data.message === 'expired' ? 'இந்த Assessment Link காலாவதியாகிவிட்டது.' :
-        data && data.message === 'submitted' ? 'இந்த Assessment ஏற்கனவே சமர்ப்பிக்கப்பட்டுவிட்டது.' :
         'இந்த Assessment Link தவறானது அல்லது காலாவதியானது.');
     }
     tnPublicAssessmentLink = data;
@@ -3547,6 +3555,12 @@ async function tnSubmitPublicAssessment() {
       message.style.color = '#23623a';
     }
     document.querySelectorAll('#assessmentWorkspace input[type="radio"], #assessmentWorkspace textarea').forEach(el => { el.disabled = true; });
+    document.querySelectorAll('#assessmentWorkspace > #questionEngineStatus, #assessmentWorkspace > #pssPanel, #assessmentWorkspace > .panel, #assessmentWorkspace > #report').forEach(el => { el.style.display = 'none'; });
+    const completed = document.getElementById('tnPublicAssessmentCompleted');
+    if (completed) completed.style.display = 'block';
+    const banner = document.getElementById('tnPublicAssessmentBanner');
+    if (banner) banner.style.display = 'none';
+    document.title = 'Assessment Completed · TamilNatureShanmugam';
     if (submit) submit.style.display = 'none';
   } catch (err) {
     if (message) message.textContent = 'சமர்ப்பிக்க முடியவில்லை: ' + (err.message || 'Please try again.');
@@ -3561,20 +3575,6 @@ async function tnInitAuth() {
       auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
     });
     const publicToken = new URLSearchParams(window.location.search).get('tn_assessment');
-    if (!publicToken) {
-      document.title = 'Assessment Link Required · TamilNatureShanmugam';
-      document.body.innerHTML = `
-        <main style="min-height:100vh;display:grid;place-items:center;padding:22px;background:#f1f6f2;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#24352c">
-          <section style="width:100%;max-width:520px;background:#fff;border:1px solid #dbe4dc;border-radius:22px;padding:28px 22px;box-shadow:0 8px 28px #203c2a12;text-align:center">
-            <h1 style="font-size:clamp(1.35rem,5vw,1.8rem);color:#315b45;margin:0 0 12px">TamilNatureShanmugam</h1>
-            <h2 style="font-size:1.15rem;margin:0 0 10px">Flower Remedy Assessment</h2>
-            <p style="line-height:1.6;color:#647168;margin:0 0 14px">இந்தப் பக்கத்தைத் திறக்க தனிப்பட்ட Assessment Link தேவை. உங்கள் Practitioner அனுப்பிய WhatsApp இணைப்பைத் திறக்கவும்.</p>
-            <p style="font-size:.9rem;color:#647168;margin:0">A valid assessment link is required to continue.</p>
-            <p style="font-size:.82rem;color:#7a867e;margin:18px 0 0">This link is private and expires after 7 days.</p>
-          </section>
-        </main>`;
-      return;
-    }
     if (publicToken) {
       const publicSubmit = document.getElementById('tnPublicSubmitBtn');
       if (publicSubmit) publicSubmit.addEventListener('click', tnSubmitPublicAssessment);
