@@ -38,7 +38,7 @@ class MainActivity : Activity() {
         val body: Body
     )
 
-    private data class Navamsa(
+    private data class VargaPosition(
         val longitude: Double,
         val rasi: String,
         val degree: String
@@ -100,14 +100,15 @@ class MainActivity : Activity() {
         return "${nakshatraNames[nakshatraIndex]} - பாதம் ${padaIndex + 1}"
     }
 
-    // D9 NAVAMSA CALCULATION
+    // D9 NAVAMSA
 
-    private fun calculateNavamsa(longitude: Double): Navamsa {
+    private fun calculateNavamsa(
+        longitude: Double
+    ): VargaPosition {
 
         val normalized = normalize(longitude)
 
         val signIndex = (normalized / 30.0).toInt()
-
         val degreeInSign = normalized % 30.0
 
         val navamsaSize = 30.0 / 9.0
@@ -116,11 +117,10 @@ class MainActivity : Activity() {
             (degreeInSign / navamsaSize).toInt()
                 .coerceIn(0, 8)
 
-        // Movable, Fixed and Dual sign starting rules
         val startingOffset = when (signIndex % 3) {
-            0 -> 0  // Movable
-            1 -> 8  // Fixed
-            else -> 4 // Dual
+            0 -> 0
+            1 -> 8
+            else -> 4
         }
 
         val navamsaSignIndex =
@@ -129,16 +129,60 @@ class MainActivity : Activity() {
         val degreeWithinNavamsa =
             degreeInSign - (navamsaIndex * navamsaSize)
 
-        val d9Degree =
-            degreeWithinNavamsa * 9.0
+        val d9Degree = degreeWithinNavamsa * 9.0
 
         val d9Longitude =
             navamsaSignIndex * 30.0 + d9Degree
 
-        return Navamsa(
+        return VargaPosition(
             longitude = normalize(d9Longitude),
             rasi = rasiNames[navamsaSignIndex],
             degree = formatRasi(d9Longitude)
+        )
+    }
+
+    // D10 DASAMSA
+
+    private fun calculateDasamsa(
+        longitude: Double
+    ): VargaPosition {
+
+        val normalized = normalize(longitude)
+
+        val signIndex = (normalized / 30.0).toInt()
+        val degreeInSign = normalized % 30.0
+
+        val dasamsaSize = 3.0
+
+        val dasamsaIndex =
+            (degreeInSign / dasamsaSize).toInt()
+                .coerceIn(0, 9)
+
+        // Odd signs: start from same sign
+        // Even signs: start from 9th sign
+
+        val startingOffset = if (signIndex % 2 == 0) {
+            0
+        } else {
+            8
+        }
+
+        val dasamsaSignIndex =
+            (signIndex + startingOffset + dasamsaIndex) % 12
+
+        val degreeWithinDasamsa =
+            degreeInSign - (dasamsaIndex * dasamsaSize)
+
+        val d10Degree =
+            degreeWithinDasamsa * 10.0
+
+        val d10Longitude =
+            dasamsaSignIndex * 30.0 + d10Degree
+
+        return VargaPosition(
+            longitude = normalize(d10Longitude),
+            rasi = rasiNames[dasamsaSignIndex],
+            degree = formatRasi(d10Longitude)
         )
     }
 
@@ -146,7 +190,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology Test D1 + D9"
+            text = "Tamil Nature - Astrology D1 + D9 + D10"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -238,7 +282,11 @@ class MainActivity : Activity() {
                 angles.mc - lahiri
             )
 
-            val lagnaD9 = calculateNavamsa(lagnaSidereal)
+            val lagnaD9 =
+                calculateNavamsa(lagnaSidereal)
+
+            val lagnaD10 =
+                calculateDasamsa(lagnaSidereal)
 
             // BIRTH DETAILS
 
@@ -253,15 +301,11 @@ class MainActivity : Activity() {
             result.append("JULIAN DAY\n$jd\n\n")
             result.append("LAHIRI AYANAMSA\n$lahiri°\n\n")
 
-            // LAGNA D1 + D9
+            // LAGNA D1 + D9 + D10
 
             result.append("=============================\n")
             result.append("LAGNA - லக்னம்\n")
             result.append("=============================\n\n")
-
-            result.append(
-                "Tropical Ascendant:\n${formatDegree(angles.asc)}\n\n"
-            )
 
             result.append(
                 "D1 Lagna:\n${formatRasi(lagnaSidereal)}\n"
@@ -276,13 +320,17 @@ class MainActivity : Activity() {
             )
 
             result.append(
+                "D10 Dasamsa Lagna:\n${lagnaD10.degree}\n\n"
+            )
+
+            result.append(
                 "MC:\n${formatRasi(mcSidereal)}\n\n"
             )
 
-            // PLANETS D1 + D9
+            // PLANETS D1 + D9 + D10
 
             result.append("=============================\n")
-            result.append("PLANETARY POSITIONS D1 + D9\n")
+            result.append("PLANETARY POSITIONS D1 + D9 + D10\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
@@ -298,6 +346,7 @@ class MainActivity : Activity() {
                 )
 
                 val d9 = calculateNavamsa(sidereal)
+                val d10 = calculateDasamsa(sidereal)
 
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
@@ -313,6 +362,10 @@ class MainActivity : Activity() {
 
                 result.append(
                     "D9: ${d9.degree}\n"
+                )
+
+                result.append(
+                    "D10: ${d10.degree}\n"
                 )
 
                 result.append(
@@ -340,8 +393,17 @@ class MainActivity : Activity() {
                 rahuSidereal + 180.0
             )
 
-            val rahuD9 = calculateNavamsa(rahuSidereal)
-            val ketuD9 = calculateNavamsa(ketuSidereal)
+            val rahuD9 =
+                calculateNavamsa(rahuSidereal)
+
+            val ketuD9 =
+                calculateNavamsa(ketuSidereal)
+
+            val rahuD10 =
+                calculateDasamsa(rahuSidereal)
+
+            val ketuD10 =
+                calculateDasamsa(ketuSidereal)
 
             result.append("ராகு - MEAN NODE\n")
 
@@ -351,6 +413,10 @@ class MainActivity : Activity() {
 
             result.append(
                 "D9: ${rahuD9.degree}\n"
+            )
+
+            result.append(
+                "D10: ${rahuD10.degree}\n"
             )
 
             result.append(
@@ -370,6 +436,10 @@ class MainActivity : Activity() {
             )
 
             result.append(
+                "D10: ${ketuD10.degree}\n"
+            )
+
+            result.append(
                 "நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n"
             )
 
@@ -377,7 +447,7 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
-            result.append("Charts: D1 + D9\n")
+            result.append("Charts: D1 + D9 + D10\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
