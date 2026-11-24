@@ -136,6 +136,64 @@ public class MainActivity extends Activity {
                 showError(e);
             }
         }
+
+        // ------------------------------------
+        // SHARE TEXT - ASSESSMENT LINK
+        // ------------------------------------
+
+        @JavascriptInterface
+        public void shareText(
+                String text,
+                String chooserTitle
+        ) {
+
+            final String safeText =
+                    text == null ? "" : text;
+
+            final String safeTitle =
+                    (chooserTitle == null || chooserTitle.trim().isEmpty())
+                            ? "Share"
+                            : chooserTitle;
+
+            handler.post(() ->
+                    shareTextMessage(safeText, safeTitle)
+            );
+        }
+    }
+
+    // ------------------------------------
+    // ANDROID NATIVE TEXT SHARE
+    // ------------------------------------
+
+    private void shareTextMessage(
+            String text,
+            String chooserTitle
+    ) {
+
+        try {
+
+            Intent shareIntent = new Intent(
+                    Intent.ACTION_SEND
+            );
+
+            shareIntent.setType("text/plain");
+
+            shareIntent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    text
+            );
+
+            startActivity(
+                    Intent.createChooser(
+                            shareIntent,
+                            chooserTitle
+                    )
+            );
+
+        } catch (Exception e) {
+
+            showError(e);
+        }
     }
 
     // ------------------------------------
@@ -266,6 +324,7 @@ public class MainActivity extends Activity {
                 handler.postDelayed(() -> {
 
                     try {
+
                         createPdf(pdfWebView, fileName);
 
                     } catch (Exception e) {
@@ -343,8 +402,6 @@ public class MainActivity extends Activity {
                 );
             }
 
-            // Measure WebView at full content height
-
             int widthSpec = View.MeasureSpec.makeMeasureSpec(
                     webViewWidth,
                     View.MeasureSpec.EXACTLY
@@ -364,8 +421,6 @@ public class MainActivity extends Activity {
                     fullContentHeight
             );
 
-            // Fit content width to A4
-
             float pdfScale =
                     (float) printableWidth / webViewWidth;
 
@@ -377,8 +432,6 @@ public class MainActivity extends Activity {
             );
 
             totalPages = Math.max(1, totalPages);
-
-            // Create all PDF pages
 
             for (int i = 0; i < totalPages; i++) {
 
@@ -412,14 +465,10 @@ public class MainActivity extends Activity {
                         pdfScale
                 );
 
-                // Move to the correct content section
-
                 canvas.translate(
                         0,
                         -i * pageContentHeight
                 );
-
-                // Draw complete WebView content
 
                 source.draw(canvas);
 
@@ -427,8 +476,6 @@ public class MainActivity extends Activity {
 
                 document.finishPage(page);
             }
-
-            // Save PDF
 
             File folder = getReportFolder();
 
@@ -445,8 +492,6 @@ public class MainActivity extends Activity {
             }
 
             removeTemporaryWebView(source);
-
-            // Share PDF
 
             sharePdfFile(outputFile);
 
@@ -533,7 +578,7 @@ public class MainActivity extends Activity {
 
     private void showError(Exception e) {
 
-        String message = "PDF Error";
+        String message = "Share Error";
 
         if (e != null && e.getMessage() != null) {
             message += ": " + e.getMessage();
