@@ -298,8 +298,32 @@ class MainActivity : Activity() {
             result.append("Latitude: $latitude\n")
             result.append("Longitude: $longitude\n\n")
 
-            result.append("JULIAN DAY\n$jd\n\n")
-            result.append("LAHIRI AYANAMSA\n$lahiri°\n\n")
+            // AYANAMSA DIAGNOSTIC
+
+            result.append("=============================\n")
+            result.append("AYANAMSA DIAGNOSTIC\n")
+            result.append("=============================\n\n")
+
+            result.append("JD UT: $jd\n")
+            result.append("JD TT: $tt\n")
+
+            result.append(
+                "Lahiri Decimal: ${
+                    String.format(Locale.US, "%.10f", lahiri)
+                }°\n"
+            )
+
+            val totalArcSeconds = lahiri * 3600.0
+
+            val deg = totalArcSeconds.toInt() / 3600
+            val min = (totalArcSeconds.toInt() % 3600) / 60
+            val sec = totalArcSeconds % 60
+
+            result.append(
+                "Lahiri DMS: $deg° $min′ ${
+                    String.format(Locale.US, "%.4f", sec)
+                }″\n\n"
+            )
 
             // LAGNA D1 + D9 + D10
 
