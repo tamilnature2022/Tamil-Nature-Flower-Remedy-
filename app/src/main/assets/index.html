@@ -457,7 +457,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* V164 AUTH */
 #tnAuthGate{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#eaf2ec,#f8faf8);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
 #tnAuthGate .tn-auth-card{width:min(100%,460px);background:#fff;border:1px solid #dbe4dc;border-radius:20px;padding:24px;box-shadow:0 18px 55px #183b2820}
-#tnAuthGate h2{margin:0 0 6px;color:#244b38;font-size:1.45rem}
+#tnAuthGate h2{margin:0 0 6px;color:#244b38;font-size:clamp(.92rem,4.2vw,1.45rem);white-space:nowrap;letter-spacing:-.035em}
 #tnAuthGate .tn-auth-sub{margin:0 0 18px;color:#647168;font-size:.92rem}
 #tnAuthGate .tn-auth-field{margin:12px 0}
 #tnAuthGate label{display:block;font-weight:700;font-size:.9rem;margin-bottom:5px}
@@ -478,6 +478,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
 .tn-track-score{display:block;margin-top:4px;font-size:.9em;color:#52635a;white-space:nowrap}
 @media(max-width:600px){.tn-track-table{min-width:0}.tn-track-table th,.tn-track-table td{padding:9px 6px;font-size:.88em}.tn-track-score{font-size:.82em;white-space:normal}}
+
+/* V164 Admin-only workspace: never show customer modules to Admin */
+body.tn-admin-mode #tnCustomerApp{display:none!important}
+body.tn-admin-mode #tnAdminDashboard{display:block!important}
+body.tn-admin-mode #tnAdminToggle{display:none!important}
+body.tn-admin-mode #tnSyncNow{display:none!important}
+body.tn-admin-mode .sticky-shell{display:none!important}
 </style></head>
 <body>
 
@@ -487,11 +494,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   <button type="button" class="secondary" id="tnSyncNow">Sync now</button>
   <button type="button" class="danger" id="tnLogout">Logout</button>
 </div>
-<div id="tnAdminUsers" class="hidden"></div>
 <div id="tnAuthGate" aria-modal="true" role="dialog">
   <div class="tn-auth-card">
-    <h2>TAMIL NATURE</h2>
-    <p class="tn-auth-sub">Flower Remedy · Secure Account Login</p>
+    <h2>TAMIL NATURE FLOWER REMEDY</h2>
+    <p class="tn-auth-sub">Secure Account Login</p>
     <div id="tnLoginView">
       <div class="tn-auth-field"><label for="tnLoginEmail">Email</label><input id="tnLoginEmail" type="email" autocomplete="username" placeholder="Enter your email"></div>
       <div class="tn-auth-field"><label for="tnLoginPassword">Password</label><input id="tnLoginPassword" type="password" autocomplete="current-password" placeholder="Enter password"></div>
@@ -507,9 +513,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <button type="button" class="tn-auth-link" id="tnShowLogin">Back to Sign In</button>
     </div>
     <div id="tnAuthMessage" class="tn-auth-msg hidden" aria-live="polite"></div>
+    <div class="tn-auth-support" style="margin-top:18px;padding-top:12px;border-top:1px solid #dce5de;text-align:center;font-size:13px;line-height:1.6;color:#52635a">
+      <div style="font-weight:700;color:#244b38">Support</div>
+      <div>Call <a href="tel:9577228833" style="color:#244b38;font-weight:700;text-decoration:none">9577228833</a></div>
+      <div>Available: 10:00 AM – 6:00 PM</div>
+    </div>
   </div>
 </div>
-<main>
+<section id="tnAdminDashboard" class="hidden" aria-label="Admin Dashboard" style="max-width:1100px;margin:18px auto;padding:0 14px">
+  <div class="panel" style="padding:20px">
+    <h1 style="margin:0 0 8px">Admin Dashboard</h1>
+    <p class="muted" style="margin:0">Tamil Nature · Account administration</p>
+    <div class="notice" style="margin-top:14px">Admin account access only. Customer assessment and client-record workspace is hidden in this view.</div>
+  </div>
+  <div id="tnAdminUsers" class="panel" style="margin-top:14px"></div>
+</section>
+<main id="tnCustomerApp">
 <div class="sticky-shell">
 <header class="app-header"><div class="app-header-title">TAMIL NATURE <span>FLOWER REMEDY</span></div><div class="app-header-subtitle">மலர் மருந்து மதிப்பீடு மற்றும் ஆய்வு செயலி</div></header>
 <nav class="tabs no-print" aria-label="Main navigation"><button type="button" class="tab active" data-tab="home" onclick="return showTab('home')">Home · முகப்பு</button></nav>
@@ -2464,9 +2483,11 @@ function tnShowAuthView(which) {
   document.getElementById('tnAuthMessage').classList.add('hidden');
 }
 function tnShowAuthGate(message, error=false) {
+  document.body.classList.remove('tn-admin-mode');
+  document.getElementById('tnAdminDashboard').classList.add('hidden');
+  document.getElementById('tnCustomerApp').style.display='';
   document.getElementById('tnAuthGate').classList.remove('hidden');
   document.getElementById('tnAccountBar').classList.add('hidden');
-  document.getElementById('tnAdminUsers').classList.add('hidden');
   if(message)tnAuthMessage(message,error);
 }
 function tnEnterApp(user, profile) {
@@ -2476,9 +2497,20 @@ function tnEnterApp(user, profile) {
   const label=document.getElementById('tnAccountLabel');
   if(label)label.textContent=(profile.full_name||user.email||'User')+' · '+profile.role;
   const adminBtn=document.getElementById('tnAdminToggle');
-  if(adminBtn)adminBtn.style.display=profile.role==='admin'?'inline-block':'none';
-  // Refresh views only after the account-specific storage namespace is active.
-  try { loadRecords(); loadClientProfiles(); tnRenderTasks(); } catch(e){console.warn('View refresh:',e);}
+  if(profile.role==='admin'){
+    document.body.classList.add('tn-admin-mode');
+    document.getElementById('tnAdminDashboard').classList.remove('hidden');
+    if(adminBtn)adminBtn.style.display='none';
+    // Admin sees account management only; do not initialize customer workspace views.
+    tnLoadAdminUsers().catch(e=>console.warn('Admin dashboard:',e));
+  } else {
+    document.body.classList.remove('tn-admin-mode');
+    document.getElementById('tnAdminDashboard').classList.add('hidden');
+    document.getElementById('tnCustomerApp').style.display='';
+    if(adminBtn)adminBtn.style.display='none';
+    // Refresh views only after the customer-specific storage namespace is active.
+    try { loadRecords(); loadClientProfiles(); tnRenderTasks(); } catch(e){console.warn('View refresh:',e);}
+  }
   tnLoadCloudData().catch(e=>console.warn('Cloud restore:',e));
 }
 async function tnHandleSession(session) {
@@ -2502,6 +2534,9 @@ async function tnHandleSession(session) {
   }
   if(user.id===TN_ADMIN_UID && profile.role!=='admin') {
     tnShowAuthGate('Admin role is not configured for this account.',true); return;
+  }
+  if(profile.role==='admin' && user.id!==TN_ADMIN_UID) {
+    tnShowAuthGate('Admin access is restricted to the owner account.',true); return;
   }
   tnEnterApp(user,profile);
 }
@@ -2592,7 +2627,7 @@ function tnBuildCloudPayload() {
   };
 }
 function tnQueueCloudSync(delay=1200) {
-  if(!tnCurrentUser||!tnCloudReady||!tnSupabase)return;
+  if(!tnCurrentUser||!tnCloudReady||!tnSupabase||!navigator.onLine)return;
   tnCloudSyncPending=true;
   clearTimeout(tnCloudSyncTimer);
   tnCloudSyncTimer=setTimeout(()=>tnSaveCloudData().catch(e=>{
@@ -2606,7 +2641,7 @@ function tnQueueCloudSync(delay=1200) {
   }),delay);
 }
 async function tnSaveCloudData() {
-  if(!tnCurrentUser||!tnSupabase||!tnCloudReady)return;
+  if(!tnCurrentUser||!tnSupabase||!tnCloudReady||!navigator.onLine)return;
   if(tnCloudSyncInFlight){tnCloudSyncPending=true;return;}
   tnCloudSyncInFlight=true;
   try {
@@ -2663,6 +2698,11 @@ async function tnInitAuth() {
     window.addEventListener('offline',()=>{
       console.info('Offline: changes will remain on this device until connection returns.');
     });
+    // Periodic safety-net sync: every 30 seconds while a signed-in account is cloud-ready.
+    // Save operations still queue an earlier sync; this timer catches missed/background changes.
+    setInterval(()=>{
+      if(tnCurrentUser&&tnCloudReady&&navigator.onLine)tnQueueCloudSync(0);
+    },30000);
     document.addEventListener('visibilitychange',()=>{
       if(document.visibilityState==='visible'&&navigator.onLine&&tnCurrentUser&&tnCloudReady)tnQueueCloudSync(300);
     });
