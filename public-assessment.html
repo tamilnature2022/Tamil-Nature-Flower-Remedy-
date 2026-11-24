@@ -3561,6 +3561,20 @@ async function tnInitAuth() {
       auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
     });
     const publicToken = new URLSearchParams(window.location.search).get('tn_assessment');
+    if (!publicToken) {
+      document.title = 'Assessment Link Required · TamilNatureShanmugam';
+      document.body.innerHTML = `
+        <main style="min-height:100vh;display:grid;place-items:center;padding:22px;background:#f1f6f2;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#24352c">
+          <section style="width:100%;max-width:520px;background:#fff;border:1px solid #dbe4dc;border-radius:22px;padding:28px 22px;box-shadow:0 8px 28px #203c2a12;text-align:center">
+            <h1 style="font-size:clamp(1.35rem,5vw,1.8rem);color:#315b45;margin:0 0 12px">TamilNatureShanmugam</h1>
+            <h2 style="font-size:1.15rem;margin:0 0 10px">Flower Remedy Assessment</h2>
+            <p style="line-height:1.6;color:#647168;margin:0 0 14px">இந்தப் பக்கத்தைத் திறக்க தனிப்பட்ட Assessment Link தேவை. உங்கள் Practitioner அனுப்பிய WhatsApp இணைப்பைத் திறக்கவும்.</p>
+            <p style="font-size:.9rem;color:#647168;margin:0">A valid assessment link is required to continue.</p>
+            <p style="font-size:.82rem;color:#7a867e;margin:18px 0 0">This link is private and expires after 7 days.</p>
+          </section>
+        </main>`;
+      return;
+    }
     if (publicToken) {
       const publicSubmit = document.getElementById('tnPublicSubmitBtn');
       if (publicSubmit) publicSubmit.addEventListener('click', tnSubmitPublicAssessment);
