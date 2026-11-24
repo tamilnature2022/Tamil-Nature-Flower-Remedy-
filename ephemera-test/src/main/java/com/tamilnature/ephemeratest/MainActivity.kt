@@ -214,8 +214,10 @@ class MainActivity : Activity() {
             val birthHour = 19
             val birthMinute = 58
 
-            val latitude = 10.48013
-            val longitude = 77.74977
+            // DINDIGUL CENTER COORDINATES
+
+            val latitude = 10.36896
+            val longitude = 77.98036
 
             // IST TO UTC
 
