@@ -537,6 +537,147 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #tnAccountBar{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;padding:8px 12px;background:#eef5ef;border-bottom:1px solid #dbe4dc;font-size:.85rem}
 #tnAccountBar button{padding:7px 11px}
 
+
+/* Public Assessment landing: show only the Assessment card */
+body.tn-public-assessment-mode #home .home-grid .home-card:not([data-home-tab="assessment"]) {
+  display: none !important;
+}
+
+
+/* Professional public assessment landing page */
+body.tn-public-assessment-mode #home.tn-public-home {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 4px 36px;
+}
+body.tn-public-assessment-mode #home .tn-public-welcome {
+  position: relative;
+  overflow: hidden;
+  padding: 30px 24px 27px;
+  margin: 0 0 25px;
+  border-radius: 24px;
+  color: #fff;
+  background: linear-gradient(135deg, #123f30 0%, #176344 58%, #4b8b68 100%);
+  box-shadow: 0 14px 34px rgba(18,63,48,.16);
+}
+body.tn-public-assessment-mode #home .tn-public-welcome:after {
+  content: "✿";
+  position: absolute;
+  right: 16px;
+  bottom: -42px;
+  font-size: 170px;
+  line-height: 1;
+  color: rgba(255,255,255,.075);
+  pointer-events: none;
+}
+body.tn-public-assessment-mode #home .tn-public-brand-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: rgba(255,255,255,.14);
+  font-size: 27px;
+  margin-bottom: 18px;
+}
+body.tn-public-assessment-mode #home .tn-public-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  color: #d5eadc;
+  margin-bottom: 9px;
+}
+body.tn-public-assessment-mode #home .tn-public-welcome h1 {
+  color: #fff;
+  font-size: clamp(25px, 6vw, 34px);
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -.035em;
+}
+body.tn-public-assessment-mode #home .tn-public-welcome-ta {
+  color: #e2f1e7;
+  font-size: 19px;
+  font-weight: 700;
+  margin: 8px 0 0;
+}
+body.tn-public-assessment-mode #home .tn-public-intro {
+  max-width: 520px;
+  color: rgba(255,255,255,.9);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 17px 0 0;
+}
+body.tn-public-assessment-mode #home .tn-public-section-label {
+  color: #587064;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  margin: 0 4px 11px;
+}
+body.tn-public-assessment-mode #home .home-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  gap: 12px;
+}
+body.tn-public-assessment-mode #home .home-grid .home-card:not([data-home-tab="assessment"]) {
+  display: none !important;
+}
+body.tn-public-assessment-mode #home .home-card.tn-public-assessment-card {
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  padding: 23px 21px 20px;
+  gap: 10px;
+  border: 1px solid #d7e7dc;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(22,75,51,.07);
+}
+body.tn-public-assessment-mode #home .tn-public-card-icon {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 13px;
+  background: #eaf5ee;
+  color: #176344;
+  font-size: 26px;
+  margin-bottom: 2px;
+}
+body.tn-public-assessment-mode #home .tn-public-assessment-card strong {
+  color: #173d2d;
+  font-size: 21px;
+  line-height: 1.3;
+}
+body.tn-public-assessment-mode #home .tn-public-assessment-card > span:nth-of-type(2) {
+  color: #65756c;
+  font-size: 14px;
+  line-height: 1.65;
+}
+body.tn-public-assessment-mode #home .tn-public-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: #176344;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+body.tn-public-assessment-mode #home .notice {
+  margin-top: 20px;
+  border-radius: 13px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+@media (max-width: 420px) {
+  body.tn-public-assessment-mode #home.tn-public-home { padding-top: 15px; }
+  body.tn-public-assessment-mode #home .tn-public-welcome { padding: 25px 20px 23px; border-radius: 20px; }
+  body.tn-public-assessment-mode #home .tn-public-assessment-card { padding: 20px 17px 17px; }
+}
+
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
@@ -634,9 +775,22 @@ body.tn-admin-mode .sticky-shell{display:none!important}
 <nav id="tnPersistentBreadcrumb" class="tn-breadcrumb" aria-label="Breadcrumb"></nav>
 </div>
 
-<section id="home" class="page-section">
+<section id="home" class="page-section tn-public-home">
+  <div class="tn-public-welcome">
+    <div class="tn-public-brand-mark">✿</div>
+    <div class="tn-public-eyebrow">TAMILNATURESHANMUGAM</div>
+    <h1>Flower Remedy Assessment</h1>
+    <p class="tn-public-welcome-ta">மலர் மருந்து மதிப்பீடு</p>
+    <p class="tn-public-intro">உங்கள் உணர்வு நிலைகள் மற்றும் மனஅழுத்தத்தைப் புரிந்துகொள்ள கீழே உள்ள மதிப்பீட்டைத் தொடங்குங்கள்.</p>
+  </div>
+  <div class="tn-public-section-label">உங்கள் மதிப்பீடு · YOUR ASSESSMENT</div>
   <div class="home-grid">
-    <button class="home-card" type="button" data-home-tab="assessment"><span class="home-icon">☘</span><strong>Assessment</strong><span>77 Questions + PSS-10<br>மலர் மருந்து மற்றும் மனஅழுத்த மதிப்பீடு</span></button>
+    <button class="home-card tn-public-assessment-card" type="button" data-home-tab="assessment">
+      <span class="tn-public-card-icon">☘</span>
+      <strong>Start Assessment</strong>
+      <span>77 Flower Remedy Questions + PSS-10<br>77 மலர் மருந்து கேள்விகள் + மனஅழுத்த மதிப்பீடு</span>
+      <span class="tn-public-card-action">தொடங்கவும் <span aria-hidden="true">→</span></span>
+    </button>
     <button class="home-card" type="button" data-home-tab="records"><span class="home-icon">▤</span><strong>Client Records</strong><span>Add / View / Edit / Delete<br>சேர் / பார் / திருத்து / நீக்கு</span></button>
     <button class="home-card" type="button" data-home-tab="dashboard"><span class="home-icon">▥</span><strong>Research Dashboard</strong><span>ஆய்வு மற்றும் புள்ளிவிவரங்கள்</span></button>
     <button class="home-card" type="button" data-home-tab="bachInfo"><span class="home-icon">❀</span><strong>38 Bach Flower Remedies</strong><span>முழு அறிமுகம் மற்றும் விளக்கம்</span></button>
