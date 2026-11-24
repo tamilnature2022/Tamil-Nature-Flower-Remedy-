@@ -2558,6 +2558,7 @@ let tnCloudLastSuccessAt = null;
 let tnCloudFailureCount = 0;
 let tnCloudLastError = '';
 let tnCloudLastPayloadBytes = 0;
+let tnAccessCheckTimer = null;
 
 function tnScopedStorageKey(base) {
   const uid = tnCurrentUser && tnCurrentUser.id;
@@ -2599,6 +2600,51 @@ function tnShowAuthGate(message, error=false) {
   document.getElementById('tnAccountBar').classList.add('hidden');
   if(message)tnAuthMessage(message,error);
 }
+function tnLockAccountAccess(message) {
+  if(tnAccessCheckTimer){clearInterval(tnAccessCheckTimer);tnAccessCheckTimer=null;}
+  tnCloudReady=false;
+  tnCurrentUser=null;
+  tnCurrentProfile=null;
+  if(tnCloudSyncTimer){clearTimeout(tnCloudSyncTimer);tnCloudSyncTimer=null;}
+  if(tnSupabase)tnSupabase.auth.signOut().catch(()=>{});
+  tnShowAuthGate(message||'Your license has expired or is inactive. Please contact Admin.',true);
+}
+function tnLocalLicenseCheck(profile) {
+  if(!profile)return {allowed:false,reason:'Account profile not found.'};
+  if(profile.role==='admin')return {allowed:true};
+  if(profile.approval_status!=='active')return {allowed:false,reason:'Your account is not active. Please contact Admin.'};
+  if(profile.license_status==='disabled')return {allowed:false,reason:'Your account license is disabled. Please contact Admin.'};
+  if(profile.license_status!=='active')return {allowed:false,reason:'A valid active license is required. Please contact Admin.'};
+  const today=new Date();
+  const localToday=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  if(!profile.license_expiry_date)return {allowed:false,reason:'Your license expiry date is not assigned. Please contact Admin.'};
+  const expiry=new Date(profile.license_expiry_date+'T00:00:00');
+  if(expiry<localToday)return {allowed:false,reason:'Your license has expired. Please contact Admin to renew it.'};
+  if(profile.license_start_date){
+    const start=new Date(profile.license_start_date+'T00:00:00');
+    if(start>localToday)return {allowed:false,reason:'Your license is not active yet. Please contact Admin.'};
+  }
+  return {allowed:true};
+}
+async function tnCheckAccountAccess(){
+  if(!tnCurrentUser||!tnCurrentProfile)return false;
+  const local=tnLocalLicenseCheck(tnCurrentProfile);
+  if(!local.allowed){tnLockAccountAccess(local.reason);return false;}
+  // Online server-side verification; local check permits offline use until the stored expiry date.
+  if(tnSupabase&&navigator.onLine){
+    try{
+      const {data,error}=await tnSupabase.rpc('tn_check_account_access');
+      if(error)throw error;
+      if(data!==true){
+        tnLockAccountAccess('Your account access is inactive or your license has expired. Please contact Admin.');
+        return false;
+      }
+    }catch(e){
+      console.warn('Server license check unavailable; using stored license dates:',e.message||e);
+    }
+  }
+  return true;
+}
 function tnEnterApp(user, profile) {
   tnCurrentUser=user; tnCurrentProfile=profile;
   document.getElementById('tnAuthGate').classList.add('hidden');
@@ -2621,6 +2667,11 @@ function tnEnterApp(user, profile) {
     try { loadRecords(); loadClientProfiles(); tnRenderTasks(); } catch(e){console.warn('View refresh:',e);}
   }
   tnLoadCloudData().catch(e=>console.warn('Cloud restore:',e));
+  if(tnAccessCheckTimer)clearInterval(tnAccessCheckTimer);
+  tnAccessCheckTimer=setInterval(()=>tnCheckAccountAccess(),60000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&tnCurrentUser)tnCheckAccountAccess();
+  });
 }
 async function tnHandleSession(session) {
   if(!session || !session.user) {
@@ -2630,7 +2681,7 @@ async function tnHandleSession(session) {
   }
   const user=session.user;
   const {data:profile,error}=await tnSupabase.from('tn_user_profiles')
-    .select('user_id,email,full_name,phone,role,approval_status')
+    .select('user_id,email,full_name,phone,role,approval_status,license_type,license_status,license_start_date,license_expiry_date')
     .eq('user_id',user.id).maybeSingle();
   if(error) { tnShowAuthGate('Profile loading failed: '+error.message,true); return; }
   if(!profile) { tnShowAuthGate('Account profile not found. Please contact Admin.',true); return; }
@@ -2639,6 +2690,12 @@ async function tnHandleSession(session) {
     tnShowAuthGate(profile.approval_status==='disabled'
       ? 'Your account is disabled. Please contact Admin.'
       : 'Sign up successful. Your account is waiting for Admin approval.',true);
+    return;
+  }
+  const licenseCheck=tnLocalLicenseCheck(profile);
+  if(!licenseCheck.allowed){
+    await tnSupabase.auth.signOut();
+    tnShowAuthGate(licenseCheck.reason,true);
     return;
   }
   if(user.id===TN_ADMIN_UID && profile.role!=='admin') {
@@ -2694,6 +2751,7 @@ async function tnSignup() {
   tnAuthMessage('Account created. Admin approval is required before you can sign in. Check your email if confirmation is enabled.');
 }
 async function tnLogout() {
+  if(tnAccessCheckTimer){clearInterval(tnAccessCheckTimer);tnAccessCheckTimer=null;}
   // Do not use window.confirm here: Android WebView may not display JS dialogs
   // unless the hosting app implements WebChromeClient.onJsConfirm.
   const logoutButton = document.getElementById('tnLogout');
@@ -2816,7 +2874,7 @@ async function tnLoadAdminLicenses(){
           '<div><label>Expiry Date</label><input type="date" data-license-expiry="'+tnEscapeHtml(u.user_id)+'" value="'+tnEscapeHtml(u.license_expiry_date||'')+'"></div>'+
         '</div><button type="button" class="secondary" data-license-save="'+tnEscapeHtml(u.user_id)+'">Save License</button></div></div>';
     }).join('')+'</div>'+
-    '<p class="muted" style="font-size:.82rem;margin-top:12px">License settings are currently stored as administrative records. Automatic login blocking based on expiry will be enabled after the trial duration and paid-license rules are confirmed.</p>';
+    '<p class="muted" style="font-size:.82rem;margin-top:12px">Access is automatically allowed only when the account is active, the license status is Active, today is on/after the start date, and the expiry date has not passed. Admin accounts are exempt.</p>';
   const search=document.getElementById('tnLicenseSearch');
   search.addEventListener('input',()=>{
     const q=search.value.trim().toLowerCase();
