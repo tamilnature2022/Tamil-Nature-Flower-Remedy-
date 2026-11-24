@@ -196,9 +196,6 @@ class MainActivity : Activity() {
             (degreeInSign / saptamsaSize).toInt()
                 .coerceIn(0, 6)
 
-        // Odd signs: start from same sign
-        // Even signs: start from 7th sign
-
         val startingOffset = if (signIndex % 2 == 0) {
             0
         } else {
@@ -224,11 +221,50 @@ class MainActivity : Activity() {
         )
     }
 
+    // D12 DWADASAMSA
+
+    private fun calculateDwadasamsa(
+        longitude: Double
+    ): VargaPosition {
+
+        val normalized = normalize(longitude)
+
+        val signIndex = (normalized / 30.0).toInt()
+        val degreeInSign = normalized % 30.0
+
+        val dwadasamsaSize = 30.0 / 12.0
+
+        val dwadasamsaIndex =
+            (degreeInSign / dwadasamsaSize).toInt()
+                .coerceIn(0, 11)
+
+        // All signs start from the same sign
+
+        val dwadasamsaSignIndex =
+            (signIndex + dwadasamsaIndex) % 12
+
+        val degreeWithinDwadasamsa =
+            degreeInSign -
+            (dwadasamsaIndex * dwadasamsaSize)
+
+        val d12Degree =
+            degreeWithinDwadasamsa * 12.0
+
+        val d12Longitude =
+            dwadasamsaSignIndex * 30.0 + d12Degree
+
+        return VargaPosition(
+            longitude = normalize(d12Longitude),
+            rasi = rasiNames[dwadasamsaSignIndex],
+            degree = formatRasi(d12Longitude)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7"
+            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7 + D12"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -331,6 +367,9 @@ class MainActivity : Activity() {
             val lagnaD7 =
                 calculateSaptamsa(lagnaSidereal)
 
+            val lagnaD12 =
+                calculateDwadasamsa(lagnaSidereal)
+
             // BIRTH DETAILS
 
             result.append("BIRTH DETAILS\n")
@@ -369,7 +408,7 @@ class MainActivity : Activity() {
                 }″\n\n"
             )
 
-            // LAGNA D1 + D9 + D10 + D7
+            // LAGNA D1 + D9 + D10 + D7 + D12
 
             result.append("=============================\n")
             result.append("LAGNA - லக்னம்\n")
@@ -396,13 +435,17 @@ class MainActivity : Activity() {
             )
 
             result.append(
+                "D12 Dwadasamsa Lagna:\n${lagnaD12.degree}\n\n"
+            )
+
+            result.append(
                 "MC:\n${formatRasi(mcSidereal)}\n\n"
             )
 
-            // PLANETS D1 + D9 + D10 + D7
+            // PLANETS D1 + D9 + D10 + D7 + D12
 
             result.append("=============================\n")
-            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7\n")
+            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
@@ -420,6 +463,7 @@ class MainActivity : Activity() {
                 val d9 = calculateNavamsa(sidereal)
                 val d10 = calculateDasamsa(sidereal)
                 val d7 = calculateSaptamsa(sidereal)
+                val d12 = calculateDwadasamsa(sidereal)
 
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
@@ -443,6 +487,10 @@ class MainActivity : Activity() {
 
                 result.append(
                     "D7: ${d7.degree}\n"
+                )
+
+                result.append(
+                    "D12: ${d12.degree}\n"
                 )
 
                 result.append(
@@ -488,6 +536,12 @@ class MainActivity : Activity() {
             val ketuD7 =
                 calculateSaptamsa(ketuSidereal)
 
+            val rahuD12 =
+                calculateDwadasamsa(rahuSidereal)
+
+            val ketuD12 =
+                calculateDwadasamsa(ketuSidereal)
+
             result.append("ராகு - MEAN NODE\n")
 
             result.append(
@@ -504,6 +558,10 @@ class MainActivity : Activity() {
 
             result.append(
                 "D7: ${rahuD7.degree}\n"
+            )
+
+            result.append(
+                "D12: ${rahuD12.degree}\n"
             )
 
             result.append(
@@ -531,6 +589,10 @@ class MainActivity : Activity() {
             )
 
             result.append(
+                "D12: ${ketuD12.degree}\n"
+            )
+
+            result.append(
                 "நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n"
             )
 
@@ -538,7 +600,7 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
-            result.append("Charts: D1 + D9 + D10 + D7\n")
+            result.append("Charts: D1 + D9 + D10 + D7 + D12\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
