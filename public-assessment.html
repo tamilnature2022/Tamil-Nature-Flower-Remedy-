@@ -743,6 +743,38 @@ body.tn-public-assessment-mode #home .tn-public-start-label {
   font-weight: 850;
 }
 
+
+/* Centered bilingual START button with a gentle attention pulse */
+body.tn-public-assessment-mode #home .tn-public-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 66px;
+  box-sizing: border-box;
+  animation: tnStartPulse 1.5s ease-in-out infinite;
+  transform-origin: center;
+}
+body.tn-public-assessment-mode #home .tn-public-start-label {
+  align-items: center;
+  text-align: center;
+  line-height: 1.35;
+}
+body.tn-public-assessment-mode #home .tn-public-card-action > span[aria-hidden="true"] {
+  display: none;
+}
+@keyframes tnStartPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(23,99,68,.22); }
+  50% { opacity: .78; box-shadow: 0 0 0 7px rgba(23,99,68,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.tn-public-assessment-mode #home .tn-public-card-action {
+    animation: none;
+  }
+}
+
 </style><style id="tn-track-score-styles">
 .tn-track-table{width:100%;table-layout:fixed}.tn-track-table th,.tn-track-table td{vertical-align:top;width:33.333%;min-width:0}
 .tn-track-remedy{display:block;font-weight:700;white-space:normal}
