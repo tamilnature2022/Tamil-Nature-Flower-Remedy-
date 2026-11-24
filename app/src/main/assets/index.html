@@ -470,6 +470,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #tnAdminUsers table{width:100%;border-collapse:collapse;font-size:.88rem}
 #tnAdminUsers th,#tnAdminUsers td{padding:8px;border-bottom:1px solid #e5ece6;text-align:left;vertical-align:top}
 #tnAdminUsers select{padding:7px;border:1px solid #cbd8ce;border-radius:8px}
+#tnAdminUsers .tn-user-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+#tnAdminUsers .tn-user-tools input{flex:1;min-width:180px;padding:10px;border:1px solid #cbd8ce;border-radius:9px;font:inherit}
+#tnAdminUsers .tn-user-actions{display:flex;gap:6px;flex-wrap:wrap;min-width:150px}
+#tnAdminUsers .tn-user-actions button{margin:2px 0;padding:7px 9px}
+#tnAdminUsers .tn-deleted{opacity:.72}
 #tnAccountBar{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;padding:8px 12px;background:#eef5ef;border-bottom:1px solid #dbe4dc;font-size:.85rem}
 #tnAccountBar button{padding:7px 11px}
 
@@ -2591,22 +2596,98 @@ async function tnLogout() {
 async function tnLoadAdminUsers() {
   if(!tnCurrentProfile||tnCurrentProfile.role!=='admin')return;
   const host=document.getElementById('tnAdminUsers');
-  host.classList.remove('hidden');host.innerHTML='<strong>Loading accounts…</strong>';
+  host.classList.remove('hidden');
+  host.innerHTML='<strong>Loading accounts…</strong>';
   const {data,error}=await tnSupabase.from('tn_user_profiles')
-    .select('user_id,email,full_name,phone,role,approval_status,created_at')
+    .select('user_id,email,full_name,phone,role,approval_status,created_at,deleted_at')
     .order('created_at',{ascending:false});
-  if(error){host.innerHTML='<p class="notice">Could not load accounts: '+tnEscapeHtml(error.message)+'</p>';return;}
-  host.innerHTML='<h3 style="margin:0 0 10px">Admin · Customer Accounts</h3><p class="muted">Approve customer sign-ups or disable access. Customer records remain private to each account.</p>'+
-    '<div style="overflow:auto"><table><thead><tr><th>Name / Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
-    (data||[]).map(u=>`<tr><td><strong>${tnEscapeHtml(u.full_name||'—')}</strong><br>${tnEscapeHtml(u.email||'')}<br><small>${tnEscapeHtml(u.phone||'')}</small></td><td>${tnEscapeHtml(u.role)}</td><td>${tnEscapeHtml(u.approval_status)}</td><td>${u.user_id===TN_ADMIN_UID?'Owner Admin':`<select data-tn-user-status="${tnEscapeHtml(u.user_id)}"><option value="pending" ${u.approval_status==='pending'?'selected':''}>Pending</option><option value="active" ${u.approval_status==='active'?'selected':''}>Active</option><option value="disabled" ${u.approval_status==='disabled'?'selected':''}>Disabled</option></select><button type="button" class="secondary" data-tn-save-user="${tnEscapeHtml(u.user_id)}">Save</button>`}</td></tr>`).join('')+
-    '</tbody></table></div>';
+  if(error){
+    host.innerHTML='<p class="notice">Could not load accounts: '+tnEscapeHtml(error.message)+
+      '<br><small>Run the User Management SQL update supplied with this version, then reload.</small></p>';
+    return;
+  }
+  const users=(data||[]);
+  const activeCount=users.filter(u=>!u.deleted_at).length;
+  const deletedCount=users.filter(u=>!!u.deleted_at).length;
+  host.innerHTML=
+    '<h3 style="margin:0 0 10px">1. User Management</h3>'+
+    '<p class="muted">Approve, activate, disable or soft-delete customer accounts. Deleting an account blocks sign-in but preserves its Patient Records and assessment data.</p>'+
+    '<div class="tn-user-tools">'+
+      '<input id="tnUserSearch" type="search" placeholder="Search name, email or phone" aria-label="Search customers">'+
+      '<span class="muted" style="align-self:center">Accounts: '+activeCount+' · Deleted: '+deletedCount+'</span>'+
+    '</div>'+
+    '<div style="overflow:auto"><table><thead><tr><th>Name / Email / Phone</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>'+
+    '<tbody id="tnUserRows">'+
+    users.map(u=>{
+      const isOwner=u.user_id===TN_ADMIN_UID;
+      const deleted=!!u.deleted_at;
+      const status=deleted?'deleted':u.approval_status;
+      const actions=isOwner?'<strong>Owner Admin</strong>':
+        (deleted
+          ? '<div class="tn-user-actions"><button type="button" class="secondary" data-tn-restore-user="'+tnEscapeHtml(u.user_id)+'">Restore as Pending</button></div>'
+          : '<div class="tn-user-actions">'+
+            '<select aria-label="Account status" data-tn-user-status="'+tnEscapeHtml(u.user_id)+'">'+
+              '<option value="pending" '+(u.approval_status==='pending'?'selected':'')+'>Pending</option>'+
+              '<option value="active" '+(u.approval_status==='active'?'selected':'')+'>Active</option>'+
+              '<option value="disabled" '+(u.approval_status==='disabled'?'selected':'')+'>Disabled</option>'+
+            '</select>'+
+            '<button type="button" class="secondary" data-tn-save-user="'+tnEscapeHtml(u.user_id)+'">Save</button>'+
+            '<button type="button" class="danger" data-tn-delete-user="'+tnEscapeHtml(u.user_id)+'">Delete Account</button>'+
+          '</div>');
+      return '<tr class="'+(deleted?'tn-deleted':'')+'" data-tn-user-row="'+tnEscapeHtml(u.user_id)+'">'+
+        '<td><strong>'+tnEscapeHtml(u.full_name||'—')+'</strong><br>'+tnEscapeHtml(u.email||'')+
+        '<br><small>'+tnEscapeHtml(u.phone||'')+'</small></td>'+
+        '<td>'+tnEscapeHtml(u.role||'customer')+'</td>'+
+        '<td>'+tnEscapeHtml(status)+'</td><td>'+actions+'</td></tr>';
+    }).join('')+
+    '</tbody></table></div>'+
+    '<p class="muted" style="font-size:.82rem;margin-top:10px">Delete is a reversible soft-delete: the account is disabled and marked deleted. The linked Patient Records in tn_user_data are not deleted. Restore returns the account to Pending approval.</p>';
+
+  const search=document.getElementById('tnUserSearch');
+  search.addEventListener('input',()=>{
+    const q=search.value.trim().toLowerCase();
+    host.querySelectorAll('[data-tn-user-row]').forEach(row=>{
+      row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';
+    });
+  });
+
   host.querySelectorAll('[data-tn-save-user]').forEach(btn=>btn.addEventListener('click',async()=>{
     const id=btn.getAttribute('data-tn-save-user');
-    const status=host.querySelector(`[data-tn-user-status="${id}"]`).value;
+    const select=host.querySelector('[data-tn-user-status="'+id+'"]');
+    if(!select)return;
     btn.disabled=true;
-    const {error}=await tnSupabase.from('tn_user_profiles').update({approval_status:status,updated_at:new Date().toISOString()}).eq('user_id',id);
+    const {error}=await tnSupabase.from('tn_user_profiles')
+      .update({approval_status:select.value,updated_at:new Date().toISOString()}).eq('user_id',id);
     btn.disabled=false;
-    if(error)alert('Update failed: '+error.message);else{alert('Account status updated.');tnLoadAdminUsers();}
+    if(error)alert('Update failed: '+error.message);
+    else {alert('Account status updated.');tnLoadAdminUsers();}
+  }));
+
+  host.querySelectorAll('[data-tn-delete-user]').forEach(btn=>btn.addEventListener('click',async()=>{
+    const id=btn.getAttribute('data-tn-delete-user');
+    const ok=confirm('Delete this customer account access? Sign-in will be blocked. Patient Records and assessment data will be preserved. You can restore the account later.');
+    if(!ok)return;
+    btn.disabled=true;
+    const {error}=await tnSupabase.from('tn_user_profiles').update({
+      approval_status:'disabled',
+      deleted_at:new Date().toISOString(),
+      updated_at:new Date().toISOString()
+    }).eq('user_id',id).neq('user_id',TN_ADMIN_UID);
+    btn.disabled=false;
+    if(error)alert('Delete failed: '+error.message);
+    else {alert('Customer account access deleted. Patient Records have been preserved.');tnLoadAdminUsers();}
+  }));
+
+  host.querySelectorAll('[data-tn-restore-user]').forEach(btn=>btn.addEventListener('click',async()=>{
+    const id=btn.getAttribute('data-tn-restore-user');
+    if(!confirm('Restore this account as Pending? Admin approval will be required before sign-in.'))return;
+    btn.disabled=true;
+    const {error}=await tnSupabase.from('tn_user_profiles').update({
+      approval_status:'pending',deleted_at:null,updated_at:new Date().toISOString()
+    }).eq('user_id',id).neq('user_id',TN_ADMIN_UID);
+    btn.disabled=false;
+    if(error)alert('Restore failed: '+error.message);
+    else {alert('Account restored as Pending.');tnLoadAdminUsers();}
   }));
 }
 function tnMergeRows(remote,local,keyFn) {
