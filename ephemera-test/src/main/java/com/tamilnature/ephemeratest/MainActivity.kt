@@ -16,32 +16,36 @@ import java.util.Locale
 class MainActivity : Activity() {
 
     private val rasiNames = arrayOf(
-        "மேஷம்",
-        "ரிஷபம்",
-        "மிதுனம்",
-        "கடகம்",
-        "சிம்மம்",
-        "கன்னி",
-        "துலாம்",
-        "விருச்சிகம்",
-        "தனுசு",
-        "மகரம்",
-        "கும்பம்",
-        "மீனம்"
+        "மேஷம்", "ரிஷபம்", "மிதுனம்", "கடகம்",
+        "சிம்மம்", "கன்னி", "துலாம்", "விருச்சிகம்",
+        "தனுசு", "மகரம்", "கும்பம்", "மீனம்"
     )
 
-    private fun normalizeLongitude(value: Double): Double {
+    private data class Graha(
+        val name: String,
+        val body: Body
+    )
+
+    private val grahas = listOf(
+        Graha("சூரியன்", Body.SUN),
+        Graha("சந்திரன்", Body.MOON),
+        Graha("செவ்வாய்", Body.MARS),
+        Graha("புதன்", Body.MERCURY),
+        Graha("குரு", Body.JUPITER),
+        Graha("சுக்கிரன்", Body.VENUS),
+        Graha("சனி", Body.SATURN)
+    )
+
+    private fun normalize(value: Double): Double {
         return ((value % 360.0) + 360.0) % 360.0
     }
 
     private fun formatRasi(longitude: Double): String {
-        val normalized = normalizeLongitude(longitude)
-
-        val rasiIndex = (normalized / 30.0).toInt()
+        val normalized = normalize(longitude)
+        val index = (normalized / 30.0).toInt()
         val withinRasi = normalized % 30.0
 
-        val totalSeconds = (withinRasi * 3600.0).toLong()
-
+        val totalSeconds = (withinRasi * 3600.0).toInt()
         val degrees = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
@@ -49,27 +53,31 @@ class MainActivity : Activity() {
         return String.format(
             Locale.US,
             "%s  %02d° %02d′ %02d″",
-            rasiNames[rasiIndex],
+            rasiNames[index],
             degrees,
             minutes,
             seconds
         )
     }
 
+    private fun formatDegree(value: Double): String {
+        return String.format(Locale.US, "%.8f°", value)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val output = TextView(this).apply {
-            textSize = 17f
-            setPadding(24, 24, 24, 24)
-        }
-
         val title = TextView(this).apply {
-            text = "Tamil Nature - Ephemera Test"
+            text = "Tamil Nature - 9 Graha Test"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
             setPadding(16, 24, 16, 20)
+        }
+
+        val output = TextView(this).apply {
+            textSize = 17f
+            setPadding(24, 24, 24, 24)
         }
 
         val result = StringBuilder()
@@ -82,7 +90,6 @@ class MainActivity : Activity() {
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH) + 1
             val day = calendar.get(Calendar.DAY_OF_MONTH)
-
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
             val minute = calendar.get(Calendar.MINUTE)
             val second = calendar.get(Calendar.SECOND)
@@ -95,79 +102,91 @@ class MainActivity : Activity() {
                 year, month, fractionalDay
             )
 
-            val sun = Ephemera.position(Body.SUN, jd)
-                ?: throw Exception("Sun position unavailable")
-
-            val moon = Ephemera.position(Body.MOON, jd)
-                ?: throw Exception("Moon position unavailable")
-
             val tt = Ephemera.utToTt(jd)
 
             val lahiri = Ephemera.ayanamsa(
                 Ayanamsa.LAHIRI, tt
             )
 
-            // Tropical longitudes
-            val sunTropical = sun.longitude
-            val moonTropical = moon.longitude
-
-            // Sidereal longitudes
-            val sunSidereal = normalizeLongitude(
-                sunTropical - lahiri
-            )
-
-            val moonSidereal = normalizeLongitude(
-                moonTropical - lahiri
-            )
-
-            result.append("EPHEMERIS CALCULATION\n\n")
-
+            result.append("9 GRAHA SIDEREAL CALCULATION\n\n")
             result.append("Date (UTC): $year-$month-$day\n")
-            result.append("Time (UTC): $hour:$minute:$second\n\n")
+            result.append("Time (UTC): $hour:$minute:$second\n")
+            result.append("Julian Day: $jd\n")
+            result.append("Lahiri Ayanamsa: $lahiri°\n\n")
 
-            result.append("JULIAN DAY\n")
-            result.append("$jd\n\n")
+            result.append("================================\n")
+            result.append("GRAHA POSITIONS - D1\n")
+            result.append("================================\n\n")
 
-            result.append("LAHIRI AYANAMSA\n")
-            result.append("$lahiri\n\n")
+            for (graha in grahas) {
 
-            result.append("========================\n")
-            result.append("SUN - சூரியன்\n")
-            result.append("========================\n")
+                val position = Ephemera.position(
+                    graha.body, jd
+                ) ?: throw Exception(
+                    "${graha.name} position unavailable"
+                )
 
-            result.append("Tropical Longitude:\n")
-            result.append("$sunTropical°\n\n")
+                val sidereal = normalize(
+                    position.longitude - lahiri
+                )
 
-            result.append("Sidereal Longitude:\n")
-            result.append("$sunSidereal°\n\n")
+                val motion = if (position.isRetrograde) {
+                    "வக்கிரம் (வ)"
+                } else {
+                    "நேர்கதி"
+                }
 
-            result.append("D1 Rasi Position:\n")
-            result.append(formatRasi(sunSidereal))
-            result.append("\n\n")
+                result.append("${graha.name}\n")
+                result.append(
+                    "Sidereal: ${formatDegree(sidereal)}\n"
+                )
+                result.append(
+                    "D1 Position: ${formatRasi(sidereal)}\n"
+                )
+                result.append("நிலை: $motion\n")
+                result.append(
+                    "Longitude Speed: ${position.longitudeSpeed}\n"
+                )
+                result.append("--------------------------------\n\n")
+            }
 
-            result.append("========================\n")
-            result.append("MOON - சந்திரன்\n")
-            result.append("========================\n")
+            // Mean Rahu and opposite Ketu
+            val rahuPosition = Ephemera.position(
+                Body.MEAN_NODE, jd
+            ) ?: throw Exception("Mean Node unavailable")
 
-            result.append("Tropical Longitude:\n")
-            result.append("$moonTropical°\n\n")
+            val rahuSidereal = normalize(
+                rahuPosition.longitude - lahiri
+            )
 
-            result.append("Sidereal Longitude:\n")
-            result.append("$moonSidereal°\n\n")
+            val ketuSidereal = normalize(
+                rahuSidereal + 180.0
+            )
 
-            result.append("D1 Rasi Position:\n")
-            result.append(formatRasi(moonSidereal))
-            result.append("\n\n")
+            result.append("ராகு - MEAN NODE\n")
+            result.append(
+                "Sidereal: ${formatDegree(rahuSidereal)}\n"
+            )
+            result.append(
+                "D1 Position: ${formatRasi(rahuSidereal)}\n"
+            )
+            result.append("--------------------------------\n\n")
 
-            result.append("========================\n")
-            result.append("TIME CONVERSION\n")
-            result.append("========================\n")
+            result.append("கேது - OPPOSITE OF RAHU\n")
+            result.append(
+                "Sidereal: ${formatDegree(ketuSidereal)}\n"
+            )
+            result.append(
+                "D1 Position: ${formatRasi(ketuSidereal)}\n"
+            )
 
-            result.append("Terrestrial Time:\n")
-            result.append("$tt\n")
+            result.append("\n================================\n")
+            result.append("CALCULATION COMPLETE\n")
+            result.append("Ayanamsa: Lahiri\n")
+            result.append("Node Method: Mean Node\n")
 
         } catch (e: Exception) {
-            result.append("CALCULATION ERROR\n\n")
+            result.append("\nCALCULATION ERROR\n\n")
             result.append(e.toString())
         }
 
@@ -181,7 +200,6 @@ class MainActivity : Activity() {
 
         val scroll = ScrollView(this)
         scroll.addView(layout)
-
         setContentView(scroll)
     }
 }
