@@ -455,11 +455,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 
 /* V164 AUTH */
-#tnAuthGate{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#eaf2ec,#f8faf8);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
+#tnAuthGate{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#eaf2ec,#f8faf8);display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box} #tnAuthGate .tn-auth-card{margin:auto 0;max-height:none;flex:0 0 auto}
 #tnAuthGate .tn-auth-card{width:min(100%,460px);background:#fff;border:1px solid #dbe4dc;border-radius:20px;padding:24px;box-shadow:0 18px 55px #183b2820}
 #tnAuthGate h2{margin:0 0 6px;color:#244b38;font-size:clamp(.92rem,4.2vw,1.45rem);white-space:nowrap;letter-spacing:-.035em}
 #tnAuthGate .tn-auth-sub{margin:0 0 18px;color:#647168;font-size:.92rem}
 #tnAuthGate .tn-auth-field{margin:12px 0}
+#tnAuthGate .tn-signup-heading{text-align:center;margin:4px 0 20px}
+#tnAuthGate .tn-signup-heading h3{margin:0 0 8px;color:#176b3c;font-size:1.55rem;font-weight:800}
+#tnAuthGate .tn-signup-heading p{margin:0;color:#647168;font-size:.95rem;line-height:1.45}
+#tnAuthGate .tn-signup-section{background:#f3f4f3;border-radius:13px;padding:16px;margin:14px 0}
+#tnAuthGate .tn-signup-section h4{margin:0 0 12px;font-size:1.12rem;color:#17251d}
+#tnAuthGate select{width:100%;padding:12px;border:1px solid #cbd8ce;border-radius:10px;background:#fff;font:inherit}
+#tnAuthGate .tn-signup-section .tn-auth-field{margin:12px 0}
+#tnAuthGate .tn-signup-section small{display:block;margin-top:6px;color:#647168;font-size:.78rem}
+
 #tnAuthGate label{display:block;font-weight:700;font-size:.9rem;margin-bottom:5px}
 #tnAuthGate input{width:100%;padding:12px;border:1px solid #cbd8ce;border-radius:10px;font:inherit}
 #tnAuthGate button{width:100%;margin-top:9px}
@@ -467,6 +476,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #tnAuthGate .tn-auth-error{background:#fff0ed;color:#8c3022}
 #tnAuthGate .tn-auth-link{border:0;background:transparent;color:#315b45;text-decoration:underline;padding:8px;margin-top:10px}
 #tnAdminUsers{margin:12px 0;padding:14px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
+#tnAdminStats{padding:16px;border:1px solid #dbe4dc;border-radius:12px;background:#fff}
+#tnAdminStats .tn-admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+#tnAdminStats .tn-admin-stat{padding:13px;border-radius:11px;background:#f0f5f1;border:1px solid #e0e9e2;display:flex;flex-direction:column;gap:6px}
+#tnAdminStats .tn-admin-stat span{font-size:.84rem;color:#607067}
+#tnAdminStats .tn-admin-stat strong{font-size:1.65rem;color:#195b3b;font-weight:800}
+
 #tnAdminUsers table{width:100%;border-collapse:collapse;font-size:.88rem}
 #tnAdminUsers th,#tnAdminUsers td{padding:8px;border-bottom:1px solid #e5ece6;text-align:left;vertical-align:top}
 #tnAdminUsers select{padding:7px;border:1px solid #cbd8ce;border-radius:8px}
@@ -524,19 +539,32 @@ body.tn-admin-mode .sticky-shell{display:none!important}
       <div class="tn-auth-field"><label for="tnLoginEmail">Email</label><input id="tnLoginEmail" type="email" autocomplete="username" placeholder="Enter your email"></div>
       <div class="tn-auth-field"><label for="tnLoginPassword">Password</label><input id="tnLoginPassword" type="password" autocomplete="current-password" placeholder="Enter password"></div>
       <button type="button" class="primary" id="tnLoginBtn">Sign In</button>
-      <button type="button" class="tn-auth-link" id="tnShowSignup">Create Customer Account / Sign Up</button>
+      <button type="button" class="tn-auth-link" id="tnShowSignup">New Customer? Sign Up</button>
     </div>
     <div id="tnSignupView" class="hidden">
-      <div class="tn-auth-field"><label for="tnSignupName">Full Name *</label><input id="tnSignupName" autocomplete="name" placeholder="Your name" required></div>
-      <div class="tn-auth-field"><label for="tnSignupEmail">Email Address *</label><input id="tnSignupEmail" type="email" autocomplete="email" placeholder="Email address" required></div>
-      <div class="tn-auth-field"><label for="tnSignupPassword">Password (minimum 6 characters) *</label><input id="tnSignupPassword" type="password" autocomplete="new-password" placeholder="Create password" minlength="6" required></div>
-      <div class="tn-auth-field"><label for="tnSignupOccupation">Occupation *</label><input id="tnSignupOccupation" autocomplete="organization-title" placeholder="Your occupation" required></div>
-      <div class="tn-auth-field"><label for="tnSignupCountry">Country *</label><select id="tnSignupCountry" required><option value="">Select country</option><option value="India" data-code="+91">India (+91)</option><option value="Malaysia" data-code="+60">Malaysia (+60)</option><option value="Sri Lanka" data-code="+94">Sri Lanka (+94)</option><option value="Singapore" data-code="+65">Singapore (+65)</option><option value="United Arab Emirates" data-code="+971">United Arab Emirates (+971)</option><option value="United Kingdom" data-code="+44">United Kingdom (+44)</option><option value="United States" data-code="+1">United States (+1)</option><option value="Other" data-code="">Other</option></select></div>
-      <div class="tn-auth-field"><label for="tnSignupState">State *</label><input id="tnSignupState" placeholder="State / Province" required></div>
-      <div class="tn-auth-field"><label for="tnSignupLocation">Location (City / Town / Village) *</label><input id="tnSignupLocation" autocomplete="address-level2" placeholder="City / Town / Village" required></div>
-      <div class="tn-auth-field"><label for="tnSignupPhone">Mobile Number *</label><div style="display:flex;gap:7px"><input id="tnSignupCountryCode" type="text" value="" placeholder="+Code" aria-label="Country code" style="width:88px;flex:0 0 88px" required><input id="tnSignupPhone" type="tel" autocomplete="tel-national" placeholder="Mobile number" inputmode="tel" required></div><small>International format: 7–15 digits including country code</small></div>
+      <div class="tn-signup-heading">
+        <h3>Create Your Account</h3>
+        <p>Register to access Tamil Nature Flower Remedy</p>
+      </div>
+      <section class="tn-signup-section">
+        <h4>Personal Information</h4>
+        <div class="tn-auth-field"><label for="tnSignupName">Full Name *</label><input id="tnSignupName" autocomplete="name" placeholder="Enter your full name" required></div>
+        <div class="tn-auth-field"><label for="tnSignupEmail">Email Address *</label><input id="tnSignupEmail" type="email" autocomplete="email" placeholder="Enter your email" required></div>
+        <div class="tn-auth-field"><label for="tnSignupPassword">Password (minimum 6 characters) *</label><input id="tnSignupPassword" type="password" autocomplete="new-password" placeholder="Create password" minlength="6" required></div>
+        <div class="tn-auth-field"><label for="tnSignupOccupation">Occupation *</label><input id="tnSignupOccupation" autocomplete="organization-title" placeholder="Select your occupation" required></div>
+      </section>
+      <section class="tn-signup-section">
+        <h4>Location Information</h4>
+        <div class="tn-auth-field"><label for="tnSignupCountry">Country *</label><select id="tnSignupCountry" required><option value="">Select country</option><option value="India" data-code="+91" selected>India (+91)</option><option value="Malaysia" data-code="+60">Malaysia (+60)</option><option value="Sri Lanka" data-code="+94">Sri Lanka (+94)</option><option value="Singapore" data-code="+65">Singapore (+65)</option><option value="United Arab Emirates" data-code="+971">United Arab Emirates (+971)</option><option value="United Kingdom" data-code="+44">United Kingdom (+44)</option><option value="United States" data-code="+1">United States (+1)</option><option value="Other" data-code="">Other</option></select></div>
+        <div class="tn-auth-field"><label for="tnSignupState">State *</label><input id="tnSignupState" placeholder="State / Province" required></div>
+        <div class="tn-auth-field"><label for="tnSignupLocation">Location (City / Town / Village) *</label><input id="tnSignupLocation" autocomplete="address-level2" placeholder="City / Town / Village" required></div>
+      </section>
+      <section class="tn-signup-section">
+        <h4>Contact Information</h4>
+        <div class="tn-auth-field"><label for="tnSignupPhone">Mobile Number *</label><div style="display:flex;gap:7px"><input id="tnSignupCountryCode" type="text" value="+91" placeholder="+Code" aria-label="Country code" style="width:88px;flex:0 0 88px" required><input id="tnSignupPhone" type="tel" autocomplete="tel-national" placeholder="Mobile number" inputmode="tel" required></div><small>International format: 7–15 digits including country code</small></div>
+      </section>
       <button type="button" class="primary" id="tnSignupBtn">Create Account</button>
-      <button type="button" class="tn-auth-link" id="tnShowLogin">Back to Sign In</button>
+      <button type="button" class="tn-auth-link" id="tnShowLogin">Already have an account? Sign In</button>
     </div>
     <div id="tnAuthMessage" class="tn-auth-msg hidden" aria-live="polite"></div>
     <div class="tn-auth-support" style="margin-top:18px;padding-top:12px;border-top:1px solid #dce5de;text-align:center;font-size:13px;line-height:1.6;color:#52635a">
@@ -553,6 +581,7 @@ body.tn-admin-mode .sticky-shell{display:none!important}
     <div class="notice" style="margin-top:14px">Admin account access only. Customer assessment and client-record workspace is hidden in this view.</div>
   </div>
   <div id="tnAdminUsers" class="panel" style="margin-top:14px"></div>
+  <div id="tnAdminStats" class="panel" style="margin-top:14px"></div>
 </section>
 <main id="tnCustomerApp">
 <div class="sticky-shell">
@@ -2507,6 +2536,10 @@ function tnShowAuthView(which) {
   document.getElementById('tnLoginView').classList.toggle('hidden',which!=='login');
   document.getElementById('tnSignupView').classList.toggle('hidden',which!=='signup');
   document.getElementById('tnAuthMessage').classList.add('hidden');
+  const gate=document.getElementById('tnAuthGate');
+  if(gate) gate.scrollTop=0;
+  const nameField=document.getElementById('tnSignupName');
+  if(which==='signup' && nameField) nameField.scrollIntoView({block:'start',behavior:'auto'});
 }
 function tnShowAuthGate(message, error=false) {
   document.body.classList.remove('tn-admin-mode');
@@ -2640,8 +2673,24 @@ async function tnLoadAdminUsers() {
     return;
   }
   const users=(data||[]);
-  const activeCount=users.filter(u=>!u.deleted_at).length;
+  const visibleUsers=users.filter(u=>!u.deleted_at);
+  const activeCount=visibleUsers.filter(u=>u.approval_status==='active').length;
+  const pendingCount=visibleUsers.filter(u=>u.approval_status==='pending').length;
+  const disabledCount=visibleUsers.filter(u=>u.approval_status==='disabled').length;
   const deletedCount=users.filter(u=>!!u.deleted_at).length;
+  const statsHost=document.getElementById('tnAdminStats');
+  if(statsHost){
+    statsHost.innerHTML=
+      '<h3 style="margin:0 0 8px">2. Dashboard Statistics</h3>'+
+      '<p class="muted" style="margin:0 0 14px">Customer account overview · Deleted accounts are shown separately.</p>'+
+      '<div class="tn-admin-stat-grid">'+
+        '<div class="tn-admin-stat"><span>Total Users</span><strong>'+visibleUsers.length+'</strong></div>'+
+        '<div class="tn-admin-stat"><span>Active Users</span><strong>'+activeCount+'</strong></div>'+
+        '<div class="tn-admin-stat"><span>Pending Users</span><strong>'+pendingCount+'</strong></div>'+
+        '<div class="tn-admin-stat"><span>Disabled Users</span><strong>'+disabledCount+'</strong></div>'+
+        '<div class="tn-admin-stat"><span>Deleted Accounts</span><strong>'+deletedCount+'</strong></div>'+
+      '</div>';
+  }
   host.innerHTML=
     '<h3 style="margin:0 0 10px">1. User Management</h3>'+
     '<p class="muted">Approve, activate, disable or soft-delete customer accounts. Deleting an account blocks sign-in but preserves its Patient Records and assessment data.</p>'+
