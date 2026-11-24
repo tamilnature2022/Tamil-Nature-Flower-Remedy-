@@ -17,4 +17,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "TamilNatureShanmugam"
+
 include(":app")
+include(":ephemera-test")
