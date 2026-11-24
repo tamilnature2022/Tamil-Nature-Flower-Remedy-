@@ -38,6 +38,12 @@ class MainActivity : Activity() {
         val body: Body
     )
 
+    private data class Navamsa(
+        val longitude: Double,
+        val rasi: String,
+        val degree: String
+    )
+
     private val grahas = listOf(
         Graha("சூரியன்", Body.SUN),
         Graha("சந்திரன்", Body.MOON),
@@ -94,11 +100,53 @@ class MainActivity : Activity() {
         return "${nakshatraNames[nakshatraIndex]} - பாதம் ${padaIndex + 1}"
     }
 
+    // D9 NAVAMSA CALCULATION
+
+    private fun calculateNavamsa(longitude: Double): Navamsa {
+
+        val normalized = normalize(longitude)
+
+        val signIndex = (normalized / 30.0).toInt()
+
+        val degreeInSign = normalized % 30.0
+
+        val navamsaSize = 30.0 / 9.0
+
+        val navamsaIndex =
+            (degreeInSign / navamsaSize).toInt()
+                .coerceIn(0, 8)
+
+        // Movable, Fixed and Dual sign starting rules
+        val startingOffset = when (signIndex % 3) {
+            0 -> 0  // Movable
+            1 -> 8  // Fixed
+            else -> 4 // Dual
+        }
+
+        val navamsaSignIndex =
+            (signIndex + startingOffset + navamsaIndex) % 12
+
+        val degreeWithinNavamsa =
+            degreeInSign - (navamsaIndex * navamsaSize)
+
+        val d9Degree =
+            degreeWithinNavamsa * 9.0
+
+        val d9Longitude =
+            navamsaSignIndex * 30.0 + d9Degree
+
+        return Navamsa(
+            longitude = normalize(d9Longitude),
+            rasi = rasiNames[navamsaSignIndex],
+            degree = formatRasi(d9Longitude)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology Test"
+            text = "Tamil Nature - Astrology Test D1 + D9"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -114,6 +162,8 @@ class MainActivity : Activity() {
 
         try {
 
+            // TEST BIRTH DETAILS
+
             val birthYear = 1984
             val birthMonth = 11
             val birthDay = 19
@@ -123,11 +173,14 @@ class MainActivity : Activity() {
             val latitude = 10.48013
             val longitude = 77.74977
 
+            // IST TO UTC
+
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
             )
 
             localCalendar.isLenient = false
+
             localCalendar.set(
                 birthYear,
                 birthMonth - 1,
@@ -136,6 +189,7 @@ class MainActivity : Activity() {
                 birthMinute,
                 0
             )
+
             localCalendar.set(Calendar.MILLISECOND, 0)
 
             val utcCalendar = Calendar.getInstance(
@@ -154,8 +208,11 @@ class MainActivity : Activity() {
             val second = utcCalendar.get(Calendar.SECOND)
 
             val fractionalDay =
-                day + (hour * 3600.0 +
-                minute * 60.0 + second) / 86400.0
+                day + (
+                    hour * 3600.0 +
+                    minute * 60.0 +
+                    second
+                ) / 86400.0
 
             val jd = Ephemera.julianDate(
                 year, month, fractionalDay
@@ -166,6 +223,8 @@ class MainActivity : Activity() {
             val lahiri = Ephemera.ayanamsa(
                 Ayanamsa.LAHIRI, tt
             )
+
+            // ASCENDANT
 
             val angles = Ephemera.ascMc(
                 jd, longitude, latitude
@@ -179,6 +238,10 @@ class MainActivity : Activity() {
                 angles.mc - lahiri
             )
 
+            val lagnaD9 = calculateNavamsa(lagnaSidereal)
+
+            // BIRTH DETAILS
+
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
             result.append("Date: $birthDay-$birthMonth-$birthYear\n")
@@ -190,28 +253,36 @@ class MainActivity : Activity() {
             result.append("JULIAN DAY\n$jd\n\n")
             result.append("LAHIRI AYANAMSA\n$lahiri°\n\n")
 
+            // LAGNA D1 + D9
+
             result.append("=============================\n")
             result.append("LAGNA - லக்னம்\n")
-            result.append("=============================\n")
-
-            result.append("Tropical Ascendant:\n")
-            result.append("${formatDegree(angles.asc)}\n\n")
-
-            result.append("Sidereal Ascendant:\n")
-            result.append("${formatDegree(lagnaSidereal)}\n\n")
-
-            result.append("லக்ன ராசி:\n")
-            result.append("${formatRasi(lagnaSidereal)}\n")
+            result.append("=============================\n\n")
 
             result.append(
-                "லக்ன நட்சத்திரம்: ${getNakshatra(lagnaSidereal)}\n\n"
+                "Tropical Ascendant:\n${formatDegree(angles.asc)}\n\n"
             )
 
-            result.append("MC - மத்தியான புள்ளி:\n")
-            result.append("${formatRasi(mcSidereal)}\n\n")
+            result.append(
+                "D1 Lagna:\n${formatRasi(lagnaSidereal)}\n"
+            )
+
+            result.append(
+                "Lagna Nakshatra: ${getNakshatra(lagnaSidereal)}\n\n"
+            )
+
+            result.append(
+                "D9 Navamsa Lagna:\n${lagnaD9.degree}\n\n"
+            )
+
+            result.append(
+                "MC:\n${formatRasi(mcSidereal)}\n\n"
+            )
+
+            // PLANETS D1 + D9
 
             result.append("=============================\n")
-            result.append("9 GRAHA POSITIONS - D1\n")
+            result.append("PLANETARY POSITIONS D1 + D9\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
@@ -226,6 +297,8 @@ class MainActivity : Activity() {
                     position.longitude - lahiri
                 )
 
+                val d9 = calculateNavamsa(sidereal)
+
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
                 } else {
@@ -233,18 +306,27 @@ class MainActivity : Activity() {
                 }
 
                 result.append("${graha.name}\n")
-                result.append(
-                    "Sidereal: ${formatDegree(sidereal)}\n"
-                )
+
                 result.append(
                     "D1: ${formatRasi(sidereal)}\n"
                 )
+
+                result.append(
+                    "D9: ${d9.degree}\n"
+                )
+
                 result.append(
                     "நட்சத்திரம்: ${getNakshatra(sidereal)}\n"
                 )
-                result.append("நிலை: $motion\n")
+
+                result.append(
+                    "நிலை: $motion\n"
+                )
+
                 result.append("--------------------------------\n\n")
             }
+
+            // RAHU
 
             val rahuPosition = Ephemera.position(
                 Body.MEAN_NODE, jd
@@ -258,24 +340,35 @@ class MainActivity : Activity() {
                 rahuSidereal + 180.0
             )
 
+            val rahuD9 = calculateNavamsa(rahuSidereal)
+            val ketuD9 = calculateNavamsa(ketuSidereal)
+
             result.append("ராகு - MEAN NODE\n")
-            result.append(
-                "Sidereal: ${formatDegree(rahuSidereal)}\n"
-            )
+
             result.append(
                 "D1: ${formatRasi(rahuSidereal)}\n"
             )
+
+            result.append(
+                "D9: ${rahuD9.degree}\n"
+            )
+
             result.append(
                 "நட்சத்திரம்: ${getNakshatra(rahuSidereal)}\n\n"
             )
 
+            // KETU
+
             result.append("கேது\n")
-            result.append(
-                "Sidereal: ${formatDegree(ketuSidereal)}\n"
-            )
+
             result.append(
                 "D1: ${formatRasi(ketuSidereal)}\n"
             )
+
+            result.append(
+                "D9: ${ketuD9.degree}\n"
+            )
+
             result.append(
                 "நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n"
             )
@@ -284,10 +377,12 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
+            result.append("Charts: D1 + D9\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
         } catch (e: Exception) {
+
             result.append("\nCALCULATION ERROR\n\n")
             result.append(e.toString())
         }
@@ -302,6 +397,7 @@ class MainActivity : Activity() {
 
         val scroll = ScrollView(this)
         scroll.addView(layout)
+
         setContentView(scroll)
     }
 }
