@@ -1,4 +1,3 @@
-
 package com.tamilnature.ephemeratest
 
 import android.app.Activity
@@ -380,9 +379,6 @@ class MainActivity : Activity() {
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 39)
 
-        // Odd signs: Aries
-        // Even signs: Libra
-
         val startingSign = if (signIndex % 2 == 0) 0 else 6
 
         val targetSign = (startingSign + division) % 12
@@ -408,10 +404,6 @@ class MainActivity : Activity() {
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 44)
 
-        // Movable: Aries
-        // Fixed: Leo
-        // Dual: Sagittarius
-
         val startingSign = when (signIndex % 3) {
             0 -> 0
             1 -> 4
@@ -430,11 +422,40 @@ class MainActivity : Activity() {
         )
     }
 
+    // D60 SHASHTIAMSA
+
+    private fun calculateShashtiamsa(longitude: Double): VargaPosition {
+        val normalized = normalize(longitude)
+        val signIndex = (normalized / 30.0).toInt()
+        val degreeInSign = normalized % 30.0
+        val size = 30.0 / 60.0
+
+        val division = (degreeInSign / size)
+            .toInt()
+            .coerceIn(0, 59)
+
+        // Odd signs: Aries
+        // Even signs: Libra
+
+        val startingSign = if (signIndex % 2 == 0) 0 else 6
+        val targetSign = (startingSign + division) % 12
+
+        val remaining = degreeInSign - division * size
+        val targetDegree = remaining * 60.0
+        val targetLongitude = targetSign * 30.0 + targetDegree
+
+        return VargaPosition(
+            normalize(targetLongitude),
+            rasiNames[targetSign],
+            formatRasi(targetLongitude)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40 + D45"
+            text = "Tamil Nature Astrology D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40 + D45 + D60"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -510,6 +531,7 @@ class MainActivity : Activity() {
             val lagnaD30 = calculateTrimshamsa(lagnaSidereal)
             val lagnaD40 = calculateKhavedamsa(lagnaSidereal)
             val lagnaD45 = calculateAkshavedamsa(lagnaSidereal)
+            val lagnaD60 = calculateShashtiamsa(lagnaSidereal)
 
             // BIRTH DETAILS
 
@@ -564,12 +586,13 @@ class MainActivity : Activity() {
             result.append("D30 Trimshamsa Lagna:\n${lagnaD30.degree}\n\n")
             result.append("D40 Khavedamsa Lagna:\n${lagnaD40.degree}\n\n")
             result.append("D45 Akshavedamsa Lagna:\n${lagnaD45.degree}\n\n")
+            result.append("D60 Shashtiamsa Lagna:\n${lagnaD60.degree}\n\n")
             result.append("MC:\n${formatRasi(mcSidereal)}\n\n")
 
             // PLANETARY POSITIONS
 
             result.append("=============================\n")
-            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40 + D45\n")
+            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40 + D45 + D60\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
@@ -589,6 +612,7 @@ class MainActivity : Activity() {
                 val d30 = calculateTrimshamsa(sidereal)
                 val d40 = calculateKhavedamsa(sidereal)
                 val d45 = calculateAkshavedamsa(sidereal)
+                val d60 = calculateShashtiamsa(sidereal)
 
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
@@ -609,6 +633,7 @@ class MainActivity : Activity() {
                 result.append("D30: ${d30.degree}\n")
                 result.append("D40: ${d40.degree}\n")
                 result.append("D45: ${d45.degree}\n")
+                result.append("D60: ${d60.degree}\n")
                 result.append("நட்சத்திரம்: ${getNakshatra(sidereal)}\n")
                 result.append("நிலை: $motion\n")
                 result.append("--------------------------------\n\n")
@@ -644,6 +669,8 @@ class MainActivity : Activity() {
             val ketuD40 = calculateKhavedamsa(ketuSidereal)
             val rahuD45 = calculateAkshavedamsa(rahuSidereal)
             val ketuD45 = calculateAkshavedamsa(ketuSidereal)
+            val rahuD60 = calculateShashtiamsa(rahuSidereal)
+            val ketuD60 = calculateShashtiamsa(ketuSidereal)
 
             result.append("ராகு - MEAN NODE\n")
             result.append("D1: ${formatRasi(rahuSidereal)}\n")
@@ -658,6 +685,7 @@ class MainActivity : Activity() {
             result.append("D30: ${rahuD30.degree}\n")
             result.append("D40: ${rahuD40.degree}\n")
             result.append("D45: ${rahuD45.degree}\n")
+            result.append("D60: ${rahuD60.degree}\n")
             result.append("நட்சத்திரம்: ${getNakshatra(rahuSidereal)}\n\n")
 
             result.append("கேது\n")
@@ -673,6 +701,7 @@ class MainActivity : Activity() {
             result.append("D30: ${ketuD30.degree}\n")
             result.append("D40: ${ketuD40.degree}\n")
             result.append("D45: ${ketuD45.degree}\n")
+            result.append("D60: ${ketuD60.degree}\n")
             result.append("நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n")
 
             // COMPLETION
@@ -681,7 +710,7 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
-            result.append("Charts: D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40 + D45\n")
+            result.append("Charts: D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40 + D45 + D60\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
