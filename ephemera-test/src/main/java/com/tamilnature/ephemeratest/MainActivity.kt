@@ -438,20 +438,21 @@ class MainActivity : Activity() {
         val result = StringBuilder()
 
         try {
-            // BIRTH DETAILS FROM PRINTED HOROSCOPE
+            // BIRTH DETAILS
 
             val birthYear = 1984
             val birthMonth = 11
             val birthDay = 19
             val birthHour = 19
             val birthMinute = 58
+            val birthSecond = 13
 
-            // ODDANCHATRAM - PRINTED HOROSCOPE COORDINATES
-            // Latitude: 10 degrees 30 minutes North
+            // ODDANCHATRAM COORDINATES
+            // Latitude: 10 degrees 28 minutes North
             // Longitude: 77 degrees 45 minutes East
 
-            val latitude = 10.50000
-            val longitude = 77.75000
+            val latitude = 10.4666667
+            val longitude = 77.750000
 
             // IST TO UTC
 
@@ -466,7 +467,7 @@ class MainActivity : Activity() {
                 birthDay,
                 birthHour,
                 birthMinute,
-                0
+                birthSecond
             )
             localCalendar.set(Calendar.MILLISECOND, 0)
 
@@ -498,7 +499,7 @@ class MainActivity : Activity() {
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
             result.append("Date: $birthDay-$birthMonth-$birthYear\n")
-            result.append("Birth Time: $birthHour:$birthMinute IST\n")
+            result.append("Birth Time: $birthHour:$birthMinute:$birthSecond IST\n")
             result.append("Place: Oddanchatram\n")
             result.append("UTC Time: $hour:$minute:$second\n")
             result.append("Latitude: $latitude\n")
