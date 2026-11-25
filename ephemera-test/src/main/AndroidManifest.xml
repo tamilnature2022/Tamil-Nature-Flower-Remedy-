@@ -1,9 +1,14 @@
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="false"
         android:label="Ephemera Test"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <activity
+            android:name=".DashaTestActivity"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"
