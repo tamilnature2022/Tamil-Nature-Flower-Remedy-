@@ -54,13 +54,6 @@ class MainActivity : Activity() {
         Graha("சனி", Body.SATURN)
     )
 
-    private val chartNames = listOf(
-        "D1", "D2", "D3", "D4",
-        "D7", "D9", "D10", "D12",
-        "D16", "D20", "D24", "D27",
-        "D30", "D40", "D45", "D60"
-    )
-
     private fun normalize(value: Double): Double {
         return ((value % 360.0) + 360.0) % 360.0
     }
@@ -107,7 +100,6 @@ class MainActivity : Activity() {
     ): VargaPosition {
 
         val normalized = normalize(longitude)
-        val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
         val size = 30.0 / divisions
 
@@ -129,8 +121,6 @@ class MainActivity : Activity() {
     }
 
     // D2 - HORA
-    // Odd signs: first half Leo, second half Cancer
-    // Even signs: first half Cancer, second half Leo
 
     private fun calculateHora(longitude: Double): VargaPosition {
         val normalized = normalize(longitude)
@@ -157,35 +147,27 @@ class MainActivity : Activity() {
     }
 
     // D3 - DREKKANA
-    // Same sign, 5th sign, 9th sign
 
     private fun calculateDrekkana(longitude: Double): VargaPosition {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
+        val degree = normalized % 30.0
 
-        val startingSign = signIndex
-        return makeVarga(
-            normalized,
-            3,
-            startingSign
-        ).let {
-            val degree = normalized % 30.0
-            val division = (degree / 10.0).toInt().coerceIn(0, 2)
-            val targetSign = (signIndex + division * 4) % 12
-            val remaining = degree - division * 10.0
-            val targetDegree = remaining * 3.0
-            val targetLongitude = targetSign * 30.0 + targetDegree
+        val division = (degree / 10.0).toInt().coerceIn(0, 2)
+        val targetSign = (signIndex + division * 4) % 12
 
-            VargaPosition(
-                normalize(targetLongitude),
-                rasiNames[targetSign],
-                formatRasi(targetLongitude)
-            )
-        }
+        val remaining = degree - division * 10.0
+        val targetDegree = remaining * 3.0
+        val targetLongitude = targetSign * 30.0 + targetDegree
+
+        return VargaPosition(
+            normalize(targetLongitude),
+            rasiNames[targetSign],
+            formatRasi(targetLongitude)
+        )
     }
 
     // D4 - CHATURTHAMSA
-    // Same sign, 4th, 7th, 10th
 
     private fun calculateChaturthamsa(longitude: Double): VargaPosition {
         val normalized = normalize(longitude)
@@ -211,6 +193,7 @@ class MainActivity : Activity() {
     private fun calculateSaptamsa(longitude: Double): VargaPosition {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
+
         val startingSign =
             if (signIndex % 2 == 0) signIndex else (signIndex + 6) % 12
 
@@ -269,11 +252,7 @@ class MainActivity : Activity() {
             else -> 8
         }
 
-        return makeVarga(
-            normalized,
-            16,
-            offset
-        )
+        return makeVarga(normalized, 16, offset)
     }
 
     // D20 - VIMSHAMSA
@@ -459,14 +438,22 @@ class MainActivity : Activity() {
         val result = StringBuilder()
 
         try {
+            // BIRTH DETAILS FROM PRINTED HOROSCOPE
+
             val birthYear = 1984
             val birthMonth = 11
             val birthDay = 19
             val birthHour = 19
             val birthMinute = 58
 
-            val latitude = 10.36896
-            val longitude = 77.98036
+            // ODDANCHATRAM - PRINTED HOROSCOPE COORDINATES
+            // Latitude: 10 degrees 30 minutes North
+            // Longitude: 77 degrees 45 minutes East
+
+            val latitude = 10.50000
+            val longitude = 77.75000
+
+            // IST TO UTC
 
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
@@ -486,6 +473,7 @@ class MainActivity : Activity() {
             val utcCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("UTC")
             )
+
             utcCalendar.timeInMillis = localCalendar.timeInMillis
 
             val year = utcCalendar.get(Calendar.YEAR)
@@ -511,7 +499,7 @@ class MainActivity : Activity() {
             result.append("-----------------------------\n")
             result.append("Date: $birthDay-$birthMonth-$birthYear\n")
             result.append("Birth Time: $birthHour:$birthMinute IST\n")
-            result.append("Place: Dindigul Center\n")
+            result.append("Place: Oddanchatram\n")
             result.append("UTC Time: $hour:$minute:$second\n")
             result.append("Latitude: $latitude\n")
             result.append("Longitude: $longitude\n\n")
@@ -599,6 +587,7 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
+            result.append("Place: Oddanchatram\n")
             result.append("Charts: 16 Shodashavarga\n")
             result.append(
                 "D1 + D2 + D3 + D4 + D7 + D9 + D10 + D12 + " +
