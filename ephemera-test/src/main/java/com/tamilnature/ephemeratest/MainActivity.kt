@@ -101,7 +101,6 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 9.0
 
         val division =
@@ -133,16 +132,13 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 3.0
 
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 9)
 
         val offset = if (signIndex % 2 == 0) 0 else 8
-
-        val targetSign =
-            (signIndex + offset + division) % 12
+        val targetSign = (signIndex + offset + division) % 12
 
         val remaining = degreeInSign - division * size
         val targetDegree = remaining * 10.0
@@ -161,16 +157,13 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 7.0
 
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 6)
 
         val offset = if (signIndex % 2 == 0) 0 else 6
-
-        val targetSign =
-            (signIndex + offset + division) % 12
+        val targetSign = (signIndex + offset + division) % 12
 
         val remaining = degreeInSign - division * size
         val targetDegree = remaining * 7.0
@@ -189,14 +182,12 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 12.0
 
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 11)
 
         val targetSign = (signIndex + division) % 12
-
         val remaining = degreeInSign - division * size
         val targetDegree = remaining * 12.0
         val targetLongitude = targetSign * 30.0 + targetDegree
@@ -214,7 +205,6 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 16.0
 
         val division =
@@ -227,7 +217,6 @@ class MainActivity : Activity() {
         }
 
         val targetSign = (offset + division) % 12
-
         val remaining = degreeInSign - division * size
         val targetDegree = remaining * 16.0
         val targetLongitude = targetSign * 30.0 + targetDegree
@@ -245,7 +234,6 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 20.0
 
         val division =
@@ -258,7 +246,6 @@ class MainActivity : Activity() {
         }
 
         val targetSign = (startingSign + division) % 12
-
         val remaining = degreeInSign - division * size
         val targetDegree = remaining * 20.0
         val targetLongitude = targetSign * 30.0 + targetDegree
@@ -276,14 +263,12 @@ class MainActivity : Activity() {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 24.0
 
         val division =
             (degreeInSign / size).toInt().coerceIn(0, 23)
 
         val startingSign = if (signIndex % 2 == 0) 4 else 3
-
         val targetSign = (startingSign + division) % 12
 
         val remaining = degreeInSign - division * size
@@ -297,13 +282,12 @@ class MainActivity : Activity() {
         )
     }
 
-    // D27 BHAMSHA / NAKSHATRAMSA
+    // D27 BHAMSHA
 
     private fun calculateBhamsha(longitude: Double): VargaPosition {
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
-
         val size = 30.0 / 27.0
 
         val division =
@@ -316,7 +300,6 @@ class MainActivity : Activity() {
         }
 
         val targetSign = (startingSign + division) % 12
-
         val remaining = degreeInSign - division * size
         val targetDegree = remaining * 27.0
         val targetLongitude = targetSign * 30.0 + targetDegree
@@ -329,10 +312,8 @@ class MainActivity : Activity() {
     }
 
     // D30 TRIMSHAMSA
-    // Parashara method: unequal five divisions
 
     private fun calculateTrimshamsa(longitude: Double): VargaPosition {
-
         val normalized = normalize(longitude)
         val signIndex = (normalized / 30.0).toInt()
         val degreeInSign = normalized % 30.0
@@ -344,14 +325,6 @@ class MainActivity : Activity() {
         )
 
         val divisions = if (signIndex % 2 == 0) {
-
-            // Odd signs:
-            // Mars 0-5 Aries
-            // Saturn 5-10 Aquarius
-            // Jupiter 10-18 Sagittarius
-            // Mercury 18-25 Gemini
-            // Venus 25-30 Libra
-
             listOf(
                 Division(5.0, 0, 5.0),
                 Division(10.0, 10, 5.0),
@@ -359,16 +332,7 @@ class MainActivity : Activity() {
                 Division(25.0, 2, 7.0),
                 Division(30.0, 6, 5.0)
             )
-
         } else {
-
-            // Even signs:
-            // Venus 0-5 Taurus
-            // Mercury 5-12 Virgo
-            // Jupiter 12-20 Pisces
-            // Saturn 20-25 Capricorn
-            // Mars 25-30 Scorpio
-
             listOf(
                 Division(5.0, 1, 5.0),
                 Division(12.0, 5, 7.0),
@@ -381,11 +345,8 @@ class MainActivity : Activity() {
         var lowerLimit = 0.0
 
         for (division in divisions) {
-
             if (degreeInSign < division.upperLimit) {
-
                 val remaining = degreeInSign - lowerLimit
-
                 val targetDegree =
                     remaining * (30.0 / division.segmentSize)
 
@@ -398,7 +359,6 @@ class MainActivity : Activity() {
                     formatRasi(targetLongitude)
                 )
             }
-
             lowerLimit = division.upperLimit
         }
 
@@ -409,11 +369,39 @@ class MainActivity : Activity() {
         )
     }
 
+    // D40 KHAVEDAMSA
+
+    private fun calculateKhavedamsa(longitude: Double): VargaPosition {
+        val normalized = normalize(longitude)
+        val signIndex = (normalized / 30.0).toInt()
+        val degreeInSign = normalized % 30.0
+        val size = 30.0 / 40.0
+
+        val division =
+            (degreeInSign / size).toInt().coerceIn(0, 39)
+
+        // Odd signs: Aries
+        // Even signs: Libra
+
+        val startingSign = if (signIndex % 2 == 0) 0 else 6
+
+        val targetSign = (startingSign + division) % 12
+        val remaining = degreeInSign - division * size
+        val targetDegree = remaining * 40.0
+        val targetLongitude = targetSign * 30.0 + targetDegree
+
+        return VargaPosition(
+            normalize(targetLongitude),
+            rasiNames[targetSign],
+            formatRasi(targetLongitude)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val title = TextView(this).apply {
-            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30"
+            text = "Tamil Nature - Astrology D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40"
             textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
@@ -428,28 +416,20 @@ class MainActivity : Activity() {
         val result = StringBuilder()
 
         try {
-
-            // BIRTH DETAILS
-
             val birthYear = 1984
             val birthMonth = 11
             val birthDay = 19
             val birthHour = 19
             val birthMinute = 58
 
-            // DINDIGUL CENTER COORDINATES
-
             val latitude = 10.36896
             val longitude = 77.98036
-
-            // IST TO UTC
 
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
             )
 
             localCalendar.isLenient = false
-
             localCalendar.set(
                 birthYear,
                 birthMonth - 1,
@@ -458,53 +438,31 @@ class MainActivity : Activity() {
                 birthMinute,
                 0
             )
-
             localCalendar.set(Calendar.MILLISECOND, 0)
 
             val utcCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("UTC")
             )
-
             utcCalendar.timeInMillis = localCalendar.timeInMillis
 
             val year = utcCalendar.get(Calendar.YEAR)
             val month = utcCalendar.get(Calendar.MONTH) + 1
             val day = utcCalendar.get(Calendar.DAY_OF_MONTH)
-
             val hour = utcCalendar.get(Calendar.HOUR_OF_DAY)
             val minute = utcCalendar.get(Calendar.MINUTE)
             val second = utcCalendar.get(Calendar.SECOND)
 
             val fractionalDay =
-                day + (
-                    hour * 3600.0 +
-                    minute * 60.0 +
-                    second
-                ) / 86400.0
+                day + (hour * 3600.0 + minute * 60.0 + second) / 86400.0
 
-            val jd = Ephemera.julianDate(
-                year, month, fractionalDay
-            )
-
+            val jd = Ephemera.julianDate(year, month, fractionalDay)
             val tt = Ephemera.utToTt(jd)
+            val lahiri = Ephemera.ayanamsa(Ayanamsa.LAHIRI, tt)
 
-            val lahiri = Ephemera.ayanamsa(
-                Ayanamsa.LAHIRI, tt
-            )
+            val angles = Ephemera.ascMc(jd, longitude, latitude)
 
-            // ASCENDANT
-
-            val angles = Ephemera.ascMc(
-                jd, longitude, latitude
-            )
-
-            val lagnaSidereal = normalize(
-                angles.asc - lahiri
-            )
-
-            val mcSidereal = normalize(
-                angles.mc - lahiri
-            )
+            val lagnaSidereal = normalize(angles.asc - lahiri)
+            val mcSidereal = normalize(angles.mc - lahiri)
 
             // LAGNA VARGAS
 
@@ -517,8 +475,9 @@ class MainActivity : Activity() {
             val lagnaD24 = calculateChaturvimshamsa(lagnaSidereal)
             val lagnaD27 = calculateBhamsha(lagnaSidereal)
             val lagnaD30 = calculateTrimshamsa(lagnaSidereal)
+            val lagnaD40 = calculateKhavedamsa(lagnaSidereal)
 
-            // BIRTH DETAILS OUTPUT
+            // BIRTH DETAILS
 
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
@@ -534,10 +493,8 @@ class MainActivity : Activity() {
             result.append("=============================\n")
             result.append("AYANAMSA DIAGNOSTIC\n")
             result.append("=============================\n\n")
-
             result.append("JD UT: $jd\n")
             result.append("JD TT: $tt\n")
-
             result.append(
                 "Lahiri Decimal: ${
                     String.format(Locale.US, "%.10f", lahiri)
@@ -560,7 +517,6 @@ class MainActivity : Activity() {
             result.append("=============================\n")
             result.append("LAGNA - லக்னம்\n")
             result.append("=============================\n\n")
-
             result.append("D1 Lagna:\n${formatRasi(lagnaSidereal)}\n")
             result.append("Lagna Nakshatra: ${getNakshatra(lagnaSidereal)}\n\n")
             result.append("D9 Navamsa Lagna:\n${lagnaD9.degree}\n\n")
@@ -572,25 +528,20 @@ class MainActivity : Activity() {
             result.append("D24 Chaturvimshamsa Lagna:\n${lagnaD24.degree}\n\n")
             result.append("D27 Bhamsha Lagna:\n${lagnaD27.degree}\n\n")
             result.append("D30 Trimshamsa Lagna:\n${lagnaD30.degree}\n\n")
+            result.append("D40 Khavedamsa Lagna:\n${lagnaD40.degree}\n\n")
             result.append("MC:\n${formatRasi(mcSidereal)}\n\n")
 
             // PLANETARY POSITIONS
 
             result.append("=============================\n")
-            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30\n")
+            result.append("PLANETARY POSITIONS D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
+                val position = Ephemera.position(graha.body, jd)
+                    ?: throw Exception("${graha.name} position unavailable")
 
-                val position = Ephemera.position(
-                    graha.body, jd
-                ) ?: throw Exception(
-                    "${graha.name} position unavailable"
-                )
-
-                val sidereal = normalize(
-                    position.longitude - lahiri
-                )
+                val sidereal = normalize(position.longitude - lahiri)
 
                 val d9 = calculateNavamsa(sidereal)
                 val d10 = calculateDasamsa(sidereal)
@@ -601,6 +552,7 @@ class MainActivity : Activity() {
                 val d24 = calculateChaturvimshamsa(sidereal)
                 val d27 = calculateBhamsha(sidereal)
                 val d30 = calculateTrimshamsa(sidereal)
+                val d40 = calculateKhavedamsa(sidereal)
 
                 val motion = if (position.isRetrograde) {
                     "வக்கிரம் (வ)"
@@ -619,6 +571,7 @@ class MainActivity : Activity() {
                 result.append("D24: ${d24.degree}\n")
                 result.append("D27: ${d27.degree}\n")
                 result.append("D30: ${d30.degree}\n")
+                result.append("D40: ${d40.degree}\n")
                 result.append("நட்சத்திரம்: ${getNakshatra(sidereal)}\n")
                 result.append("நிலை: $motion\n")
                 result.append("--------------------------------\n\n")
@@ -626,44 +579,32 @@ class MainActivity : Activity() {
 
             // RAHU AND KETU
 
-            val rahuPosition = Ephemera.position(
-                Body.MEAN_NODE, jd
-            ) ?: throw Exception("Mean Node unavailable")
+            val rahuPosition = Ephemera.position(Body.MEAN_NODE, jd)
+                ?: throw Exception("Mean Node unavailable")
 
-            val rahuSidereal = normalize(
-                rahuPosition.longitude - lahiri
-            )
-
-            val ketuSidereal = normalize(
-                rahuSidereal + 180.0
-            )
+            val rahuSidereal = normalize(rahuPosition.longitude - lahiri)
+            val ketuSidereal = normalize(rahuSidereal + 180.0)
 
             val rahuD9 = calculateNavamsa(rahuSidereal)
             val ketuD9 = calculateNavamsa(ketuSidereal)
-
             val rahuD10 = calculateDasamsa(rahuSidereal)
             val ketuD10 = calculateDasamsa(ketuSidereal)
-
             val rahuD7 = calculateSaptamsa(rahuSidereal)
             val ketuD7 = calculateSaptamsa(ketuSidereal)
-
             val rahuD12 = calculateDwadasamsa(rahuSidereal)
             val ketuD12 = calculateDwadasamsa(ketuSidereal)
-
             val rahuD16 = calculateShodashamsa(rahuSidereal)
             val ketuD16 = calculateShodashamsa(ketuSidereal)
-
             val rahuD20 = calculateVimshamsa(rahuSidereal)
             val ketuD20 = calculateVimshamsa(ketuSidereal)
-
             val rahuD24 = calculateChaturvimshamsa(rahuSidereal)
             val ketuD24 = calculateChaturvimshamsa(ketuSidereal)
-
             val rahuD27 = calculateBhamsha(rahuSidereal)
             val ketuD27 = calculateBhamsha(ketuSidereal)
-
             val rahuD30 = calculateTrimshamsa(rahuSidereal)
             val ketuD30 = calculateTrimshamsa(ketuSidereal)
+            val rahuD40 = calculateKhavedamsa(rahuSidereal)
+            val ketuD40 = calculateKhavedamsa(ketuSidereal)
 
             result.append("ராகு - MEAN NODE\n")
             result.append("D1: ${formatRasi(rahuSidereal)}\n")
@@ -676,6 +617,7 @@ class MainActivity : Activity() {
             result.append("D24: ${rahuD24.degree}\n")
             result.append("D27: ${rahuD27.degree}\n")
             result.append("D30: ${rahuD30.degree}\n")
+            result.append("D40: ${rahuD40.degree}\n")
             result.append("நட்சத்திரம்: ${getNakshatra(rahuSidereal)}\n\n")
 
             result.append("கேது\n")
@@ -689,6 +631,7 @@ class MainActivity : Activity() {
             result.append("D24: ${ketuD24.degree}\n")
             result.append("D27: ${ketuD27.degree}\n")
             result.append("D30: ${ketuD30.degree}\n")
+            result.append("D40: ${ketuD40.degree}\n")
             result.append("நட்சத்திரம்: ${getNakshatra(ketuSidereal)}\n")
 
             // COMPLETION
@@ -697,12 +640,11 @@ class MainActivity : Activity() {
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
-            result.append("Charts: D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30\n")
+            result.append("Charts: D1 + D9 + D10 + D7 + D12 + D16 + D20 + D24 + D27 + D30 + D40\n")
             result.append("Nakshatra: 27\n")
             result.append("Pada: 108\n")
 
         } catch (e: Exception) {
-
             result.append("\nCALCULATION ERROR\n\n")
             result.append(e.toString())
         }
@@ -717,7 +659,6 @@ class MainActivity : Activity() {
 
         val scroll = ScrollView(this)
         scroll.addView(layout)
-
         setContentView(scroll)
     }
 }
