@@ -28,4 +28,6 @@ android {
 
 dependencies {
     implementation("com.github.intellecat:ephemera:0.4.1")
+
+    testImplementation("junit:junit:4.13.2")
 }
