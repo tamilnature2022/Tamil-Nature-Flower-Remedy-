@@ -1,156 +1,209 @@
 
 package com.tamilnature.ephemeratest
 
+import android.app.Activity
+import android.os.Bundle
+import android.graphics.Color
+import android.view.Gravity
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import java.time.LocalDate
+import java.util.Locale
 
-object VimshottariDasha {
+class DashaTestActivity : Activity() {
 
-    private val planets = listOf(
-        "கேது",
-        "சுக்கிரன்",
-        "சூரியன்",
-        "சந்திரன்",
-        "செவ்வாய்",
-        "ராகு",
-        "குரு",
-        "சனி",
-        "புதன்"
+    private val nakshatraNames = listOf(
+        "அசுவினி", "பரணி", "கார்த்திகை",
+        "ரோகிணி", "மிருகசீரிடம்", "திருவாதிரை",
+        "புனர்பூசம்", "பூசம்", "ஆயில்யம்",
+        "மகம்", "பூரம்", "உத்திரம்",
+        "அஸ்தம்", "சித்திரை", "சுவாதி",
+        "விசாகம்", "அனுஷம்", "கேட்டை",
+        "மூலம்", "பூராடம்", "உத்திராடம்",
+        "திருவோணம்", "அவிட்டம்", "சதயம்",
+        "பூரட்டாதி", "உத்திரட்டாதி", "ரேவதி"
     )
 
-    private val years = listOf(
+    private val dashaLords = listOf(
+        "கேது", "சுக்கிரன்", "சூரியன்",
+        "சந்திரன்", "செவ்வாய்", "ராகு",
+        "குரு", "சனி", "புதன்"
+    )
+
+    private val dashaYears = listOf(
         7.0, 20.0, 6.0, 10.0, 7.0,
         18.0, 16.0, 19.0, 17.0
     )
 
-    data class DashaPeriod(
-        val planet: String,
-        val startDate: LocalDate,
-        val endDate: LocalDate
-    )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    data class AntardashaPeriod(
-        val mahadashaLord: String,
-        val antardashaLord: String,
-        val startDate: LocalDate,
-        val endDate: LocalDate
-    )
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 32, 32, 32)
+            setBackgroundColor(Color.WHITE)
+        }
 
-    private const val NAKSHATRA_SIZE = 360.0 / 27.0
-    private const val TOTAL_DASHA_YEARS = 120.0
-    private const val YEAR_DAYS = 365.25
+        val scrollView = ScrollView(this)
+        scrollView.addView(layout)
+        setContentView(scrollView)
 
-    private fun normalize(longitude: Double): Double {
-        return ((longitude % 360.0) + 360.0) % 360.0
-    }
+        addText(layout, "VIMSHOTTARI DASHA DIAGNOSTIC", 24)
+        addText(layout, "TamilNature Astrology", 18)
 
-    fun calculateMahadasha(
-        birthDate: LocalDate,
-        moonLongitude: Double
-    ): List<DashaPeriod> {
+        val birthDate = LocalDate.of(1984, 11, 19)
 
-        val longitude = normalize(moonLongitude)
+        val moonLongitude = 167.91361111111112
+
+        val nakshatraSize = 360.0 / 27.0
 
         val nakshatraIndex =
-            (longitude / NAKSHATRA_SIZE).toInt()
+            (moonLongitude / nakshatraSize).toInt()
 
         val nakshatraStart =
-            nakshatraIndex * NAKSHATRA_SIZE
+            nakshatraIndex * nakshatraSize
 
         val travelled =
-            longitude - nakshatraStart
+            moonLongitude - nakshatraStart
+
+        val travelledFraction =
+            travelled / nakshatraSize
 
         val remainingFraction =
-            (NAKSHATRA_SIZE - travelled) / NAKSHATRA_SIZE
+            (nakshatraSize - travelled) / nakshatraSize
 
-        val birthLordIndex = nakshatraIndex % 9
+        val birthLordIndex =
+            nakshatraIndex % 9
+
+        val birthLord =
+            dashaLords[birthLordIndex]
+
+        val fullDashaYears =
+            dashaYears[birthLordIndex]
 
         val balanceYears =
-            years[birthLordIndex] * remainingFraction
+            fullDashaYears * remainingFraction
 
         val balanceDays =
-            balanceYears * YEAR_DAYS
+            balanceYears * 365.25
 
-        val firstEndDate =
+        val calculatedBalanceDate =
             birthDate.plusDays(balanceDays.toLong())
 
-        val result = mutableListOf<DashaPeriod>()
+        addText(layout, "BIRTH DETAILS", 22)
+        addText(layout, "Birth Date: $birthDate", 18)
+        addText(layout, "Moon Longitude: ${String.format(Locale.US, "%.10f", moonLongitude)}°", 18)
 
-        result.add(
-            DashaPeriod(
-                planet = planets[birthLordIndex],
-                startDate = birthDate,
-                endDate = firstEndDate
-            )
+        addText(layout, "DIAGNOSTIC CALCULATION", 22)
+
+        addText(
+            layout,
+            "Nakshatra Index: $nakshatraIndex",
+            18
         )
 
-        var currentDate = firstEndDate
+        addText(
+            layout,
+            "Nakshatra: ${nakshatraNames[nakshatraIndex]}",
+            18
+        )
 
-        for (i in 1 until 9) {
+        addText(
+            layout,
+            "Nakshatra Start: ${String.format(Locale.US, "%.10f", nakshatraStart)}°",
+            18
+        )
 
-            val lordIndex =
-                (birthLordIndex + i) % 9
+        addText(
+            layout,
+            "Travelled Degrees: ${String.format(Locale.US, "%.10f", travelled)}°",
+            18
+        )
 
-            val durationDays =
-                years[lordIndex] * YEAR_DAYS
+        addText(
+            layout,
+            "Travelled Fraction: ${String.format(Locale.US, "%.10f", travelledFraction)}",
+            18
+        )
 
-            val endDate =
-                currentDate.plusDays(durationDays.toLong())
+        addText(
+            layout,
+            "Remaining Fraction: ${String.format(Locale.US, "%.10f", remainingFraction)}",
+            18
+        )
 
-            result.add(
-                DashaPeriod(
-                    planet = planets[lordIndex],
-                    startDate = currentDate,
-                    endDate = endDate
-                )
+        addText(layout, "DASHA BALANCE", 22)
+
+        addText(
+            layout,
+            "Dasha Lord: $birthLord",
+            18
+        )
+
+        addText(
+            layout,
+            "Full Dasha Years: $fullDashaYears",
+            18
+        )
+
+        addText(
+            layout,
+            "Balance Years: ${String.format(Locale.US, "%.10f", balanceYears)}",
+            18
+        )
+
+        addText(
+            layout,
+            "Balance Days: ${String.format(Locale.US, "%.10f", balanceDays)}",
+            18
+        )
+
+        addText(
+            layout,
+            "Balance Days (Integer): ${balanceDays.toLong()}",
+            18
+        )
+
+        addText(
+            layout,
+            "Calculated Balance End Date: $calculatedBalanceDate",
+            20
+        )
+
+        addText(layout, "CURRENT ENGINE OUTPUT", 22)
+
+        val mahadashas =
+            VimshottariDasha.calculateMahadasha(
+                birthDate,
+                moonLongitude
             )
 
-            currentDate = endDate
+        mahadashas.forEach { dasha ->
+
+            addText(
+                layout,
+                "${dasha.planet}\n${dasha.startDate} → ${dasha.endDate}",
+                18
+            )
         }
 
-        return result
+        addText(layout, "DIAGNOSTIC COMPLETE", 22)
     }
 
-    fun calculateAntardasha(
-        mahadasha: DashaPeriod
-    ): List<AntardashaPeriod> {
-
-        val mdIndex =
-            planets.indexOf(mahadasha.planet)
-
-        if (mdIndex < 0) return emptyList()
-
-        val result = mutableListOf<AntardashaPeriod>()
-
-        var currentDate = mahadasha.startDate
-
-        for (i in 0 until 9) {
-
-            val adIndex =
-                (mdIndex + i) % 9
-
-            val durationYears =
-                years[mdIndex] *
-                years[adIndex] /
-                TOTAL_DASHA_YEARS
-
-            val durationDays =
-                durationYears * YEAR_DAYS
-
-            val endDate =
-                currentDate.plusDays(durationDays.toLong())
-
-            result.add(
-                AntardashaPeriod(
-                    mahadashaLord = mahadasha.planet,
-                    antardashaLord = planets[adIndex],
-                    startDate = currentDate,
-                    endDate = endDate
-                )
-            )
-
-            currentDate = endDate
+    private fun addText(
+        layout: LinearLayout,
+        text: String,
+        size: Int
+    ) {
+        val view = TextView(this).apply {
+            this.text = text
+            textSize = size.toFloat()
+            setTextColor(Color.BLACK)
+            setPadding(0, 12, 0, 12)
+            gravity = Gravity.START
         }
 
-        return result
+        layout.addView(view)
     }
 }
