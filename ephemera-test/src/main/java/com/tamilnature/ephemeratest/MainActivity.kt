@@ -8,6 +8,8 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Button
+import android.content.Intent
 import io.github.intellecat.ephemera.*
 import java.util.Calendar
 import java.util.TimeZone
@@ -604,9 +606,26 @@ class MainActivity : Activity() {
 
         output.text = result.toString()
 
+        // VIMSHOTTARI DASHA TEST BUTTON
+
+        val dashaButton = Button(this).apply {
+            text = "VIMSHOTTARI DASHA TEST"
+            textSize = 18f
+
+            setOnClickListener {
+                startActivity(
+                    Intent(
+                        this@MainActivity,
+                        DashaTestActivity::class.java
+                    )
+                )
+            }
+        }
+
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(title)
+            addView(dashaButton)
             addView(output)
         }
 
