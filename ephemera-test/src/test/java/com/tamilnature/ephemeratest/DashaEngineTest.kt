@@ -76,7 +76,7 @@ class DashaEngineTest {
             6.6666666667
         )
         assertEquals(
-            LocalDate.of(2003, 7, 2),
+            LocalDate.of(2000, 1, 1).plusDays(1278),
             result.first().endDate
         )
     }
@@ -109,10 +109,7 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateAntardasha(md)
 
-        assertEquals(
-            md.startDate,
-            result.first().startDate
-        )
+        assertEquals(md.startDate, result.first().startDate)
         assertTrue(result.first().endDate.isAfter(md.startDate))
     }
 
@@ -125,10 +122,7 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateAntardasha(md)
 
-        assertEquals(
-            md.endDate,
-            result.last().endDate
-        )
+        assertEquals(md.endDate, result.last().endDate)
     }
 
     @Test
@@ -162,6 +156,23 @@ class DashaEngineTest {
         ).first()
 
         val result = VimshottariDasha.calculateAntardasha(md)
+
+        assertEquals(9, result.size)
+
+        for (i in 0 until result.size - 1) {
+            assertEquals(
+                result[i].endDate,
+                result[i + 1].startDate
+            )
+        }
+    }
+
+    @Test
+    fun mahadashaDatesHaveNoGapOrOverlap() {
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        )
 
         assertEquals(9, result.size)
 
