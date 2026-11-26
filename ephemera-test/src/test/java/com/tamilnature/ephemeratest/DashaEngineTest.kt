@@ -215,24 +215,20 @@ class DashaEngineTest {
             0.0
         )
 
-        // Full Ketu Mahadasha: 7 years
         assertEquals("கேது", result[0].planet)
         assertEquals(7.0, result[0].years, 0.001)
 
-        // Ketu ends on December 31, 2006
         assertEquals(
             LocalDate.of(2006, 12, 31),
             result[0].endDate
         )
 
-        // Venus starts immediately after Ketu
         assertEquals("சுக்கிரன்", result[1].planet)
         assertEquals(
             result[0].endDate,
             result[1].startDate
         )
 
-        // Venus Mahadasha: 20 years
         assertEquals(20.0, result[1].years, 0.001)
 
         assertEquals(
@@ -274,6 +270,69 @@ class DashaEngineTest {
                 "Nakshatra index $i mapping failed",
                 expectedLords[i],
                 result.first().planet
+            )
+        }
+    }
+
+    @Test
+    fun all26NakshatraBoundariesSwitchToCorrectLord() {
+
+        val expectedLords = listOf(
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்",
+
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்",
+
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்"
+        )
+
+        val nakshatraSize = 360.0 / 27.0
+        val epsilon = 0.00000001
+
+        for (boundary in 1 until 27) {
+
+            val longitude =
+                boundary * nakshatraSize
+
+            val beforeLongitude =
+                longitude - epsilon
+
+            val afterLongitude =
+                longitude + epsilon
+
+            val beforeResult =
+                VimshottariDasha.calculateMahadasha(
+                    LocalDate.of(2000, 1, 1),
+                    beforeLongitude
+                )
+
+            val afterResult =
+                VimshottariDasha.calculateMahadasha(
+                    LocalDate.of(2000, 1, 1),
+                    afterLongitude
+                )
+
+            val expectedBefore =
+                expectedLords[boundary - 1]
+
+            val expectedAfter =
+                expectedLords[boundary]
+
+            assertEquals(
+                "Boundary $boundary: lord before boundary incorrect",
+                expectedBefore,
+                beforeResult.first().planet
+            )
+
+            assertEquals(
+                "Boundary $boundary: lord after boundary incorrect",
+                expectedAfter,
+                afterResult.first().planet
             )
         }
     }
