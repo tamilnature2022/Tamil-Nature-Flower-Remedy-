@@ -1,3 +1,4 @@
+
 package com.tamilnature.ephemeratest
 
 import org.junit.Test
@@ -91,6 +92,27 @@ class DashaEngineTest {
 
         val actualTotal = years.sum()
 
-        assertEquals(expectedTotal, actualTotal, 0.000001)
+        assertEquals(
+            expectedTotal,
+            actualTotal,
+            0.000001
+        )
+    }
+
+    @Test
+    fun mahadashaBalanceAtHalfNakshatraIsCorrect() {
+
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        )
+
+        assertEquals("கேது", result.first().planet)
+
+        assertEquals(
+            3.5,
+            result.first().years,
+            0.000001
+        )
     }
 }
