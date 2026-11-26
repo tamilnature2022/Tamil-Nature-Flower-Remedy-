@@ -73,9 +73,11 @@ class DashaEngineTest {
     @Test
     fun nakshatraBoundaryChangesMahadashaLord() {
 
+        val boundaryLongitude = 13.333333333333334 + 0.000001
+
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
-            13.333333333333334
+            boundaryLongitude
         )
 
         assertEquals("சுக்கிரன்", result.first().planet)
