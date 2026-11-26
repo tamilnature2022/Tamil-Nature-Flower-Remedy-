@@ -1,4 +1,3 @@
-
 package com.tamilnature.ephemeratest
 
 import android.app.Activity
@@ -23,10 +22,7 @@ class MainActivity : Activity() {
         "தனுசு", "மகரம்", "கும்பம்", "மீனம்"
     )
 
-    private data class Graha(
-        val name: String,
-        val body: Body
-    )
+    private data class Graha(val name: String, val body: Body)
 
     private val grahas = listOf(
         Graha("சூரியன்", Body.SUN),
@@ -38,22 +34,18 @@ class MainActivity : Activity() {
         Graha("சனி", Body.SATURN)
     )
 
-    private fun normalize(value: Double): Double {
-        return ((value % 360.0) + 360.0) % 360.0
-    }
+    private fun normalize(value: Double): Double =
+        ((value % 360.0) + 360.0) % 360.0
 
-    private fun signIndex(longitude: Double): Int {
-        return (normalize(longitude) / 30.0).toInt()
-    }
+    private fun signIndex(longitude: Double): Int =
+        (normalize(longitude) / 30.0).toInt()
 
     private fun houseNumber(
         planetLongitude: Double,
         lagnaLongitude: Double
     ): Int {
-        val planetSign = signIndex(planetLongitude)
-        val lagnaSign = signIndex(lagnaLongitude)
-
-        return ((planetSign - lagnaSign + 12) % 12) + 1
+        return ((signIndex(planetLongitude) -
+            signIndex(lagnaLongitude) + 12) % 12) + 1
     }
 
     private fun formatRasi(longitude: Double): String {
@@ -76,29 +68,25 @@ class MainActivity : Activity() {
         )
     }
 
-    private fun formatDegree(value: Double): String {
-        return String.format(Locale.US, "%.6f°", value)
-    }
+    private fun formatDegree(value: Double): String =
+        String.format(Locale.US, "%.6f°", value)
 
     private fun createCell(
         text: String,
-        bold: Boolean = false,
-        background: Int = Color.WHITE
+        bold: Boolean = false
     ): TextView {
-
         return TextView(this).apply {
             this.text = text
             textSize = 14f
             gravity = Gravity.CENTER
             setPadding(5, 10, 5, 10)
-            setBackgroundColor(background)
             setTextColor(Color.BLACK)
 
-            if (bold) {
-                typeface = Typeface.DEFAULT_BOLD
-            }
+            if (bold) typeface = Typeface.DEFAULT_BOLD
 
-            setBackgroundResource(android.R.drawable.editbox_background)
+            setBackgroundResource(
+                android.R.drawable.editbox_background
+            )
         }
     }
 
@@ -114,21 +102,19 @@ class MainActivity : Activity() {
             setPadding(4, 4, 4, 4)
         }
 
-        // South Indian fixed Rasi positions
-
         val coordinates = arrayOf(
-            intArrayOf(0, 1), // Aries
-            intArrayOf(0, 2), // Taurus
-            intArrayOf(0, 3), // Gemini
-            intArrayOf(1, 3), // Cancer
-            intArrayOf(2, 3), // Leo
-            intArrayOf(3, 3), // Virgo
-            intArrayOf(3, 2), // Libra
-            intArrayOf(3, 1), // Scorpio
-            intArrayOf(3, 0), // Sagittarius
-            intArrayOf(2, 0), // Capricorn
-            intArrayOf(1, 0), // Aquarius
-            intArrayOf(0, 0)  // Pisces
+            intArrayOf(0, 1),
+            intArrayOf(0, 2),
+            intArrayOf(0, 3),
+            intArrayOf(1, 3),
+            intArrayOf(2, 3),
+            intArrayOf(3, 3),
+            intArrayOf(3, 2),
+            intArrayOf(3, 1),
+            intArrayOf(3, 0),
+            intArrayOf(2, 0),
+            intArrayOf(1, 0),
+            intArrayOf(0, 0)
         )
 
         val cells = Array(4) { Array(4) { "" } }
@@ -137,15 +123,13 @@ class MainActivity : Activity() {
 
             val row = coordinates[sign][0]
             val col = coordinates[sign][1]
-
             val bhava = ((sign - lagnaSign + 12) % 12) + 1
 
             val text = StringBuilder()
 
             text.append(rasiNames[sign])
             text.append("\n")
-            text.append("பாவம் $bhava")
-            text.append("\n")
+            text.append("பாவம் $bhava\n")
 
             if (sign == lagnaSign) {
                 text.append("Lagna (L)\n")
@@ -156,8 +140,7 @@ class MainActivity : Activity() {
             }.keys
 
             if (occupants.isNotEmpty()) {
-
-                val displayedOccupants = occupants.map { name ->
+                val displayed = occupants.map { name ->
                     if (name in retrogradeNames) {
                         "$name (R)"
                     } else {
@@ -165,9 +148,7 @@ class MainActivity : Activity() {
                     }
                 }
 
-                text.append(
-                    displayedOccupants.joinToString(" ")
-                )
+                text.append(displayed.joinToString(" "))
             }
 
             cells[row][col] = text.toString()
@@ -181,20 +162,16 @@ class MainActivity : Activity() {
                 val cellText = if (
                     row in 1..2 && col in 1..2
                 ) {
-                    when {
-                        row == 1 && col == 1 ->
-                            "TAMIL NATURE\n\nD1 RASI CHART"
-
-                        else -> ""
+                    if (row == 1 && col == 1) {
+                        "TAMIL NATURE\n\nD1 RASI CHART"
+                    } else {
+                        ""
                     }
                 } else {
                     text
                 }
 
-                val cell = createCell(
-                    cellText,
-                    bold = true
-                )
+                val cell = createCell(cellText, true)
 
                 val params = GridLayout.LayoutParams().apply {
                     rowSpec = GridLayout.spec(row, 1, 1f)
@@ -241,12 +218,10 @@ class MainActivity : Activity() {
             val birthHour = 19
             val birthMinute = 58
 
-            // Oddanchatram coordinates
-
             val latitude = 10.48013
             val longitude = 77.74977
 
-            // IST to UTC
+            // IST TO UTC
 
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
@@ -282,7 +257,7 @@ class MainActivity : Activity() {
 
             val fractionalDay =
                 day + (hour * 3600.0 +
-                minute * 60.0 + second) / 86400.0
+                    minute * 60.0 + second) / 86400.0
 
             val jd = Ephemera.julianDate(
                 year, month, fractionalDay
@@ -308,13 +283,19 @@ class MainActivity : Activity() {
 
             val lagnaSign = signIndex(lagnaSidereal)
 
-            // Graha positions
+            // PLANET VALIDATION DATA
 
             val planetPositions =
                 mutableMapOf<String, Double>()
 
+            val tropicalPositions =
+                mutableMapOf<String, Double>()
+
             val retrogradeNames =
                 mutableSetOf<String>()
+
+            val retrogradeStatus =
+                mutableMapOf<String, String>()
 
             for (graha in grahas) {
 
@@ -324,22 +305,40 @@ class MainActivity : Activity() {
                     "${graha.name} position unavailable"
                 )
 
+                tropicalPositions[graha.name] =
+                    normalize(position.longitude)
+
                 planetPositions[graha.name] =
                     normalize(position.longitude - lahiri)
+
+                retrogradeStatus[graha.name] =
+                    if (position.isRetrograde) {
+                        "வக்கிரம் (R)"
+                    } else {
+                        "நேர்கதி (D)"
+                    }
 
                 if (position.isRetrograde) {
                     retrogradeNames.add(graha.name)
                 }
             }
 
-            // Rahu and Ketu
+            // RAHU & KETU
 
             val rahuPosition = Ephemera.position(
                 Body.MEAN_NODE, jd
             ) ?: throw Exception("Mean Node unavailable")
 
+            val rahuTropical = normalize(
+                rahuPosition.longitude
+            )
+
             val rahuSidereal = normalize(
-                rahuPosition.longitude - lahiri
+                rahuTropical - lahiri
+            )
+
+            val ketuTropical = normalize(
+                rahuTropical + 180.0
             )
 
             val ketuSidereal = normalize(
@@ -348,6 +347,9 @@ class MainActivity : Activity() {
 
             planetPositions["ராகு"] = rahuSidereal
             planetPositions["கேது"] = ketuSidereal
+
+            tropicalPositions["ராகு"] = rahuTropical
+            tropicalPositions["கேது"] = ketuTropical
 
             // D1 CHART
 
@@ -369,66 +371,67 @@ class MainActivity : Activity() {
                 )
             )
 
-            // Detailed report
+            // BIRTH DETAILS
 
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
-            result.append(
-                "Date: $birthDay-$birthMonth-$birthYear\n"
-            )
-            result.append(
-                "Time: $birthHour:$birthMinute IST\n"
-            )
-            result.append(
-                "UTC: $hour:$minute:$second\n"
-            )
-            result.append(
-                "Latitude: $latitude\n"
-            )
-            result.append(
-                "Longitude: $longitude\n\n"
-            )
+            result.append("Date: $birthDay-$birthMonth-$birthYear\n")
+            result.append("Time: $birthHour:$birthMinute IST\n")
+            result.append("UTC: $hour:$minute:$second\n")
+            result.append("Latitude: $latitude\n")
+            result.append("Longitude: $longitude\n\n")
 
             result.append("JD: $jd\n")
-            result.append("Lahiri: $lahiri°\n\n")
+            result.append("TT: $tt\n")
+            result.append("Lahiri Ayanamsa: ${formatDegree(lahiri)}\n\n")
+
+            // LAGNA VALIDATION
 
             result.append("=============================\n")
-            result.append("LAGNA\n")
+            result.append("LAGNA VALIDATION\n")
             result.append("=============================\n")
+
             result.append(
-                "Tropical: ${formatDegree(angles.asc)}\n"
-            )
-            result.append(
-                "Sidereal: ${formatDegree(lagnaSidereal)}\n"
-            )
-            result.append(
-                "Lagna: ${formatRasi(lagnaSidereal)}\n\n"
+                "Tropical Ascendant: ${formatDegree(angles.asc)}\n"
             )
 
             result.append(
-                "MC: ${formatRasi(mcSidereal)}\n\n"
+                "Ayanamsa: ${formatDegree(lahiri)}\n"
             )
 
+            result.append(
+                "Sidereal Ascendant: ${formatDegree(lagnaSidereal)}\n"
+            )
+
+            result.append(
+                "Final Lagna: ${formatRasi(lagnaSidereal)}\n\n"
+            )
+
+            result.append(
+                "Tropical MC: ${formatDegree(angles.mc)}\n"
+            )
+
+            result.append(
+                "Sidereal MC: ${formatDegree(mcSidereal)}\n"
+            )
+
+            result.append(
+                "Final MC: ${formatRasi(mcSidereal)}\n\n"
+            )
+
+            // GRAHA VALIDATION
+
             result.append("=============================\n")
-            result.append("GRAHA DETAILS\n")
+            result.append("GRAHA VALIDATION\n")
             result.append("=============================\n\n")
 
             for (graha in grahas) {
 
-                val position = Ephemera.position(
-                    graha.body, jd
-                )!!
+                val tropical =
+                    tropicalPositions[graha.name]!!
 
                 val sidereal =
                     planetPositions[graha.name]!!
-
-                val motion = if (
-                    position.isRetrograde
-                ) {
-                    "வக்கிரம்"
-                } else {
-                    "நேர்கதி"
-                }
 
                 val house = houseNumber(
                     sidereal,
@@ -436,45 +439,71 @@ class MainActivity : Activity() {
                 )
 
                 result.append("${graha.name}\n")
+
                 result.append(
-                    "Position: ${formatRasi(sidereal)}\n"
+                    "Tropical: ${formatDegree(tropical)}\n"
                 )
+
+                result.append(
+                    "Lahiri: ${formatDegree(lahiri)}\n"
+                )
+
+                result.append(
+                    "Sidereal: ${formatDegree(sidereal)}\n"
+                )
+
+                result.append(
+                    "Final Position: ${formatRasi(sidereal)}\n"
+                )
+
                 result.append(
                     "House: $house\n"
                 )
+
                 result.append(
-                    "Motion: $motion\n"
+                    "Motion: ${retrogradeStatus[graha.name]}\n"
                 )
+
                 result.append("-----------------------------\n")
             }
 
+            // NODE VALIDATION
+
             result.append("\nராகு\n")
             result.append(
-                formatRasi(rahuSidereal)
+                "Tropical: ${formatDegree(rahuTropical)}\n"
             )
             result.append(
-                "\nHouse: ${
-                    houseNumber(
-                        rahuSidereal,
-                        lagnaSidereal
-                    )
-                }\n\n"
+                "Lahiri: ${formatDegree(lahiri)}\n"
+            )
+            result.append(
+                "Sidereal: ${formatDegree(rahuSidereal)}\n"
+            )
+            result.append(
+                "Final: ${formatRasi(rahuSidereal)}\n"
+            )
+            result.append(
+                "House: ${houseNumber(rahuSidereal, lagnaSidereal)}\n\n"
             )
 
             result.append("கேது\n")
             result.append(
-                formatRasi(ketuSidereal)
+                "Tropical: ${formatDegree(ketuTropical)}\n"
             )
             result.append(
-                "\nHouse: ${
-                    houseNumber(
-                        ketuSidereal,
-                        lagnaSidereal
-                    )
-                }\n\n"
+                "Lahiri: ${formatDegree(lahiri)}\n"
+            )
+            result.append(
+                "Sidereal: ${formatDegree(ketuSidereal)}\n"
+            )
+            result.append(
+                "Final: ${formatRasi(ketuSidereal)}\n"
+            )
+            result.append(
+                "House: ${houseNumber(ketuSidereal, lagnaSidereal)}\n\n"
             )
 
-            // 12 HOUSE MAPPING
+            // 12 BHAVA MAPPING
 
             result.append("=============================\n")
             result.append("12 BHAVA MAPPING\n")
