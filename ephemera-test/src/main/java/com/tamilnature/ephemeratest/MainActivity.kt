@@ -1153,6 +1153,67 @@ class MainActivity : Activity() {
             else yogaDetected.distinct().forEach { result.append("• $it\n") }
             result.append("Note: Rule-based prototype; traditional variants may differ.\n")
 
+
+            // STEP 10: YOGA STRENGTH & VALIDATION (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 10 - YOGA STRENGTH & VALIDATION\n")
+            result.append("=============================\n\n")
+
+            val yogaPlanetNames = listOf("சூரியன்", "சந்திரன்", "செவ்வாய்", "புதன்", "குரு", "சுக்கிரன்", "சனி", "ராகு", "கேது")
+            fun involvedPlanetsForYoga(yoga: String): List<String> {
+                val found = yogaPlanetNames.filter { yoga.contains(it) }
+                if (found.isNotEmpty()) return found.distinct()
+                return when {
+                    yoga.contains("Gaja Kesari") -> listOf("சந்திரன்", "குரு")
+                    yoga.contains("Budha-Aditya") -> listOf("சூரியன்", "புதன்")
+                    else -> emptyList()
+                }
+            }
+            if (yogaDetected.isEmpty()) {
+                result.append("No detected Yoga to score.\n")
+            } else {
+                for (yoga in yogaDetected.distinct()) {
+                    val involved = involvedPlanetsForYoga(yoga)
+                    var score = 50
+                    val factors = mutableListOf<String>()
+                    for (planet in involved) {
+                        val sign = yogaPlanetSigns[planet]
+                        val house = yogaPlanetHouses[planet]
+                        if (sign != null) {
+                            when (getLordStatus(planet, sign)) {
+                                "ஆட்சி (Own Sign)" -> { score += 10; factors.add("$planet: own sign +10") }
+                                "உச்சம் (Exaltation)" -> { score += 15; factors.add("$planet: exalted +15") }
+                                "நீசம் (Debilitation)" -> { score -= 15; factors.add("$planet: debilitated -15") }
+                                else -> factors.add("$planet: neutral dignity")
+                            }
+                        }
+                        if (house != null) {
+                            when (house) {
+                                in listOf(1, 4, 7, 10) -> { score += 8; factors.add("$planet: Kendra placement +8") }
+                                in listOf(5, 9) -> { score += 8; factors.add("$planet: Trikona placement +8") }
+                                in listOf(3, 6, 8, 12) -> { score -= 5; factors.add("$planet: challenging house -5") }
+                            }
+                        }
+                    }
+                    if (involved.isEmpty()) factors.add("Planet-level validation unavailable for this rule")
+                    val finalScore = score.coerceIn(0, 100)
+                    val label = when {
+                        finalScore >= 80 -> "Strong (prototype)"
+                        finalScore >= 65 -> "Above average (prototype)"
+                        finalScore >= 45 -> "Moderate (prototype)"
+                        finalScore >= 25 -> "Low (prototype)"
+                        else -> "Very low (prototype)"
+                    }
+                    result.append("Yoga: $yoga\n")
+                    result.append("Involved planets: ${if (involved.isEmpty()) "Not parsed" else involved.joinToString(" | ")}\n")
+                    result.append("Factors: ${if (factors.isEmpty()) "None" else factors.joinToString("; ")}\n")
+                    result.append("Yoga strength score: $finalScore / 100\n")
+                    result.append("Strength label: $label\n")
+                    result.append("-----------------------------\n")
+                }
+            }
+            result.append("Note: Preliminary heuristic scoring only; not classical Shadbala or a definitive traditional Yoga evaluation.\n")
+
             // COMPLETION
 
             result.append("\n")
