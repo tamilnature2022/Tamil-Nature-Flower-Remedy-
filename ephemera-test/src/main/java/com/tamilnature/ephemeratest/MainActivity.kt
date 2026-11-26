@@ -1,4 +1,3 @@
-
 package com.tamilnature.ephemeratest
 
 import android.app.Activity
@@ -293,12 +292,12 @@ class MainActivity : Activity() {
 
         calculateButton.setOnClickListener {
 
-            // Clear previous chart/report first
             outputLayout.removeAllViews()
 
             try {
 
                 // STRICT DATE FORMAT
+
                 val dateText = dateInput.text.toString().trim()
 
                 if (!dateText.matches(
@@ -315,6 +314,7 @@ class MainActivity : Activity() {
                 val birthYear = dateParts[2].toInt()
 
                 // STRICT CALENDAR DATE VALIDATION
+
                 val validationCalendar = Calendar.getInstance(
                     TimeZone.getTimeZone("Asia/Kolkata")
                 )
@@ -337,6 +337,7 @@ class MainActivity : Activity() {
                 validationCalendar.time
 
                 // STRICT TIME FORMAT
+
                 val timeText = timeInput.text.toString().trim()
 
                 val timeRegex = Regex(
@@ -369,6 +370,7 @@ class MainActivity : Activity() {
                 }
 
                 // PLACE VALIDATION
+
                 val place = placeInput.text.toString().trim()
 
                 if (place.isEmpty()) {
@@ -376,6 +378,7 @@ class MainActivity : Activity() {
                 }
 
                 // LATITUDE VALIDATION
+
                 val latitudeText =
                     latitudeInput.text.toString().trim()
 
@@ -395,6 +398,7 @@ class MainActivity : Activity() {
                 }
 
                 // LONGITUDE VALIDATION
+
                 val longitudeText =
                     longitudeInput.text.toString().trim()
 
@@ -557,6 +561,8 @@ class MainActivity : Activity() {
                 }
             }
 
+            // RAHU & KETU
+
             val rahuPosition = Ephemera.position(
                 Body.MEAN_NODE, jd
             ) ?: throw Exception("Mean Node unavailable")
@@ -583,6 +589,8 @@ class MainActivity : Activity() {
             tropicalPositions["ராகு"] = rahuTropical
             tropicalPositions["கேது"] = ketuTropical
 
+            // CHART
+
             addLabel(
                 "D1 - தென்னிந்திய ராசி கட்டம்",
                 19f
@@ -596,28 +604,37 @@ class MainActivity : Activity() {
                 )
             )
 
+            // BIRTH DETAILS
+
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
+
             result.append(
                 "Date: %02d-%02d-%04d\n".format(
                     birthDay, birthMonth, birthYear
                 )
             )
+
             result.append("Time: $displayTime IST\n")
             result.append("Place: $place\n")
+
             result.append(
                 "UTC: %02d:%02d:%02d\n".format(
                     hour, minute, second
                 )
             )
+
             result.append("Latitude: $latitude\n")
             result.append("Longitude: $longitude\n\n")
 
             result.append("JD: $jd\n")
             result.append("TT: $tt\n")
+
             result.append(
                 "Lahiri Ayanamsa: ${formatDegree(lahiri)}\n\n"
             )
+
+            // LAGNA VALIDATION
 
             result.append("=============================\n")
             result.append("LAGNA VALIDATION\n")
@@ -650,6 +667,8 @@ class MainActivity : Activity() {
             result.append(
                 "Final MC: ${formatRasi(mcSidereal)}\n\n"
             )
+
+            // GRAHA VALIDATION
 
             result.append("=============================\n")
             result.append("GRAHA VALIDATION\n")
@@ -695,6 +714,8 @@ class MainActivity : Activity() {
                 result.append("-----------------------------\n")
             }
 
+            // RAHU
+
             result.append("\nராகு\n")
 
             result.append(
@@ -717,6 +738,8 @@ class MainActivity : Activity() {
                 "House: ${houseNumber(rahuSidereal, lagnaSidereal)}\n\n"
             )
 
+            // KETU
+
             result.append("கேது\n")
 
             result.append(
@@ -738,6 +761,8 @@ class MainActivity : Activity() {
             result.append(
                 "House: ${houseNumber(ketuSidereal, lagnaSidereal)}\n\n"
             )
+
+            // 12 BHAVA MAPPING
 
             result.append("=============================\n")
             result.append("12 BHAVA MAPPING\n")
@@ -770,6 +795,75 @@ class MainActivity : Activity() {
 
                 result.append("-----------------------------\n")
             }
+
+            // =============================
+            // 12 BHAVA LORD ANALYSIS
+            // =============================
+
+            val signLords = arrayOf(
+                "செவ்வாய்",   // மேஷம்
+                "சுக்கிரன்",   // ரிஷபம்
+                "புதன்",      // மிதுனம்
+                "சந்திரன்",   // கடகம்
+                "சூரியன்",    // சிம்மம்
+                "புதன்",      // கன்னி
+                "சுக்கிரன்",  // துலாம்
+                "செவ்வாய்",   // விருச்சிகம்
+                "குரு",       // தனுசு
+                "சனி",        // மகரம்
+                "சனி",        // கும்பம்
+                "குரு"        // மீனம்
+            )
+
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("12 BHAVA LORD ANALYSIS\n")
+            result.append("=============================\n\n")
+
+            for (house in 1..12) {
+
+                val currentSign =
+                    (lagnaSign + house - 1) % 12
+
+                val lord = signLords[currentSign]
+
+                val lordPosition =
+                    planetPositions[lord]
+
+                result.append(
+                    "HOUSE $house - ${rasiNames[currentSign]}\n"
+                )
+
+                result.append(
+                    "Lord: $lord\n"
+                )
+
+                if (lordPosition != null) {
+
+                    result.append(
+                        "Lord Position: ${formatRasi(lordPosition)}\n"
+                    )
+
+                    result.append(
+                        "Lord House: ${
+                            houseNumber(
+                                lordPosition,
+                                lagnaSidereal
+                            )
+                        }\n"
+                    )
+
+                } else {
+
+                    result.append(
+                        "Lord Position unavailable\n"
+                    )
+                }
+
+                result.append("-----------------------------\n")
+            }
+
+            // COMPLETION
 
             result.append("\n")
             result.append("CALCULATION COMPLETE\n")
