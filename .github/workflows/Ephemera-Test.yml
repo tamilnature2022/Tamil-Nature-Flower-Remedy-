@@ -41,6 +41,9 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Run Dasha Unit Tests
+        run: gradle --no-daemon :ephemera-test:testDebugUnitTest --stacktrace
+
       - name: Build Ephemera Test
         run: gradle --no-daemon :ephemera-test:assembleDebug --stacktrace --info
 
