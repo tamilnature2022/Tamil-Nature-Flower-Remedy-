@@ -1329,6 +1329,26 @@ class MainActivity : Activity() {
             }
             result.append("\nNote: Prototype comparative score only; not classical Shadbala or a definitive planetary strength calculation.\n")
 
+
+            // STEP 13: INTEGRATED HOROSCOPE ANALYSIS (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 13 - INTEGRATED HOROSCOPE ANALYSIS\n")
+            result.append("=============================\n\n")
+
+            result.append("Strongest Bhava themes (top 3):\n")
+            sortedBhavas.take(3).forEach { entry ->
+                result.append("House ${entry.key}: ${entry.value}/100\n")
+            }
+            result.append("\nPlanetary highlights (top 3):\n")
+            rankedPlanets.take(3).forEachIndexed { index, entry ->
+                result.append("${index + 1}. ${entry.first}: ${entry.second}/100\n")
+            }
+            result.append("\nYoga findings:\n")
+            if (yogaDetected.isEmpty()) result.append("No Yoga detected by current prototype rules.\n")
+            else yogaDetected.distinct().forEach { result.append("• $it\n") }
+
+            result.append("\nIntegrated overview: This section consolidates the current prototype's Bhava ranking, planetary ranking, and rule-based Yoga findings. It is a technical summary, not a definitive traditional horoscope judgment.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1338,6 +1358,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\n")
 
         } catch (e: Exception) {
 
