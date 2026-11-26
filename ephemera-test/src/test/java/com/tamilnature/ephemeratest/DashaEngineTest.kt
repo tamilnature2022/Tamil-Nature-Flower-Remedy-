@@ -240,4 +240,41 @@ class DashaEngineTest {
             result[1].endDate
         )
     }
+
+    @Test
+    fun all27NakshatrasMapToCorrectMahadashaLords() {
+
+        val expectedLords = listOf(
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்",
+
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்",
+
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்"
+        )
+
+        val nakshatraSize = 360.0 / 27.0
+
+        for (i in 0 until 27) {
+
+            val midpointLongitude =
+                (i + 0.5) * nakshatraSize
+
+            val result = VimshottariDasha.calculateMahadasha(
+                LocalDate.of(2000, 1, 1),
+                midpointLongitude
+            )
+
+            assertEquals(
+                "Nakshatra index $i mapping failed",
+                expectedLords[i],
+                result.first().planet
+            )
+        }
+    }
 }
