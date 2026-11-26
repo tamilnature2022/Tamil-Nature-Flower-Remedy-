@@ -1091,7 +1091,69 @@ class MainActivity : Activity() {
                 result.append("-----------------------------\n")
             }
 
-                        // COMPLETION
+                                    // STEP 9: BASIC YOGA DETECTION
+            result.append("\n=============================\n")
+            result.append("STEP 9 - YOGA DETECTION\n")
+            result.append("=============================\n\n")
+
+            val yogaSignLords = arrayOf(
+                "செவ்வாய்", "சுக்கிரன்", "புதன்", "சந்திரன்",
+                "சூரியன்", "புதன்", "சுக்கிரன்", "செவ்வாய்",
+                "குரு", "சனி", "சனி", "குரு"
+            )
+            val yogaPlanetHouses = planetPositions.mapValues { houseNumber(it.value, lagnaSidereal) }
+            val yogaPlanetSigns = planetPositions.mapValues { signIndex(it.value) }
+            val yogaDetected = mutableListOf<String>()
+
+            fun yogaLordOfHouse(house: Int): String {
+                val sign = (lagnaSign + house - 1) % 12
+                return yogaSignLords[sign]
+            }
+            fun yogaIsKendra(house: Int) = house in listOf(1, 4, 7, 10)
+            fun yogaHasAspect(from: String, to: String): Boolean {
+                val sourceHouse = yogaPlanetHouses[from] ?: return false
+                val targetHouse = yogaPlanetHouses[to] ?: return false
+                return getDrishtiOffsets(from).any { ((sourceHouse + it - 2) % 12) + 1 == targetHouse }
+            }
+            fun yogaLinked(a: String, b: String): Boolean {
+                if (yogaPlanetSigns[a] == yogaPlanetSigns[b]) return true
+                return yogaHasAspect(a, b) || yogaHasAspect(b, a)
+            }
+
+            // Raja Yoga: Kendra lord linked with Trikona lord
+            val kendraLords = listOf(1, 4, 7, 10).map { yogaLordOfHouse(it) }.distinct()
+            val trikonaLords = listOf(5, 9).map { yogaLordOfHouse(it) }.distinct()
+            for (kl in kendraLords) for (tl in trikonaLords) if (kl != tl && yogaLinked(kl, tl)) yogaDetected.add("Raja Yoga: $kl + $tl")
+
+            // Dhana Yoga: 2nd/11th lord linked with 5th/9th/Kendra lord
+            val wealthLords = listOf(2, 11).map { yogaLordOfHouse(it) }.distinct()
+            val prosperityLords = listOf(1, 4, 5, 7, 9, 10).map { yogaLordOfHouse(it) }.distinct()
+            for (wl in wealthLords) for (pl in prosperityLords) if (wl != pl && yogaLinked(wl, pl)) yogaDetected.add("Dhana Yoga: $wl + $pl")
+
+            // Gaja Kesari: Jupiter in Kendra from Moon
+            val moonHouse = yogaPlanetHouses["சந்திரன்"]
+            val jupiterHouse = yogaPlanetHouses["குரு"]
+            if (moonHouse != null && jupiterHouse != null) {
+                val relativeHouse = ((jupiterHouse - moonHouse + 12) % 12) + 1
+                if (relativeHouse in listOf(1, 4, 7, 10)) yogaDetected.add("Gaja Kesari Yoga")
+            }
+            // Budha-Aditya: Sun and Mercury same sign
+            if (yogaPlanetSigns["சூரியன்"] == yogaPlanetSigns["புதன்"]) yogaDetected.add("Budha-Aditya Yoga")
+
+            // Neecha Bhanga prototype candidate
+            val debilitationSigns = mapOf("சூரியன்" to 6, "சந்திரன்" to 7, "செவ்வாய்" to 3, "புதன்" to 11, "குரு" to 9, "சுக்கிரன்" to 5, "சனி" to 0)
+            val signLordsForNeecha = mapOf(0 to "செவ்வாய்", 1 to "சுக்கிரன்", 2 to "புதன்", 3 to "சந்திரன்", 4 to "சூரியன்", 5 to "புதன்", 6 to "சுக்கிரன்", 7 to "செவ்வாய்", 8 to "குரு", 9 to "சனி", 10 to "சனி", 11 to "குரு")
+            for ((planet, sign) in yogaPlanetSigns) if (debilitationSigns[planet] == sign) {
+                val debSignLord = signLordsForNeecha[sign]
+                val debLordHouse = debSignLord?.let { yogaPlanetHouses[it] }
+                val cancellation = (debLordHouse != null && yogaIsKendra(debLordHouse)) || (yogaPlanetHouses[planet]?.let { yogaIsKendra(it) } == true)
+                yogaDetected.add(if (cancellation) "Neecha Bhanga candidate: $planet (prototype condition met)" else "Debilitated planet: $planet (no prototype cancellation condition)")
+            }
+            if (yogaDetected.isEmpty()) result.append("No listed Yoga detected by current prototype rules.\n")
+            else yogaDetected.distinct().forEach { result.append("• $it\n") }
+            result.append("Note: Rule-based prototype; traditional variants may differ.\n")
+
+            // COMPLETION
 
             result.append("\n")
             result.append("CALCULATION COMPLETE\n")
