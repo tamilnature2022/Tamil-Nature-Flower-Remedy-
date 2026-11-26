@@ -1,4 +1,3 @@
-
 package com.tamilnature.ephemeratest
 
 import android.app.Activity
@@ -115,6 +114,17 @@ class MainActivity : Activity() {
 
             else ->
                 "மற்ற ராசி (Other Sign)"
+        }
+    }
+
+    // STEP 6: GRAHA DRISHTI OFFSETS
+    private fun getDrishtiOffsets(graha: String): List<Int> {
+        return when (graha) {
+            "செவ்வாய்" -> listOf(4, 7, 8)
+            "குரு" -> listOf(5, 7, 9)
+            "சனி" -> listOf(3, 7, 10)
+            "ராகு", "கேது" -> listOf(3, 7, 11)
+            else -> listOf(7)
         }
     }
 
@@ -909,12 +919,46 @@ class MainActivity : Activity() {
                 result.append("-----------------------------\n")
             }
 
+            // STEP 6: GRAHA DRISHTI REPORT
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("STEP 6 - GRAHA DRISHTI\n")
+            result.append("=============================\n\n")
+
+            for (grahaName in planetPositions.keys) {
+                val sourceLongitude = planetPositions[grahaName]!!
+                val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                val offsets = getDrishtiOffsets(grahaName)
+
+                result.append("$grahaName\n")
+                result.append("Source House: $sourceHouse - ${rasiNames[signIndex(sourceLongitude)]}\n")
+                result.append("Drishti Offsets: ${offsets.joinToString(", ")}\n")
+
+                for (offset in offsets) {
+                    val targetHouse = ((sourceHouse + offset - 2) % 12) + 1
+                    val targetSign = (lagnaSign + targetHouse - 1) % 12
+                    val occupants = planetPositions.filter {
+                        houseNumber(it.value, lagnaSidereal) == targetHouse &&
+                            it.key != grahaName
+                    }.keys
+
+                    result.append("  -> House $targetHouse - ${rasiNames[targetSign]}\n")
+                    if (occupants.isEmpty()) {
+                        result.append("     Target occupants: இல்லை\n")
+                    } else {
+                        result.append("     Target occupants: ${occupants.joinToString(" | ")}\n")
+                    }
+                }
+                result.append("-----------------------------\n")
+            }
+
             // COMPLETION
 
             result.append("\n")
             result.append("CALCULATION COMPLETE\n")
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
+            result.append("Step 6: Graha Drishti included\n")
 
         } catch (e: Exception) {
 
