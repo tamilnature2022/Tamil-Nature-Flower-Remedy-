@@ -73,7 +73,7 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
-            13.333333333333334
+            13.333334
         )
 
         assertEquals("சுக்கிரன்", result.first().planet)
