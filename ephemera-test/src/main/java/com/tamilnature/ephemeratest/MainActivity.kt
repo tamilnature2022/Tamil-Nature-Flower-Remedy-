@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.Gravity
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.GridLayout
+import android.widget.*
 import io.github.intellecat.ephemera.*
 import java.util.Calendar
 import java.util.TimeZone
@@ -49,6 +46,7 @@ class MainActivity : Activity() {
     }
 
     private fun formatRasi(longitude: Double): String {
+
         val normalized = normalize(longitude)
         val index = signIndex(normalized)
         val withinRasi = normalized % 30.0
@@ -75,6 +73,7 @@ class MainActivity : Activity() {
         text: String,
         bold: Boolean = false
     ): TextView {
+
         return TextView(this).apply {
             this.text = text
             textSize = 14f
@@ -123,7 +122,9 @@ class MainActivity : Activity() {
 
             val row = coordinates[sign][0]
             val col = coordinates[sign][1]
-            val bhava = ((sign - lagnaSign + 12) % 12) + 1
+
+            val bhava =
+                ((sign - lagnaSign + 12) % 12) + 1
 
             val text = StringBuilder()
 
@@ -140,6 +141,7 @@ class MainActivity : Activity() {
             }.keys
 
             if (occupants.isNotEmpty()) {
+
                 val displayed = occupants.map { name ->
                     if (name in retrogradeNames) {
                         "$name (R)"
@@ -188,40 +190,197 @@ class MainActivity : Activity() {
         return chart
     }
 
+    private fun createInput(
+        hint: String,
+        value: String = ""
+    ): EditText {
+
+        return EditText(this).apply {
+            this.hint = hint
+            setText(value)
+            textSize = 16f
+            singleLine = true
+            setPadding(16, 12, 16, 12)
+        }
+    }
+
+    private lateinit var outputLayout: LinearLayout
+
+    private fun addLabel(
+        text: String,
+        size: Float = 16f
+    ) {
+
+        outputLayout.addView(TextView(this).apply {
+            this.text = text
+            textSize = size
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(8, 8, 8, 8)
+        })
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val mainLayout = LinearLayout(this).apply {
+        val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(12, 12, 12, 12)
+            setPadding(16, 16, 16, 16)
         }
 
         val title = TextView(this).apply {
             text = "Tamil Nature - Astrology Test"
-            textSize = 22f
+            textSize = 23f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            setPadding(10, 25, 10, 25)
+            setPadding(10, 20, 10, 20)
         }
 
-        mainLayout.addView(title)
+        root.addView(title)
+
+        val inputHeading = TextView(this).apply {
+            text = "BIRTH DETAILS"
+            textSize = 19f
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(8, 10, 8, 10)
+        }
+
+        root.addView(inputHeading)
+
+        // DD-MM-YYYY
+
+        val dateInput = createInput(
+            "Date DD-MM-YYYY",
+            "19-11-1984"
+        )
+
+        val timeInput = createInput(
+            "Time HH:MM (IST)",
+            "19:58"
+        )
+
+        val placeInput = createInput(
+            "Birth Place",
+            "Oddanchatram, Tamil Nadu"
+        )
+
+        val latitudeInput = createInput(
+            "Latitude",
+            "10.48013"
+        )
+
+        val longitudeInput = createInput(
+            "Longitude",
+            "77.74977"
+        )
+
+        root.addView(dateInput)
+        root.addView(timeInput)
+        root.addView(placeInput)
+        root.addView(latitudeInput)
+        root.addView(longitudeInput)
+
+        val calculateButton = Button(this).apply {
+            text = "CALCULATE CHART"
+            textSize = 18f
+        }
+
+        root.addView(calculateButton)
+
+        outputLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        root.addView(outputLayout)
+
+        calculateButton.setOnClickListener {
+
+            try {
+
+                val dateParts = dateInput.text.toString()
+                    .trim().split("-")
+
+                val timeParts = timeInput.text.toString()
+                    .trim().split(":")
+
+                if (dateParts.size != 3 ||
+                    timeParts.size != 2
+                ) {
+                    throw Exception(
+                        "Date DD-MM-YYYY / Time HH:MM"
+                    )
+                }
+
+                // DD-MM-YYYY
+
+                val birthDay = dateParts[0].toInt()
+                val birthMonth = dateParts[1].toInt()
+                val birthYear = dateParts[2].toInt()
+
+                val birthHour = timeParts[0].toInt()
+                val birthMinute = timeParts[1].toInt()
+
+                val latitude =
+                    latitudeInput.text.toString().toDouble()
+
+                val longitude =
+                    longitudeInput.text.toString().toDouble()
+
+                val place =
+                    placeInput.text.toString().trim()
+
+                if (latitude !in -90.0..90.0) {
+                    throw Exception("Invalid latitude")
+                }
+
+                if (longitude !in -180.0..180.0) {
+                    throw Exception("Invalid longitude")
+                }
+
+                calculate(
+                    birthYear,
+                    birthMonth,
+                    birthDay,
+                    birthHour,
+                    birthMinute,
+                    latitude,
+                    longitude,
+                    place
+                )
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this,
+                    "Input Error: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+        val scroll = ScrollView(this)
+        scroll.addView(root)
+
+        setContentView(scroll)
+    }
+
+    private fun calculate(
+        birthYear: Int,
+        birthMonth: Int,
+        birthDay: Int,
+        birthHour: Int,
+        birthMinute: Int,
+        latitude: Double,
+        longitude: Double,
+        place: String
+    ) {
+
+        outputLayout.removeAllViews()
 
         val result = StringBuilder()
 
         try {
 
-            // TEST BIRTH DETAILS
-
-            val birthYear = 1984
-            val birthMonth = 11
-            val birthDay = 19
-            val birthHour = 19
-            val birthMinute = 58
-
-            val latitude = 10.48013
-            val longitude = 77.74977
-
-            // IST TO UTC
+            // VALIDATE DATE AND TIME
 
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
@@ -239,6 +398,8 @@ class MainActivity : Activity() {
             )
 
             localCalendar.set(Calendar.MILLISECOND, 0)
+
+            // IST TO UTC
 
             val utcCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("UTC")
@@ -283,7 +444,7 @@ class MainActivity : Activity() {
 
             val lagnaSign = signIndex(lagnaSidereal)
 
-            // PLANET VALIDATION DATA
+            // PLANET DATA
 
             val planetPositions =
                 mutableMapOf<String, Double>()
@@ -353,17 +514,12 @@ class MainActivity : Activity() {
 
             // D1 CHART
 
-            val chartHeading = TextView(this).apply {
-                text = "D1 - தென்னிந்திய ராசி கட்டம்"
-                textSize = 19f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.CENTER
-                setPadding(8, 16, 8, 16)
-            }
+            addLabel(
+                "D1 - தென்னிந்திய ராசி கட்டம்",
+                19f
+            )
 
-            mainLayout.addView(chartHeading)
-
-            mainLayout.addView(
+            outputLayout.addView(
                 createChart(
                     lagnaSign,
                     planetPositions,
@@ -375,15 +531,26 @@ class MainActivity : Activity() {
 
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
-            result.append("Date: $birthDay-$birthMonth-$birthYear\n")
-            result.append("Time: $birthHour:$birthMinute IST\n")
+            result.append(
+                "Date: %02d-%02d-%04d\n".format(
+                    birthDay, birthMonth, birthYear
+                )
+            )
+            result.append(
+                "Time: %02d:%02d IST\n".format(
+                    birthHour, birthMinute
+                )
+            )
+            result.append("Place: $place\n")
             result.append("UTC: $hour:$minute:$second\n")
             result.append("Latitude: $latitude\n")
             result.append("Longitude: $longitude\n\n")
 
             result.append("JD: $jd\n")
             result.append("TT: $tt\n")
-            result.append("Lahiri Ayanamsa: ${formatDegree(lahiri)}\n\n")
+            result.append(
+                "Lahiri Ayanamsa: ${formatDegree(lahiri)}\n\n"
+            )
 
             // LAGNA VALIDATION
 
@@ -456,9 +623,7 @@ class MainActivity : Activity() {
                     "Final Position: ${formatRasi(sidereal)}\n"
                 )
 
-                result.append(
-                    "House: $house\n"
-                )
+                result.append("House: $house\n")
 
                 result.append(
                     "Motion: ${retrogradeStatus[graha.name]}\n"
@@ -470,35 +635,45 @@ class MainActivity : Activity() {
             // NODE VALIDATION
 
             result.append("\nராகு\n")
+
             result.append(
                 "Tropical: ${formatDegree(rahuTropical)}\n"
             )
+
             result.append(
                 "Lahiri: ${formatDegree(lahiri)}\n"
             )
+
             result.append(
                 "Sidereal: ${formatDegree(rahuSidereal)}\n"
             )
+
             result.append(
                 "Final: ${formatRasi(rahuSidereal)}\n"
             )
+
             result.append(
                 "House: ${houseNumber(rahuSidereal, lagnaSidereal)}\n\n"
             )
 
             result.append("கேது\n")
+
             result.append(
                 "Tropical: ${formatDegree(ketuTropical)}\n"
             )
+
             result.append(
                 "Lahiri: ${formatDegree(lahiri)}\n"
             )
+
             result.append(
                 "Sidereal: ${formatDegree(ketuSidereal)}\n"
             )
+
             result.append(
                 "Final: ${formatRasi(ketuSidereal)}\n"
             )
+
             result.append(
                 "House: ${houseNumber(ketuSidereal, lagnaSidereal)}\n\n"
             )
@@ -555,11 +730,6 @@ class MainActivity : Activity() {
             setPadding(15, 25, 15, 25)
         }
 
-        mainLayout.addView(report)
-
-        val scroll = ScrollView(this)
-        scroll.addView(mainLayout)
-
-        setContentView(scroll)
+        outputLayout.addView(report)
     }
 }
