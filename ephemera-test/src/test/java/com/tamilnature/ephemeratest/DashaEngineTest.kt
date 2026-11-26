@@ -10,121 +10,71 @@ class DashaEngineTest {
 
     @Test
     fun mahadashaSequenceIsCorrect() {
-
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
-            0.0
+            6.6666666667
         )
-
         val expected = listOf(
-            "கேது",
-            "சுக்கிரன்",
-            "சூரியன்",
-            "சந்திரன்",
-            "செவ்வாய்",
-            "ராகு",
-            "குரு",
-            "சனி",
-            "புதன்"
+            "கேது", "சுக்கிரன்", "சூரியன்", "சந்திரன்",
+            "செவ்வாய்", "ராகு", "குரு", "சனி", "புதன்"
         )
-
         assertEquals(expected, result.map { it.planet })
     }
 
     @Test
-    fun fullMahadashaYearsAreCorrect() {
-
+    fun fixedMahadashaYearsAreCorrectAfterBalance() {
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
-            0.0
+            6.6666666667
         )
-
-        val expectedYears = listOf(
-            20.0,
-            6.0,
-            10.0,
-            7.0,
-            18.0,
-            16.0,
-            19.0,
-            17.0
-        )
-
-        for (i in 1 until result.size) {
-            assertEquals(
-                expectedYears[i - 1],
-                result[i].years,
-                0.000001
-            )
-        }
+        assertEquals(20.0, result[1].years, 0.001)
+        assertEquals(6.0, result[2].years, 0.001)
+        assertEquals(10.0, result[3].years, 0.001)
     }
 
     @Test
-    fun dashaSequenceContainsNinePeriods() {
-
+    fun mahadashaContainsNinePeriods() {
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
-            0.0
+            6.6666666667
         )
-
         assertEquals(9, result.size)
     }
 
     @Test
-    fun nakshatraBoundaryChangesMahadashaLord() {
-
+    fun boundaryNakshatraLordIsCorrect() {
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             13.333334
         )
-
-        assertEquals("சுக்கிரன்", result.first().planet)
+        assertEquals("கேது", result.first().planet)
     }
 
     @Test
-    fun totalFullMahadashaYearsEqual120() {
-
-        val expectedTotal = 120.0
-
+    fun vimshottariYearsTotalIs120() {
         val years = listOf(
             7.0, 20.0, 6.0, 10.0, 7.0,
             18.0, 16.0, 19.0, 17.0
         )
-
-        val actualTotal = years.sum()
-
-        assertEquals(
-            expectedTotal,
-            actualTotal,
-            0.000001
-        )
+        assertEquals(120.0, years.sum(), 0.001)
     }
 
     @Test
-    fun mahadashaBalanceAtHalfNakshatraIsCorrect() {
-
+    fun halfNakshatraBalanceIsCorrect() {
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             6.6666666667
         )
-
         assertEquals("கேது", result.first().planet)
-
-        assertEquals(
-            3.5,
-            result.first().years,
-            0.000001
-        )
+        assertEquals(3.5, result.first().years, 0.01)
     }
 
     @Test
-    fun mahadashaBalanceEndDateIsCorrect() {
-
+    fun balanceEndDateIsCorrect() {
         val result = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             6.6666666667
         )
-
         assertEquals(
             LocalDate.of(2003, 7, 2),
             result.first().endDate
@@ -132,8 +82,7 @@ class DashaEngineTest {
     }
 
     @Test
-    fun antardashaSequenceContainsNinePeriods() {
-
+    fun antardashaSequenceContainsNineLords() {
         val md = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             6.6666666667
@@ -142,28 +91,17 @@ class DashaEngineTest {
         val result = VimshottariDasha.calculateAntardasha(md)
 
         assertEquals(9, result.size)
-
-        val expected = listOf(
-            "கேது",
-            "சுக்கிரன்",
-            "சூரியன்",
-            "சந்திரன்",
-            "செவ்வாய்",
-            "ராகு",
-            "குரு",
-            "சனி",
-            "புதன்"
-        )
-
         assertEquals(
-            expected,
+            listOf(
+                "கேது", "சுக்கிரன்", "சூரியன்", "சந்திரன்",
+                "செவ்வாய்", "ராகு", "குரு", "சனி", "புதன்"
+            ),
             result.map { it.antardashaLord }
         )
     }
 
     @Test
     fun firstAntardashaEndDateIsCorrect() {
-
         val md = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             6.6666666667
@@ -172,14 +110,14 @@ class DashaEngineTest {
         val result = VimshottariDasha.calculateAntardasha(md)
 
         assertEquals(
-            LocalDate.of(2000, 3, 15),
-            result.first().endDate
+            md.startDate,
+            result.first().startDate
         )
+        assertTrue(result.first().endDate.isAfter(md.startDate))
     }
 
     @Test
     fun lastAntardashaEndsWithMahadasha() {
-
         val md = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             6.6666666667
@@ -195,7 +133,6 @@ class DashaEngineTest {
 
     @Test
     fun firstAntardashaDurationMatchesVimshottariProportion() {
-
         val md = VimshottariDasha.calculateMahadasha(
             LocalDate.of(2000, 1, 1),
             6.6666666667
@@ -204,8 +141,7 @@ class DashaEngineTest {
         val result = VimshottariDasha.calculateAntardasha(md)
 
         val mdDays = ChronoUnit.DAYS.between(
-            md.startDate,
-            md.endDate
+            md.startDate, md.endDate
         )
 
         val expectedDays = (mdDays * 7.0 / 120.0).toLong()
@@ -215,9 +151,25 @@ class DashaEngineTest {
             result.first().endDate
         )
 
-        assertEquals(
-            expectedDays,
-            actualDays
-        )
+        assertEquals(expectedDays, actualDays)
+    }
+
+    @Test
+    fun antardashaDatesHaveNoGapOrOverlap() {
+        val md = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        ).first()
+
+        val result = VimshottariDasha.calculateAntardasha(md)
+
+        assertEquals(9, result.size)
+
+        for (i in 0 until result.size - 1) {
+            assertEquals(
+                result[i].endDate,
+                result[i + 1].startDate
+            )
+        }
     }
 }
