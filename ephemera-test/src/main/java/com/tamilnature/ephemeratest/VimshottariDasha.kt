@@ -1,105 +1,188 @@
+
 package com.tamilnature.ephemeratest
 
-import org.junit.Test
-import org.junit.Assert.*
 import java.time.LocalDate
 
-class DashaEngineTest {
+object VimshottariDasha {
 
-    @Test
-    fun mahadashaSequenceIsCorrect() {
+    data class Mahadasha(
+        val planet: String,
+        val startDate: LocalDate,
+        val endDate: LocalDate,
+        val years: Double
+    )
 
-        val result = VimshottariDasha.calculateMahadasha(
-            LocalDate.of(2000, 1, 1),
-            0.0
-        )
+    data class Antardasha(
+        val antardashaLord: String,
+        val startDate: LocalDate,
+        val endDate: LocalDate
+    )
 
-        val expected = listOf(
-            "கேது",
-            "சுக்கிரன்",
-            "சூரியன்",
-            "சந்திரன்",
-            "செவ்வாய்",
-            "ராகு",
-            "குரு",
-            "சனி",
-            "புதன்"
-        )
+    private val lords = listOf(
+        "கேது",
+        "சுக்கிரன்",
+        "சூரியன்",
+        "சந்திரன்",
+        "செவ்வாய்",
+        "ராகு",
+        "குரு",
+        "சனி",
+        "புதன்"
+    )
 
-        val actual = result.map { it.planet }
+    private val years = listOf(
+        7.0,
+        20.0,
+        6.0,
+        10.0,
+        7.0,
+        18.0,
+        16.0,
+        19.0,
+        17.0
+    )
 
-        assertEquals(expected, actual)
+    private const val TOTAL_YEARS = 120.0
+    private const val DAYS_PER_YEAR = 365.25
+
+    private fun indexOfLord(planet: String): Int {
+        return lords.indexOf(planet)
     }
 
-    @Test
-    fun fullMahadashaYearsAreCorrect() {
+    private fun dateFromDays(
+        start: LocalDate,
+        days: Double
+    ): LocalDate {
+        return start.plusDays(days.toLong())
+    }
 
-        val result = VimshottariDasha.calculateMahadasha(
-            LocalDate.of(2000, 1, 1),
-            0.0
-        )
+    fun calculateMahadasha(
+        birthDate: LocalDate,
+        moonLongitude: Double
+    ): List<Mahadasha> {
 
-        val expectedYears = listOf(
-            20.0,
-            6.0,
-            10.0,
-            7.0,
-            18.0,
-            16.0,
-            19.0,
-            17.0
-        )
+        val normalized =
+            ((moonLongitude % 360.0) + 360.0) % 360.0
 
-        for (i in 1 until result.size) {
-            assertEquals(
-                expectedYears[i - 1],
-                result[i].years,
-                0.000001
+        val nakshatraSize = 360.0 / 27.0
+
+        val nakshatraIndex =
+            (normalized / nakshatraSize).toInt()
+                .coerceIn(0, 26)
+
+        val nakshatraStart =
+            nakshatraIndex * nakshatraSize
+
+        val travelled =
+            normalized - nakshatraStart
+
+        val remainingFraction =
+            (nakshatraSize - travelled) / nakshatraSize
+
+        val birthLordIndex =
+            nakshatraIndex % 9
+
+        val balanceYears =
+            years[birthLordIndex] * remainingFraction
+
+        val balanceDays =
+            balanceYears * DAYS_PER_YEAR
+
+        val firstEndDate =
+            dateFromDays(birthDate, balanceDays)
+
+        val result = mutableListOf<Mahadasha>()
+
+        result.add(
+            Mahadasha(
+                planet = lords[birthLordIndex],
+                startDate = birthDate,
+                endDate = firstEndDate,
+                years = balanceYears
             )
+        )
+
+        var currentDate = firstEndDate
+
+        for (step in 1 until 9) {
+
+            val index =
+                (birthLordIndex + step) % 9
+
+            val planetYears = years[index]
+
+            val durationDays =
+                planetYears * DAYS_PER_YEAR
+
+            val endDate =
+                dateFromDays(currentDate, durationDays)
+
+            result.add(
+                Mahadasha(
+                    planet = lords[index],
+                    startDate = currentDate,
+                    endDate = endDate,
+                    years = planetYears
+                )
+            )
+
+            currentDate = endDate
         }
+
+        return result
     }
 
-    @Test
-    fun dashaSequenceContainsNinePeriods() {
+    fun calculateAntardasha(
+        mahadasha: Mahadasha
+    ): List<Antardasha> {
 
-        val result = VimshottariDasha.calculateMahadasha(
-            LocalDate.of(2000, 1, 1),
-            0.0
-        )
+        val mdIndex =
+            indexOfLord(mahadasha.planet)
 
-        assertEquals(9, result.size)
-    }
+        if (mdIndex < 0) return emptyList()
 
-    @Test
-    fun nakshatraBoundaryChangesMahadashaLord() {
+        val totalDays =
+            java.time.temporal.ChronoUnit.DAYS.between(
+                mahadasha.startDate,
+                mahadasha.endDate
+            ).toDouble()
 
-        val result = VimshottariDasha.calculateMahadasha(
-            LocalDate.of(2000, 1, 1),
-            13.333334
-        )
+        val result = mutableListOf<Antardasha>()
 
-        assertEquals("சுக்கிரன்", result.first().planet)
-    }
+        var currentDate = mahadasha.startDate
 
-    @Test
-    fun totalFullMahadashaYearsEqual120() {
+        for (step in 0 until 9) {
 
-        val years = listOf(
-            7.0,
-            20.0,
-            6.0,
-            10.0,
-            7.0,
-            18.0,
-            16.0,
-            19.0,
-            17.0
-        )
+            val adIndex =
+                (mdIndex + step) % 9
 
-        assertEquals(
-            120.0,
-            years.sum(),
-            0.000001
-        )
+            val adLord =
+                lords[adIndex]
+
+            val proportion =
+                years[adIndex] / TOTAL_YEARS
+
+            val durationDays =
+                totalDays * proportion
+
+            val endDate =
+                if (step == 8) {
+                    mahadasha.endDate
+                } else {
+                    dateFromDays(currentDate, durationDays)
+                }
+
+            result.add(
+                Antardasha(
+                    antardashaLord = adLord,
+                    startDate = currentDate,
+                    endDate = endDate
+                )
+            )
+
+            currentDate = endDate
+        }
+
+        return result
     }
 }
