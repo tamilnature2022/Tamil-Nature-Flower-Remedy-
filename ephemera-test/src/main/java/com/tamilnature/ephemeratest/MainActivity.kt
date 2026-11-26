@@ -199,7 +199,7 @@ class MainActivity : Activity() {
             this.hint = hint
             setText(value)
             textSize = 16f
-            singleLine = true
+            setSingleLine(true)
             setPadding(16, 12, 16, 12)
         }
     }
@@ -245,8 +245,6 @@ class MainActivity : Activity() {
         }
 
         root.addView(inputHeading)
-
-        // DD-MM-YYYY
 
         val dateInput = createInput(
             "Date DD-MM-YYYY",
@@ -309,8 +307,6 @@ class MainActivity : Activity() {
                         "Date DD-MM-YYYY / Time HH:MM"
                     )
                 }
-
-                // DD-MM-YYYY
 
                 val birthDay = dateParts[0].toInt()
                 val birthMonth = dateParts[1].toInt()
@@ -380,8 +376,6 @@ class MainActivity : Activity() {
 
         try {
 
-            // VALIDATE DATE AND TIME
-
             val localCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("Asia/Kolkata")
             )
@@ -398,8 +392,6 @@ class MainActivity : Activity() {
             )
 
             localCalendar.set(Calendar.MILLISECOND, 0)
-
-            // IST TO UTC
 
             val utcCalendar = Calendar.getInstance(
                 TimeZone.getTimeZone("UTC")
@@ -444,8 +436,6 @@ class MainActivity : Activity() {
 
             val lagnaSign = signIndex(lagnaSidereal)
 
-            // PLANET DATA
-
             val planetPositions =
                 mutableMapOf<String, Double>()
 
@@ -484,8 +474,6 @@ class MainActivity : Activity() {
                 }
             }
 
-            // RAHU & KETU
-
             val rahuPosition = Ephemera.position(
                 Body.MEAN_NODE, jd
             ) ?: throw Exception("Mean Node unavailable")
@@ -512,8 +500,6 @@ class MainActivity : Activity() {
             tropicalPositions["ராகு"] = rahuTropical
             tropicalPositions["கேது"] = ketuTropical
 
-            // D1 CHART
-
             addLabel(
                 "D1 - தென்னிந்திய ராசி கட்டம்",
                 19f
@@ -526,8 +512,6 @@ class MainActivity : Activity() {
                     retrogradeNames
                 )
             )
-
-            // BIRTH DETAILS
 
             result.append("BIRTH DETAILS\n")
             result.append("-----------------------------\n")
@@ -551,8 +535,6 @@ class MainActivity : Activity() {
             result.append(
                 "Lahiri Ayanamsa: ${formatDegree(lahiri)}\n\n"
             )
-
-            // LAGNA VALIDATION
 
             result.append("=============================\n")
             result.append("LAGNA VALIDATION\n")
@@ -585,8 +567,6 @@ class MainActivity : Activity() {
             result.append(
                 "Final MC: ${formatRasi(mcSidereal)}\n\n"
             )
-
-            // GRAHA VALIDATION
 
             result.append("=============================\n")
             result.append("GRAHA VALIDATION\n")
@@ -632,8 +612,6 @@ class MainActivity : Activity() {
                 result.append("-----------------------------\n")
             }
 
-            // NODE VALIDATION
-
             result.append("\nராகு\n")
 
             result.append(
@@ -677,8 +655,6 @@ class MainActivity : Activity() {
             result.append(
                 "House: ${houseNumber(ketuSidereal, lagnaSidereal)}\n\n"
             )
-
-            // 12 BHAVA MAPPING
 
             result.append("=============================\n")
             result.append("12 BHAVA MAPPING\n")
