@@ -114,7 +114,6 @@ class MainActivity : Activity() {
         }
 
         // South Indian fixed Rasi positions
-        // Aries = index 0
 
         val coordinates = arrayOf(
             intArrayOf(0, 1), // Aries
@@ -138,13 +137,17 @@ class MainActivity : Activity() {
             val row = coordinates[sign][0]
             val col = coordinates[sign][1]
 
+            val bhava = ((sign - lagnaSign + 12) % 12) + 1
+
             val text = StringBuilder()
 
             text.append(rasiNames[sign])
             text.append("\n")
+            text.append("பாவம் $bhava")
+            text.append("\n")
 
             if (sign == lagnaSign) {
-                text.append("L ")
+                text.append("Lagna (L)\n")
             }
 
             val occupants = positions.filter {
@@ -152,9 +155,7 @@ class MainActivity : Activity() {
             }.keys
 
             if (occupants.isNotEmpty()) {
-                text.append(
-                    occupants.joinToString(" ")
-                )
+                text.append(occupants.joinToString(" "))
             }
 
             cells[row][col] = text.toString()
