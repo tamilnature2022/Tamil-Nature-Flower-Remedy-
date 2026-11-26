@@ -1,4 +1,3 @@
-
 package com.tamilnature.ephemeratest
 
 import org.junit.Test
@@ -205,5 +204,40 @@ class DashaEngineTest {
         assertEquals("கேது", result.first().planet)
         assertTrue(result.first().years >= 0.0)
         assertTrue(result.first().years < 0.001)
+    }
+
+    @Test
+    fun fullKetuMahadashaReferenceDatesAreCorrect() {
+        val birthDate = LocalDate.of(2000, 1, 1)
+
+        val result = VimshottariDasha.calculateMahadasha(
+            birthDate,
+            0.0
+        )
+
+        // Full Ketu Mahadasha: 7 years
+        assertEquals("கேது", result[0].planet)
+        assertEquals(7.0, result[0].years, 0.001)
+
+        // Ketu ends on December 31, 2006
+        assertEquals(
+            LocalDate.of(2006, 12, 31),
+            result[0].endDate
+        )
+
+        // Venus starts immediately after Ketu
+        assertEquals("சுக்கிரன்", result[1].planet)
+        assertEquals(
+            result[0].endDate,
+            result[1].startDate
+        )
+
+        // Venus Mahadasha: 20 years
+        assertEquals(20.0, result[1].years, 0.001)
+
+        assertEquals(
+            LocalDate.of(2026, 12, 31),
+            result[1].endDate
+        )
     }
 }
