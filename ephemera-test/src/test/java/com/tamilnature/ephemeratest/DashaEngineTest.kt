@@ -26,9 +26,7 @@ class DashaEngineTest {
             "புதன்"
         )
 
-        val actual = result.map { it.planet }
-
-        assertEquals(expected, actual)
+        assertEquals(expected, result.map { it.planet })
     }
 
     @Test
@@ -81,5 +79,29 @@ class DashaEngineTest {
         )
 
         assertEquals("சுக்கிரன்", result.first().planet)
+    }
+
+    @Test
+    fun antardashaPeriodsTotalMahadashaYears() {
+
+        val mahadashas = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            0.0
+        )
+
+        // Venus is a full 20-year Mahadasha here
+        val venusMahadasha = mahadashas[1]
+
+        val antardashas =
+            VimshottariDasha.calculateAntardasha(venusMahadasha)
+
+        val totalAntardashaYears =
+            antardashas.sumOf { it.years }
+
+        assertEquals(
+            venusMahadasha.years,
+            totalAntardashaYears,
+            0.000001
+        )
     }
 }
