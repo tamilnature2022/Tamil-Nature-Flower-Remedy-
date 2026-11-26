@@ -189,4 +189,15 @@ class DashaEngineTest {
             )
         }
     }
+
+    @Test
+    fun quarterNakshatraBalanceIsCorrect() {
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            3.3333333333
+        )
+
+        assertEquals("கேது", result.first().planet)
+        assertEquals(5.25, result.first().years, 0.01)
+    }
 }
