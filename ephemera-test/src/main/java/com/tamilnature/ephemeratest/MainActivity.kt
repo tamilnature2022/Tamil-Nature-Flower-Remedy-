@@ -952,6 +952,42 @@ class MainActivity : Activity() {
                 result.append("-----------------------------\n")
             }
 
+            // STEP 7: BHAVA DRISHTI RECEIVED ANALYSIS
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("STEP 7 - BHAVA DRISHTI RECEIVED\n")
+            result.append("=============================\n\n")
+
+            val drishtiSources = planetPositions.keys.toList()
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val receivedFrom = mutableListOf<String>()
+
+                for (sourceName in drishtiSources) {
+                    val sourceLongitude = planetPositions[sourceName]!!
+                    val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                    val offsets = getDrishtiOffsets(sourceName)
+
+                    for (offset in offsets) {
+                        val calculatedTarget = ((sourceHouse + offset - 2) % 12) + 1
+                        if (calculatedTarget == targetHouse) {
+                            receivedFrom.add(sourceName)
+                            break
+                        }
+                    }
+                }
+
+                val occupants = planetPositions.filter {
+                    houseNumber(it.value, lagnaSidereal) == targetHouse
+                }.keys
+
+                result.append("HOUSE $targetHouse - ${rasiNames[targetSign]}\n")
+                result.append("Occupants: ${if (occupants.isEmpty()) "இல்லை" else occupants.joinToString(" | ")}\n")
+                result.append("Drishti received from: ${if (receivedFrom.isEmpty()) "எந்த கிரக பார்வையும் இல்லை" else receivedFrom.joinToString(" | ")}\n")
+                result.append("Aspect count: ${receivedFrom.size}\n")
+                result.append("-----------------------------\n")
+            }
+
             // COMPLETION
 
             result.append("\n")
@@ -959,6 +995,7 @@ class MainActivity : Activity() {
             result.append("Ayanamsa: Lahiri\n")
             result.append("Node: Mean Node\n")
             result.append("Step 6: Graha Drishti included\n")
+            result.append("Step 7: Bhava Drishti Received Analysis included\n")
 
         } catch (e: Exception) {
 
