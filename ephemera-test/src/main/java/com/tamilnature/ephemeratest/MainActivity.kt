@@ -252,8 +252,8 @@ class MainActivity : Activity() {
         )
 
         val timeInput = createInput(
-            "Time HH:MM (IST)",
-            "19:58"
+            "Time HH:MM AM/PM",
+            "07:58 PM"
         )
 
         val placeInput = createInput(
@@ -298,13 +298,13 @@ class MainActivity : Activity() {
                     .trim().split("-")
 
                 val timeParts = timeInput.text.toString()
-                    .trim().split(":")
+                    .trim().split(" ")
 
                 if (dateParts.size != 3 ||
                     timeParts.size != 2
                 ) {
                     throw Exception(
-                        "Date DD-MM-YYYY / Time HH:MM"
+                        "Date DD-MM-YYYY / Time HH:MM AM/PM"
                     )
                 }
 
@@ -312,8 +312,35 @@ class MainActivity : Activity() {
                 val birthMonth = dateParts[1].toInt()
                 val birthYear = dateParts[2].toInt()
 
-                val birthHour = timeParts[0].toInt()
-                val birthMinute = timeParts[1].toInt()
+                val clockParts = timeParts[0].split(":")
+
+                if (clockParts.size != 2) {
+                    throw Exception("Invalid time format")
+                }
+
+                val hour12 = clockParts[0].toInt()
+                val birthMinute = clockParts[1].toInt()
+
+                val period = timeParts[1].uppercase(Locale.US)
+
+                if (period != "AM" && period != "PM") {
+                    throw Exception("AM or PM required")
+                }
+
+                if (hour12 !in 1..12) {
+                    throw Exception("Hour must be 1-12")
+                }
+
+                if (birthMinute !in 0..59) {
+                    throw Exception("Minute must be 0-59")
+                }
+
+                val birthHour = when {
+                    period == "AM" && hour12 == 12 -> 0
+                    period == "PM" && hour12 == 12 -> 12
+                    period == "PM" -> hour12 + 12
+                    else -> hour12
+                }
 
                 val latitude =
                     latitudeInput.text.toString().toDouble()
@@ -340,7 +367,8 @@ class MainActivity : Activity() {
                     birthMinute,
                     latitude,
                     longitude,
-                    place
+                    place,
+                    timeInput.text.toString().trim()
                 )
 
             } catch (e: Exception) {
@@ -367,7 +395,8 @@ class MainActivity : Activity() {
         birthMinute: Int,
         latitude: Double,
         longitude: Double,
-        place: String
+        place: String,
+        displayTime: String
     ) {
 
         outputLayout.removeAllViews()
@@ -520,11 +549,7 @@ class MainActivity : Activity() {
                     birthDay, birthMonth, birthYear
                 )
             )
-            result.append(
-                "Time: %02d:%02d IST\n".format(
-                    birthHour, birthMinute
-                )
-            )
+            result.append("Time: $displayTime IST\n")
             result.append("Place: $place\n")
             result.append("UTC: $hour:$minute:$second\n")
             result.append("Latitude: $latitude\n")
