@@ -988,7 +988,110 @@ class MainActivity : Activity() {
                 result.append("-----------------------------\n")
             }
 
-            // COMPLETION
+// STEP 8: PRELIMINARY BHAVA STRENGTH MODEL
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("STEP 8 - PRELIMINARY BHAVA STRENGTH\n")
+            result.append("=============================\n")
+            result.append("Note: This is a transparent prototype scoring model, not a traditional Shadbala calculation.\n\n")
+
+            val signLordsForStrength = arrayOf(
+                "செவ்வாய்", "சுக்கிரன்", "புதன்", "சந்திரன்",
+                "சூரியன்", "புதன்", "சுக்கிரன்", "செவ்வாய்",
+                "குரு", "சனி", "சனி", "குரு"
+            )
+
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val lordName = signLordsForStrength[targetSign]
+                val lordLongitude = planetPositions[lordName]
+                var score = 50
+                val factorLines = mutableListOf<String>()
+
+                val occupants = planetPositions.filter {
+                    houseNumber(it.value, lagnaSidereal) == targetHouse
+                }.keys.toList()
+
+                // Lord dignity contribution
+                if (lordLongitude != null) {
+                    val lordSign = signIndex(lordLongitude)
+                    val dignity = getLordStatus(lordName, lordSign)
+                    val dignityPoints = when {
+                        dignity.contains("Exaltation") -> 20
+                        dignity.contains("Own Sign") -> 15
+                        dignity.contains("Debilitation") -> -15
+                        else -> 0
+                    }
+                    score += dignityPoints
+                    factorLines.add("Lord dignity: $dignity ($dignityPoints)")
+
+                    // Lord placement contribution: kendras and trikonas
+                    val lordHouse = houseNumber(lordLongitude, lagnaSidereal)
+                    val placementPoints = when (lordHouse) {
+                        1, 4, 7, 10 -> 10
+                        5, 9 -> 8
+                        2, 11 -> 5
+                        3, 6, 8, 12 -> -5
+                        else -> 0
+                    }
+                    score += placementPoints
+                    factorLines.add("Lord placement: House $lordHouse ($placementPoints)")
+                } else {
+                    factorLines.add("Lord position unavailable (0)")
+                }
+
+                // Occupancy contribution (simple prototype adjustment)
+                val occupancyPoints = occupants.size * 3
+                score += occupancyPoints
+                factorLines.add("Occupants: ${occupants.size} (+$occupancyPoints)")
+
+                // Received aspects: Jupiter/Venus/Mercury and Moon treated as supportive
+                // in this prototype; Mars/Saturn/Rahu/Ketu treated as challenging;
+                // Sun is neutral. This is deliberately simplified.
+                val aspectSources = mutableListOf<String>()
+                var aspectAdjustment = 0
+                for (sourceName in planetPositions.keys) {
+                    val sourceLongitude = planetPositions[sourceName]!!
+                    val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                    for (offset in getDrishtiOffsets(sourceName)) {
+                        val calculatedTarget = ((sourceHouse + offset - 2) % 12) + 1
+                        if (calculatedTarget == targetHouse) {
+                            aspectSources.add(sourceName)
+                            val adjustment = when (sourceName) {
+                                "குரு", "சுக்கிரன்", "புதன்", "சந்திரன்" -> 3
+                                "செவ்வாய்", "சனி", "ராகு", "கேது" -> -3
+                                else -> 0
+                            }
+                            aspectAdjustment += adjustment
+                            break
+                        }
+                    }
+                }
+                score += aspectAdjustment
+                factorLines.add("Aspect influence: ${if (aspectSources.isEmpty()) "None" else aspectSources.joinToString()} ($aspectAdjustment)")
+
+                val finalScore = score.coerceIn(0, 100)
+                val strengthLabel = when {
+                    finalScore >= 75 -> "High"
+                    finalScore >= 60 -> "Above average"
+                    finalScore >= 40 -> "Moderate"
+                    finalScore >= 25 -> "Low"
+                    else -> "Very low"
+                }
+
+                result.append("HOUSE $targetHouse - ${rasiNames[targetSign]}\n")
+                result.append("Bhava Lord: $lordName\n")
+                result.append("Occupants: ${if (occupants.isEmpty()) "இல்லை" else occupants.joinToString(" | ")}\n")
+                result.append("Aspects: ${if (aspectSources.isEmpty()) "None" else aspectSources.joinToString(" | ")}\n")
+                result.append("Factors:\n")
+                factorLines.forEach { result.append(" - $it\n") }
+                result.append("Raw score: $score\n")
+                result.append("Final score (0-100): $finalScore\n")
+                result.append("Strength level: $strengthLabel\n")
+                result.append("-----------------------------\n")
+            }
+
+                        // COMPLETION
 
             result.append("\n")
             result.append("CALCULATION COMPLETE\n")
