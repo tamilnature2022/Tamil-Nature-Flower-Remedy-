@@ -4,6 +4,7 @@ package com.tamilnature.ephemeratest
 import org.junit.Test
 import org.junit.Assert.*
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 class DashaEngineTest {
 
@@ -127,6 +128,96 @@ class DashaEngineTest {
         assertEquals(
             LocalDate.of(2003, 7, 2),
             result.first().endDate
+        )
+    }
+
+    @Test
+    fun antardashaSequenceContainsNinePeriods() {
+
+        val md = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        ).first()
+
+        val result = VimshottariDasha.calculateAntardasha(md)
+
+        assertEquals(9, result.size)
+
+        val expected = listOf(
+            "கேது",
+            "சுக்கிரன்",
+            "சூரியன்",
+            "சந்திரன்",
+            "செவ்வாய்",
+            "ராகு",
+            "குரு",
+            "சனி",
+            "புதன்"
+        )
+
+        assertEquals(
+            expected,
+            result.map { it.antardashaLord }
+        )
+    }
+
+    @Test
+    fun firstAntardashaEndDateIsCorrect() {
+
+        val md = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        ).first()
+
+        val result = VimshottariDasha.calculateAntardasha(md)
+
+        assertEquals(
+            LocalDate.of(2000, 3, 15),
+            result.first().endDate
+        )
+    }
+
+    @Test
+    fun lastAntardashaEndsWithMahadasha() {
+
+        val md = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        ).first()
+
+        val result = VimshottariDasha.calculateAntardasha(md)
+
+        assertEquals(
+            md.endDate,
+            result.last().endDate
+        )
+    }
+
+    @Test
+    fun firstAntardashaDurationMatchesVimshottariProportion() {
+
+        val md = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        ).first()
+
+        val result = VimshottariDasha.calculateAntardasha(md)
+
+        val mdDays = ChronoUnit.DAYS.between(
+            md.startDate,
+            md.endDate
+        )
+
+        val expectedDays = (mdDays * 7.0 / 120.0).toLong()
+
+        val actualDays = ChronoUnit.DAYS.between(
+            result.first().startDate,
+            result.first().endDate
+        )
+
+        assertEquals(
+            expectedDays,
+            actualDays
         )
     }
 }
