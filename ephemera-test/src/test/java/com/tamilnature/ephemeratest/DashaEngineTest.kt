@@ -109,10 +109,7 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateAntardasha(md)
 
-        assertEquals(
-            md.startDate,
-            result.first().startDate
-        )
+        assertEquals(md.startDate, result.first().startDate)
         assertTrue(result.first().endDate.isAfter(md.startDate))
     }
 
@@ -125,10 +122,7 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateAntardasha(md)
 
-        assertEquals(
-            md.endDate,
-            result.last().endDate
-        )
+        assertEquals(md.endDate, result.last().endDate)
     }
 
     @Test
@@ -199,5 +193,38 @@ class DashaEngineTest {
 
         assertEquals("கேது", result.first().planet)
         assertEquals(5.25, result.first().years, 0.01)
+    }
+
+    @Test
+    fun nakshatraStartGivesFullBalance() {
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            0.0
+        )
+
+        assertEquals("கேது", result.first().planet)
+        assertEquals(7.0, result.first().years, 0.001)
+    }
+
+    @Test
+    fun nakshatraMiddleGivesHalfBalance() {
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        )
+
+        assertEquals(3.5, result.first().years, 0.01)
+    }
+
+    @Test
+    fun nakshatraNearEndGivesSmallBalance() {
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            13.333
+        )
+
+        assertEquals("கேது", result.first().planet)
+        assertTrue(result.first().years > 0.0)
+        assertTrue(result.first().years < 0.01)
     }
 }
