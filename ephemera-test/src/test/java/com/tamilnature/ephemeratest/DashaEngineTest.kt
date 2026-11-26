@@ -115,4 +115,18 @@ class DashaEngineTest {
             0.000001
         )
     }
+
+    @Test
+    fun mahadashaBalanceEndDateIsCorrect() {
+
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            6.6666666667
+        )
+
+        assertEquals(
+            LocalDate.of(2003, 7, 2),
+            result.first().endDate
+        )
+    }
 }
