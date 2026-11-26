@@ -47,7 +47,7 @@ class DashaEngineTest {
             LocalDate.of(2000, 1, 1),
             13.333334
         )
-        assertEquals("கேது", result.first().planet)
+        assertEquals("சுக்கிரன்", result.first().planet)
     }
 
     @Test
@@ -109,7 +109,10 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateAntardasha(md)
 
-        assertEquals(md.startDate, result.first().startDate)
+        assertEquals(
+            md.startDate,
+            result.first().startDate
+        )
         assertTrue(result.first().endDate.isAfter(md.startDate))
     }
 
@@ -122,7 +125,10 @@ class DashaEngineTest {
 
         val result = VimshottariDasha.calculateAntardasha(md)
 
-        assertEquals(md.endDate, result.last().endDate)
+        assertEquals(
+            md.endDate,
+            result.last().endDate
+        )
     }
 
     @Test
