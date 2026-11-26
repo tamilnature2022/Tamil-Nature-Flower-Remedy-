@@ -702,7 +702,7 @@ class MainActivity : Activity() {
                 "Final MC: ${formatRasi(mcSidereal)}\n\n"
             )
 
-            // GRAHA VALIDATION
+            // STEP 5: GRAHA VALIDATION + DIGNITY
 
             result.append("=============================\n")
             result.append("GRAHA VALIDATION\n")
@@ -720,6 +720,8 @@ class MainActivity : Activity() {
                     sidereal,
                     lagnaSidereal
                 )
+
+                val grahaSign = signIndex(sidereal)
 
                 result.append("${graha.name}\n")
 
@@ -743,6 +745,12 @@ class MainActivity : Activity() {
 
                 result.append(
                     "Motion: ${retrogradeStatus[graha.name]}\n"
+                )
+
+                result.append(
+                    "Graha Status: ${
+                        getLordStatus(graha.name, grahaSign)
+                    }\n"
                 )
 
                 result.append("-----------------------------\n")
