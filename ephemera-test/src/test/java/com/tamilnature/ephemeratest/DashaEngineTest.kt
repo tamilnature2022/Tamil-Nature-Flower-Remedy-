@@ -387,4 +387,101 @@ class DashaEngineTest {
             )
         }
     }
+
+    @Test
+    fun all9PlanetMahadashaBalanceProgressionValidation() {
+
+        val nakshatraSize = 360.0 / 27.0
+        val birthDate = LocalDate.of(2000, 1, 1)
+
+        val planetYears = listOf(
+            7.0, 20.0, 6.0, 10.0, 7.0,
+            18.0, 16.0, 19.0, 17.0
+        )
+
+        val expectedLords = listOf(
+            "கேது", "சுக்கிரன்", "சூரியன்",
+            "சந்திரன்", "செவ்வாய்", "ராகு",
+            "குரு", "சனி", "புதன்"
+        )
+
+        val travelFractions = listOf(
+            0.0,
+            0.25,
+            0.50,
+            0.75,
+            0.99
+        )
+
+        for (planetIndex in 0 until 9) {
+
+            val nakshatraIndex = planetIndex
+
+            val nakshatraStart =
+                nakshatraIndex * nakshatraSize
+
+            val balances = travelFractions.map { fraction ->
+
+                val longitude =
+                    nakshatraStart +
+                    (fraction * nakshatraSize)
+
+                val result =
+                    VimshottariDasha.calculateMahadasha(
+                        birthDate,
+                        longitude
+                    )
+
+                assertEquals(
+                    "Planet mapping failed at index $planetIndex",
+                    expectedLords[planetIndex],
+                    result.first().planet
+                )
+
+                result.first().years
+            }
+
+            val fullYears = planetYears[planetIndex]
+
+            assertEquals(
+                fullYears,
+                balances[0],
+                0.01
+            )
+
+            assertEquals(
+                fullYears * 0.75,
+                balances[1],
+                0.02
+            )
+
+            assertEquals(
+                fullYears * 0.50,
+                balances[2],
+                0.02
+            )
+
+            assertEquals(
+                fullYears * 0.25,
+                balances[3],
+                0.02
+            )
+
+            assertTrue(
+                "99% travel balance should be small for " +
+                    expectedLords[planetIndex],
+                balances[4] < fullYears * 0.02
+            )
+
+            for (i in 0 until balances.size - 1) {
+
+                assertTrue(
+                    "Balance must decrease for " +
+                        expectedLords[planetIndex] + ": " +
+                        "${balances[i]} -> ${balances[i + 1]}",
+                    balances[i] > balances[i + 1]
+                )
+            }
+        }
+    }
 }
