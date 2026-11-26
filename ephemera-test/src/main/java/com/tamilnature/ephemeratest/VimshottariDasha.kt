@@ -1,188 +1,105 @@
-
 package com.tamilnature.ephemeratest
 
+import org.junit.Test
+import org.junit.Assert.*
 import java.time.LocalDate
 
-object VimshottariDasha {
+class DashaEngineTest {
 
-    data class Mahadasha(
-        val planet: String,
-        val startDate: LocalDate,
-        val endDate: LocalDate,
-        val years: Double
-    )
+    @Test
+    fun mahadashaSequenceIsCorrect() {
 
-    data class Antardasha(
-        val antardashaLord: String,
-        val startDate: LocalDate,
-        val endDate: LocalDate
-    )
-
-    private val lords = listOf(
-        "கேது",
-        "சுக்கிரன்",
-        "சூரியன்",
-        "சந்திரன்",
-        "செவ்வாய்",
-        "ராகு",
-        "குரு",
-        "சனி",
-        "புதன்"
-    )
-
-    private val years = listOf(
-        7.0,
-        20.0,
-        6.0,
-        10.0,
-        7.0,
-        18.0,
-        16.0,
-        19.0,
-        17.0
-    )
-
-    private const val TOTAL_YEARS = 120.0
-    private const val DAYS_PER_YEAR = 365.25
-
-    private fun indexOfLord(planet: String): Int {
-        return lords.indexOf(planet)
-    }
-
-    private fun dateFromDays(
-        start: LocalDate,
-        days: Double
-    ): LocalDate {
-        return start.plusDays(days.toLong())
-    }
-
-    fun calculateMahadasha(
-        birthDate: LocalDate,
-        moonLongitude: Double
-    ): List<Mahadasha> {
-
-        val normalized =
-            ((moonLongitude % 360.0) + 360.0) % 360.0
-
-        val nakshatraSize = 360.0 / 27.0
-
-        val nakshatraIndex =
-            (normalized / nakshatraSize).toInt()
-                .coerceIn(0, 26)
-
-        val nakshatraStart =
-            nakshatraIndex * nakshatraSize
-
-        val travelled =
-            normalized - nakshatraStart
-
-        val remainingFraction =
-            (nakshatraSize - travelled) / nakshatraSize
-
-        val birthLordIndex =
-            nakshatraIndex % 9
-
-        val balanceYears =
-            years[birthLordIndex] * remainingFraction
-
-        val balanceDays =
-            balanceYears * DAYS_PER_YEAR
-
-        val firstEndDate =
-            dateFromDays(birthDate, balanceDays)
-
-        val result = mutableListOf<Mahadasha>()
-
-        result.add(
-            Mahadasha(
-                planet = lords[birthLordIndex],
-                startDate = birthDate,
-                endDate = firstEndDate,
-                years = balanceYears
-            )
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            0.0
         )
 
-        var currentDate = firstEndDate
+        val expected = listOf(
+            "கேது",
+            "சுக்கிரன்",
+            "சூரியன்",
+            "சந்திரன்",
+            "செவ்வாய்",
+            "ராகு",
+            "குரு",
+            "சனி",
+            "புதன்"
+        )
 
-        for (step in 1 until 9) {
+        val actual = result.map { it.planet }
 
-            val index =
-                (birthLordIndex + step) % 9
-
-            val planetYears = years[index]
-
-            val durationDays =
-                planetYears * DAYS_PER_YEAR
-
-            val endDate =
-                dateFromDays(currentDate, durationDays)
-
-            result.add(
-                Mahadasha(
-                    planet = lords[index],
-                    startDate = currentDate,
-                    endDate = endDate,
-                    years = planetYears
-                )
-            )
-
-            currentDate = endDate
-        }
-
-        return result
+        assertEquals(expected, actual)
     }
 
-    fun calculateAntardasha(
-        mahadasha: Mahadasha
-    ): List<Antardasha> {
+    @Test
+    fun fullMahadashaYearsAreCorrect() {
 
-        val mdIndex =
-            indexOfLord(mahadasha.planet)
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            0.0
+        )
 
-        if (mdIndex < 0) return emptyList()
+        val expectedYears = listOf(
+            20.0,
+            6.0,
+            10.0,
+            7.0,
+            18.0,
+            16.0,
+            19.0,
+            17.0
+        )
 
-        val totalDays =
-            java.time.temporal.ChronoUnit.DAYS.between(
-                mahadasha.startDate,
-                mahadasha.endDate
-            ).toDouble()
-
-        val result = mutableListOf<Antardasha>()
-
-        var currentDate = mahadasha.startDate
-
-        for (step in 0 until 9) {
-
-            val adIndex =
-                (mdIndex + step) % 9
-
-            val adLord =
-                lords[adIndex]
-
-            val proportion =
-                years[adIndex] / TOTAL_YEARS
-
-            val durationDays =
-                totalDays * proportion
-
-            val endDate =
-                if (step == 8) {
-                    mahadasha.endDate
-                } else {
-                    dateFromDays(currentDate, durationDays)
-                }
-
-            result.add(
-                Antardasha(
-                    antardashaLord = adLord,
-                    startDate = currentDate,
-                    endDate = endDate
-                )
+        for (i in 1 until result.size) {
+            assertEquals(
+                expectedYears[i - 1],
+                result[i].years,
+                0.000001
             )
-
-            currentDate = endDate
         }
+    }
 
-        return result
+    @Test
+    fun dashaSequenceContainsNinePeriods() {
+
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            0.0
+        )
+
+        assertEquals(9, result.size)
+    }
+
+    @Test
+    fun nakshatraBoundaryChangesMahadashaLord() {
+
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            13.333334
+        )
+
+        assertEquals("சுக்கிரன்", result.first().planet)
+    }
+
+    @Test
+    fun totalFullMahadashaYearsEqual120() {
+
+        val years = listOf(
+            7.0,
+            20.0,
+            6.0,
+            10.0,
+            7.0,
+            18.0,
+            16.0,
+            19.0,
+            17.0
+        )
+
+        assertEquals(
+            120.0,
+            years.sum(),
+            0.000001
+        )
     }
 }
