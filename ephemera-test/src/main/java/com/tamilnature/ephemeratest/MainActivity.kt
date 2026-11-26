@@ -959,6 +959,8 @@ class MainActivity : Activity() {
             result.append("=============================\n\n")
 
             val drishtiSources = planetPositions.keys.toList()
+            val bhavaScores = mutableMapOf<Int, Int>()
+
             for (targetHouse in 1..12) {
                 val targetSign = (lagnaSign + targetHouse - 1) % 12
                 val receivedFrom = mutableListOf<String>()
@@ -1071,6 +1073,8 @@ class MainActivity : Activity() {
                 factorLines.add("Aspect influence: ${if (aspectSources.isEmpty()) "None" else aspectSources.joinToString()} ($aspectAdjustment)")
 
                 val finalScore = score.coerceIn(0, 100)
+                bhavaScores[targetHouse] = finalScore
+
                 val strengthLabel = when {
                     finalScore >= 75 -> "High"
                     finalScore >= 60 -> "Above average"
@@ -1090,6 +1094,23 @@ class MainActivity : Activity() {
                 result.append("Strength level: $strengthLabel\n")
                 result.append("-----------------------------\n")
             }
+
+            // STEP 11: BHAVA SCORE SUMMARY
+            result.append("\n=============================\n")
+            result.append("STEP 11 - BHAVA SCORE SUMMARY\n")
+            result.append("=============================\n\n")
+            val sortedBhavas = bhavaScores.entries.sortedByDescending { it.value }
+            result.append("Top 3 Bhavas (prototype scores):\n")
+            sortedBhavas.take(3).forEach { entry ->
+                val sign = (lagnaSign + entry.key - 1) % 12
+                result.append("House ${entry.key} - ${rasiNames[sign]}: ${entry.value}/100\n")
+            }
+            result.append("\nLowest 3 Bhavas (prototype scores):\n")
+            sortedBhavas.takeLast(3).sortedBy { it.value }.forEach { entry ->
+                val sign = (lagnaSign + entry.key - 1) % 12
+                result.append("House ${entry.key} - ${rasiNames[sign]}: ${entry.value}/100\n")
+            }
+            result.append("\nNote: Ranking is based only on the current heuristic Bhava score model.\n")
 
                                     // STEP 9: BASIC YOGA DETECTION
             result.append("\n=============================\n")
