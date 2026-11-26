@@ -336,4 +336,55 @@ class DashaEngineTest {
             )
         }
     }
+
+    @Test
+    fun nakshatraBalanceProgressionValidation() {
+
+        val nakshatraSize = 360.0 / 27.0
+        val birthDate = LocalDate.of(2000, 1, 1)
+
+        val travelFractions = listOf(
+            0.0,
+            0.25,
+            0.50,
+            0.75,
+            0.99
+        )
+
+        val balances = travelFractions.map { fraction ->
+
+            val longitude =
+                fraction * nakshatraSize
+
+            val result =
+                VimshottariDasha.calculateMahadasha(
+                    birthDate,
+                    longitude
+                )
+
+            assertEquals(
+                "Starting lord should remain Ketu",
+                "கேது",
+                result.first().planet
+            )
+
+            result.first().years
+        }
+
+        assertEquals(7.0, balances[0], 0.001)
+        assertEquals(5.25, balances[1], 0.01)
+        assertEquals(3.5, balances[2], 0.01)
+        assertEquals(1.75, balances[3], 0.01)
+
+        assertTrue(balances[4] < 0.1)
+
+        for (i in 0 until balances.size - 1) {
+
+            assertTrue(
+                "Balance should decrease as Moon longitude advances. " +
+                    "Index $i: ${balances[i]} -> ${balances[i + 1]}",
+                balances[i] > balances[i + 1]
+            )
+        }
+    }
 }
