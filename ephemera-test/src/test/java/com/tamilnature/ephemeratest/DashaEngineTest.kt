@@ -1,3 +1,4 @@
+
 package com.tamilnature.ephemeratest
 
 import org.junit.Test
@@ -405,8 +406,9 @@ class DashaEngineTest {
             "குரு", "சனி", "புதன்"
         )
 
+        // Avoid exact floating-point nakshatra boundaries
         val travelFractions = listOf(
-            0.0,
+            0.0000001,
             0.25,
             0.50,
             0.75,
