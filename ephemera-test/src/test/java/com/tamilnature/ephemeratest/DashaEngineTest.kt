@@ -1,4 +1,3 @@
-
 package com.tamilnature.ephemeratest
 
 import org.junit.Test
@@ -81,15 +80,17 @@ class DashaEngineTest {
     }
 
     @Test
-    fun totalMahadashaYearsEqual120() {
+    fun totalFullMahadashaYearsEqual120() {
+
+        val expectedTotal = 120.0
 
         val years = listOf(
             7.0, 20.0, 6.0, 10.0, 7.0,
             18.0, 16.0, 19.0, 17.0
         )
 
-        val total = years.sum()
+        val actualTotal = years.sum()
 
-        assertEquals(120.0, total, 0.000001)
+        assertEquals(expectedTotal, actualTotal, 0.000001)
     }
 }
