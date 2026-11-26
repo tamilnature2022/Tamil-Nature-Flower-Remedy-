@@ -1,3 +1,4 @@
+
 package com.tamilnature.ephemeratest
 
 import android.app.Activity
@@ -292,48 +293,73 @@ class MainActivity : Activity() {
 
         calculateButton.setOnClickListener {
 
+            // Clear previous chart/report first
+            outputLayout.removeAllViews()
+
             try {
 
-                val dateParts = dateInput.text.toString()
-                    .trim().split("-")
+                // STRICT DATE FORMAT
+                val dateText = dateInput.text.toString().trim()
 
-                val timeParts = timeInput.text.toString()
-                    .trim().split(" ")
-
-                if (dateParts.size != 3 ||
-                    timeParts.size != 2
-                ) {
-                    throw Exception(
-                        "Date DD-MM-YYYY / Time HH:MM AM/PM"
+                if (!dateText.matches(
+                        Regex("^\\d{2}-\\d{2}-\\d{4}$")
                     )
+                ) {
+                    throw Exception("Date format must be DD-MM-YYYY")
                 }
+
+                val dateParts = dateText.split("-")
 
                 val birthDay = dateParts[0].toInt()
                 val birthMonth = dateParts[1].toInt()
                 val birthYear = dateParts[2].toInt()
 
-                val clockParts = timeParts[0].split(":")
+                // STRICT CALENDAR DATE VALIDATION
+                val validationCalendar = Calendar.getInstance(
+                    TimeZone.getTimeZone("Asia/Kolkata")
+                )
 
-                if (clockParts.size != 2) {
-                    throw Exception("Invalid time format")
+                validationCalendar.isLenient = false
+
+                validationCalendar.set(
+                    birthYear,
+                    birthMonth - 1,
+                    birthDay,
+                    0,
+                    0,
+                    0
+                )
+
+                validationCalendar.set(
+                    Calendar.MILLISECOND, 0
+                )
+
+                validationCalendar.time
+
+                // STRICT TIME FORMAT
+                val timeText = timeInput.text.toString().trim()
+
+                val timeRegex = Regex(
+                    "^(0?[1-9]|1[0-2]):([0-5][0-9])\\s+(AM|PM)$",
+                    RegexOption.IGNORE_CASE
+                )
+
+                if (!timeRegex.matches(timeText)) {
+                    throw Exception(
+                        "Time format must be HH:MM AM/PM"
+                    )
                 }
+
+                val timeParts = timeText.split(
+                    Regex("\\s+")
+                )
+
+                val clockParts = timeParts[0].split(":")
 
                 val hour12 = clockParts[0].toInt()
                 val birthMinute = clockParts[1].toInt()
 
                 val period = timeParts[1].uppercase(Locale.US)
-
-                if (period != "AM" && period != "PM") {
-                    throw Exception("AM or PM required")
-                }
-
-                if (hour12 !in 1..12) {
-                    throw Exception("Hour must be 1-12")
-                }
-
-                if (birthMinute !in 0..59) {
-                    throw Exception("Minute must be 0-59")
-                }
 
                 val birthHour = when {
                     period == "AM" && hour12 == 12 -> 0
@@ -342,21 +368,49 @@ class MainActivity : Activity() {
                     else -> hour12
                 }
 
-                val latitude =
-                    latitudeInput.text.toString().toDouble()
+                // PLACE VALIDATION
+                val place = placeInput.text.toString().trim()
 
-                val longitude =
-                    longitudeInput.text.toString().toDouble()
-
-                val place =
-                    placeInput.text.toString().trim()
-
-                if (latitude !in -90.0..90.0) {
-                    throw Exception("Invalid latitude")
+                if (place.isEmpty()) {
+                    throw Exception("Birth place is required")
                 }
 
-                if (longitude !in -180.0..180.0) {
-                    throw Exception("Invalid longitude")
+                // LATITUDE VALIDATION
+                val latitudeText =
+                    latitudeInput.text.toString().trim()
+
+                if (latitudeText.isEmpty()) {
+                    throw Exception("Latitude is required")
+                }
+
+                val latitude = latitudeText.toDoubleOrNull()
+                    ?: throw Exception("Invalid latitude")
+
+                if (!latitude.isFinite() ||
+                    latitude !in -90.0..90.0
+                ) {
+                    throw Exception(
+                        "Latitude must be between -90 and 90"
+                    )
+                }
+
+                // LONGITUDE VALIDATION
+                val longitudeText =
+                    longitudeInput.text.toString().trim()
+
+                if (longitudeText.isEmpty()) {
+                    throw Exception("Longitude is required")
+                }
+
+                val longitude = longitudeText.toDoubleOrNull()
+                    ?: throw Exception("Invalid longitude")
+
+                if (!longitude.isFinite() ||
+                    longitude !in -180.0..180.0
+                ) {
+                    throw Exception(
+                        "Longitude must be between -180 and 180"
+                    )
                 }
 
                 calculate(
@@ -368,7 +422,7 @@ class MainActivity : Activity() {
                     latitude,
                     longitude,
                     place,
-                    timeInput.text.toString().trim()
+                    timeText
                 )
 
             } catch (e: Exception) {
@@ -551,7 +605,11 @@ class MainActivity : Activity() {
             )
             result.append("Time: $displayTime IST\n")
             result.append("Place: $place\n")
-            result.append("UTC: $hour:$minute:$second\n")
+            result.append(
+                "UTC: %02d:%02d:%02d\n".format(
+                    hour, minute, second
+                )
+            )
             result.append("Latitude: $latitude\n")
             result.append("Longitude: $longitude\n\n")
 
