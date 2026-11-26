@@ -1,9 +1,7 @@
-
 package com.tamilnature.ephemeratest
 
 import org.junit.Test
 import org.junit.Assert.*
-
 import java.time.LocalDate
 
 class DashaEngineTest {
@@ -70,5 +68,16 @@ class DashaEngineTest {
         )
 
         assertEquals(9, result.size)
+    }
+
+    @Test
+    fun nakshatraBoundaryChangesMahadashaLord() {
+
+        val result = VimshottariDasha.calculateMahadasha(
+            LocalDate.of(2000, 1, 1),
+            13.333333333333334
+        )
+
+        assertEquals("சுக்கிரன்", result.first().planet)
     }
 }
