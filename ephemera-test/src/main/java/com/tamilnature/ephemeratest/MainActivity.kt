@@ -104,7 +104,8 @@ class MainActivity : Activity() {
 
     private fun createChart(
         lagnaSign: Int,
-        positions: Map<String, Double>
+        positions: Map<String, Double>,
+        retrogradeNames: Set<String>
     ): GridLayout {
 
         val chart = GridLayout(this).apply {
@@ -155,7 +156,18 @@ class MainActivity : Activity() {
             }.keys
 
             if (occupants.isNotEmpty()) {
-                text.append(occupants.joinToString(" "))
+
+                val displayedOccupants = occupants.map { name ->
+                    if (name in retrogradeNames) {
+                        "$name (R)"
+                    } else {
+                        name
+                    }
+                }
+
+                text.append(
+                    displayedOccupants.joinToString(" ")
+                )
             }
 
             cells[row][col] = text.toString()
@@ -301,6 +313,9 @@ class MainActivity : Activity() {
             val planetPositions =
                 mutableMapOf<String, Double>()
 
+            val retrogradeNames =
+                mutableSetOf<String>()
+
             for (graha in grahas) {
 
                 val position = Ephemera.position(
@@ -311,6 +326,10 @@ class MainActivity : Activity() {
 
                 planetPositions[graha.name] =
                     normalize(position.longitude - lahiri)
+
+                if (position.isRetrograde) {
+                    retrogradeNames.add(graha.name)
+                }
             }
 
             // Rahu and Ketu
@@ -345,7 +364,8 @@ class MainActivity : Activity() {
             mainLayout.addView(
                 createChart(
                     lagnaSign,
-                    planetPositions
+                    planetPositions,
+                    retrogradeNames
                 )
             )
 
