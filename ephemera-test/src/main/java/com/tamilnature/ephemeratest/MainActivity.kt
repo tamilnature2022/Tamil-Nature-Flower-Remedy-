@@ -2709,6 +2709,57 @@ class MainActivity : Activity() {
             result.append("Average inverse-distance efficiency across reachable pairs: ${String.format(Locale.US, "%.4f", step47AverageEfficiency)}\n")
             result.append("Step 47 note: distance frequency and inverse-distance efficiency are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 48: DEGREE DISTRIBUTION AND DEGREE ASSORTATIVITY (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 48 - DEGREE DISTRIBUTION AND DEGREE ASSORTATIVITY\n")
+            result.append("=============================\n\n")
+            result.append("Summarizes node-degree frequencies and Pearson degree correlation across undirected edges. Structural measures only.\n\n")
+
+            val step48DegreeFrequency = sortedMapOf<Int, Int>()
+            val step48Degrees = step43BlockCutAdjacency.mapValues { (_, neighbors) -> neighbors.size }
+            for (degree in step48Degrees.values) {
+                step48DegreeFrequency[degree] = (step48DegreeFrequency[degree] ?: 0) + 1
+            }
+            val step48NodeCount = step48Degrees.size
+            val step48DegreeSum = step48Degrees.values.sum().toLong()
+            val step48MeanDegree = if (step48NodeCount > 0) step48DegreeSum.toDouble() / step48NodeCount.toDouble() else 0.0
+            val step48Edges = mutableListOf<Pair<Int, Int>>()
+            for ((node, neighbors) in step43BlockCutAdjacency) {
+                for (neighbor in neighbors) {
+                    if (node < neighbor && neighbor in step48Degrees) {
+                        step48Edges.add((step48Degrees[node] ?: 0) to (step48Degrees[neighbor] ?: 0))
+                    }
+                }
+            }
+            val step48EdgeCount = step48Edges.size
+            var step48Assortativity = Double.NaN
+            if (step48EdgeCount > 0) {
+                val xValues = step48Edges.map { it.first.toDouble() }
+                val yValues = step48Edges.map { it.second.toDouble() }
+                val xMean = xValues.average()
+                val yMean = yValues.average()
+                var covarianceSum = 0.0
+                var xVarianceSum = 0.0
+                var yVarianceSum = 0.0
+                for (i in step48Edges.indices) {
+                    val dx = xValues[i] - xMean
+                    val dy = yValues[i] - yMean
+                    covarianceSum += dx * dy
+                    xVarianceSum += dx * dx
+                    yVarianceSum += dy * dy
+                }
+                val denominator = kotlin.math.sqrt(xVarianceSum * yVarianceSum)
+                if (denominator > 0.0) step48Assortativity = covarianceSum / denominator
+            }
+            result.append("NODE DEGREE FREQUENCY\n")
+            result.append(if (step48DegreeFrequency.isEmpty()) "No nodes\n" else step48DegreeFrequency.entries.joinToString("\n") { "Degree ${it.key}: ${it.value} node(s)" } + "\n")
+            result.append("\nSTEP 48 SUMMARY\n")
+            result.append("Nodes evaluated: $step48NodeCount\n")
+            result.append("Undirected edges evaluated: $step48EdgeCount\n")
+            result.append("Mean degree: ${String.format(Locale.US, "%.4f", step48MeanDegree)}\n")
+            result.append("Degree assortativity (Pearson correlation across edge endpoints): ${if (step48Assortativity.isNaN()) "Undefined" else String.format(Locale.US, "%.4f", step48Assortativity)}\n")
+            result.append("Step 48 note: degree distribution and degree assortativity are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2718,7 +2769,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\n")
 
         } catch (e: Exception) {
 
