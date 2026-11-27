@@ -2577,6 +2577,45 @@ class MainActivity : Activity() {
             result.append("Graph diameter metric: $step44Diameter\n")
             result.append("Step 44 note: shortest paths and closeness are descriptive graph-topology metrics only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 45: COMPONENT ECCENTRICITY, RADIUS, CENTER AND PERIPHERY (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 45 - COMPONENT ECCENTRICITY, RADIUS, CENTER AND PERIPHERY\n")
+            result.append("=============================\n\n")
+            result.append("Computes each representation node's eccentricity within its reachable component, and identifies component radius, center and periphery. Structural-only metrics.\n\n")
+
+            val step45Eccentricity = step44DistanceMaps.mapValues { (_, distances) ->
+                if (distances.isEmpty()) 0 else distances.values.maxOrNull() ?: 0
+            }
+            val step45RankedEccentricity = step45Eccentricity.entries.sortedWith(
+                compareBy<Map.Entry<String, Int>> { it.value }.thenBy { it.key }
+            )
+            val step45Unassigned = step44DistanceMaps.keys.toMutableSet()
+            val step45ComponentSummaries = mutableListOf<String>()
+            var step45ComponentIndex = 0
+            while (step45Unassigned.isNotEmpty()) {
+                val seed = step45Unassigned.sorted().first()
+                val componentNodes = (step44DistanceMaps[seed]?.keys ?: setOf(seed)).toSet()
+                step45Unassigned.removeAll(componentNodes)
+                step45ComponentIndex++
+                val componentEcc = componentNodes.mapNotNull { node -> step45Eccentricity[node]?.let { node to it } }.toMap()
+                val radius = componentEcc.values.minOrNull() ?: 0
+                val peripheralEcc = componentEcc.values.maxOrNull() ?: 0
+                val centers = componentEcc.filterValues { it == radius }.keys.sorted()
+                val periphery = componentEcc.filterValues { it == peripheralEcc }.keys.sorted()
+                step45ComponentSummaries.add(
+                    "Component $step45ComponentIndex: nodes=${componentNodes.size}, radius=$radius, center=${centers.joinToString(", ")}, periphery=${periphery.joinToString(", ")}, maximum eccentricity=$peripheralEcc"
+                )
+            }
+
+            result.append("NODE ECCENTRICITY (WITHIN REACHABLE COMPONENT)\n")
+            result.append(if (step45RankedEccentricity.isEmpty()) "No nodes\n" else step45RankedEccentricity.joinToString("\n") { "${it.key}: ${it.value}" } + "\n")
+            result.append("\nCOMPONENT RADIUS / CENTER / PERIPHERY\n")
+            result.append(if (step45ComponentSummaries.isEmpty()) "No components\n" else step45ComponentSummaries.joinToString("\n") + "\n")
+            result.append("\nSTEP 45 SUMMARY\n")
+            result.append("Nodes evaluated: ${step45Eccentricity.size}\n")
+            result.append("Connected components summarized: $step45ComponentIndex\n")
+            result.append("Step 45 note: eccentricity, radius, center and periphery are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2586,7 +2625,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\n")
 
         } catch (e: Exception) {
 
