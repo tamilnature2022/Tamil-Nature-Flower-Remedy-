@@ -1702,6 +1702,34 @@ class MainActivity : Activity() {
                 result.append("These are factor associations only, not adverse or beneficial judgments.\n")
             }
 
+            // STEP 24: BHAVA FACTOR CONSOLIDATION (COUNT DISTINCT FACTORS)
+            result.append("\n=============================\n")
+            result.append("STEP 24 - BHAVA FACTOR CONSOLIDATION\n")
+            result.append("=============================\n\n")
+            result.append("This layer consolidates distinct factors by bhava. It does not apply scores or predictive judgments.\n\n")
+
+            val step24FactorsByHouse = mutableMapOf<Int, MutableSet<String>>()
+            if (step18BadhakaHouse in 1..12) {
+                step24FactorsByHouse.getOrPut(step18BadhakaHouse) { linkedSetOf() }.add("Badhaka")
+            }
+            for (sunyaSign in step19SunyaSigns) {
+                step23HouseBySignName[sunyaSign]?.let { house ->
+                    step24FactorsByHouse.getOrPut(house) { linkedSetOf() }.add("Tithi Sunya")
+                }
+            }
+            step23MudakkuHouse?.let { house ->
+                step24FactorsByHouse.getOrPut(house) { linkedSetOf() }.add("Mudakku")
+            }
+
+            for (house in 1..12) {
+                val factors = step24FactorsByHouse[house] ?: emptySet()
+                result.append("House $house: ")
+                result.append(if (factors.isEmpty()) "None" else factors.joinToString())
+                result.append("\nDistinct factor count: ${factors.size}\n\n")
+            }
+            result.append("Karana: ${step21KaranaName} (recorded separately; not assigned to a bhava in this prototype).\n")
+            result.append("Step 24 note: factor counts represent distinct factor types only. They are not severity, strength, or prediction scores.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1711,7 +1739,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\n")
 
         } catch (e: Exception) {
 
