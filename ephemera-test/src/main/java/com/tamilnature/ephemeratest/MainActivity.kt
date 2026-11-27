@@ -1302,6 +1302,43 @@ class MainActivity : Activity() {
 
             result.append("\nIntegrated overview: This section consolidates the current prototype's Bhava ranking, planetary ranking, and rule-based Yoga findings. It is a technical summary, not a definitive traditional horoscope judgment.\n")
 
+
+            // STEP 14: INTEGRATED BHAVA PREDICTION SCORE (heuristic prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 14 - INTEGRATED BHAVA PREDICTION SCORE\n")
+            result.append("=============================\n\n")
+            result.append("Weighted prototype model: Bhava base 65%, house-lord strength 25%, occupancy signal 10%.\n")
+            result.append("This is a research heuristic and not a classical prediction formula.\n\n")
+
+            val planetScoresForIntegrated = rankedPlanets.associate { it.first to it.second }
+            val integratedBhavaRows = mutableListOf<Pair<Int, Int>>()
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val lordName = signLordsForStrength[targetSign]
+                val baseBhava = bhavaScores[targetHouse] ?: 50
+                val lordScore = planetScoresForIntegrated[lordName] ?: 50
+                val occupants = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == targetHouse }.size
+                val occupancySignal = (50 + occupants * 10).coerceIn(0, 100)
+                val integratedScore = (baseBhava * 0.65 + lordScore * 0.25 + occupancySignal * 0.10).toInt().coerceIn(0, 100)
+                val label = when {
+                    integratedScore >= 75 -> "Strong"
+                    integratedScore >= 60 -> "Above average"
+                    integratedScore >= 40 -> "Moderate"
+                    integratedScore >= 25 -> "Below average"
+                    else -> "Low"
+                }
+                integratedBhavaRows.add(targetHouse to integratedScore)
+                result.append("House $targetHouse - ${rasiNames[targetSign]}\n")
+                result.append("Bhava base: $baseBhava | Lord ($lordName): $lordScore | Occupancy signal: $occupancySignal\n")
+                result.append("Integrated score: $integratedScore/100 - $label\n")
+                result.append("-----------------------------\n")
+            }
+            result.append("\nIntegrated Bhava ranking (highest to lowest):\n")
+            integratedBhavaRows.sortedByDescending { it.second }.forEachIndexed { index, row ->
+                result.append("${index + 1}. House ${row.first}: ${row.second}/100\n")
+            }
+            result.append("\nInterpretation caution: score indicates comparative prototype weighting only; use traditional context and practitioner judgment.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1311,7 +1348,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\n")
 
         } catch (e: Exception) {
 
