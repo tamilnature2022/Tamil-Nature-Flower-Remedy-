@@ -1424,6 +1424,58 @@ class MainActivity : Activity() {
             }
             result.append("Step 16 note: this layer lists occupants and lord-house links using the prototype chart data. It is not a predictive guarantee.\n")
 
+            // STEP 17: PLANETARY INFLUENCE INTEGRATION (simplified research layer)
+            result.append("\n=============================\n")
+            result.append("STEP 17 - PLANETARY INFLUENCE INTEGRATION\n")
+            result.append("=============================\n\n")
+            result.append("This section combines house occupants, received graha drishti, and house-lord placement into a descriptive signal. Classifications are simplified research heuristics.\n\n")
+
+            val step17Supportive = setOf("குரு", "சுக்கிரன்", "புதன்", "சந்திரன்")
+            val step17Challenging = setOf("செவ்வாய்", "சனி", "ராகு", "கேது")
+            val step17Rows = mutableListOf<Pair<Int, Int>>()
+
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val targetLord = step16SignLords[targetSign]
+                val occupants = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == targetHouse }.keys.toList()
+                val receivedFrom = mutableListOf<String>()
+                for (sourceName in planetPositions.keys) {
+                    val sourceLongitude = planetPositions[sourceName] ?: continue
+                    val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                    for (offset in getDrishtiOffsets(sourceName)) {
+                        val calculatedTarget = ((sourceHouse + offset - 2) % 12) + 1
+                        if (calculatedTarget == targetHouse) {
+                            receivedFrom.add(sourceName)
+                            break
+                        }
+                    }
+                }
+                val lordHouse = planetPositions[targetLord]?.let { houseNumber(it, lagnaSidereal) }
+                val supportive = (occupants + receivedFrom).count { it in step17Supportive }
+                val challenging = (occupants + receivedFrom).count { it in step17Challenging }
+                val balance = (supportive - challenging).coerceIn(-5, 5)
+                val combinedScore = ((integratedBhavaRows.firstOrNull { it.first == targetHouse }?.second ?: 50) + balance * 3).coerceIn(0, 100)
+                val signal = when {
+                    balance >= 2 -> "Supportive influence balance"
+                    balance <= -2 -> "Challenging influence balance"
+                    else -> "Mixed / neutral influence balance"
+                }
+                step17Rows.add(targetHouse to combinedScore)
+
+                result.append("House $targetHouse (${rasiNames[targetSign]})\n")
+                result.append("Occupants: ${if (occupants.isEmpty()) "None" else occupants.joinToString()}\n")
+                result.append("Received drishti: ${if (receivedFrom.isEmpty()) "None" else receivedFrom.joinToString()}\n")
+                result.append("Supportive signal count: $supportive | Challenging signal count: $challenging\n")
+                result.append("Lord: $targetLord${if (lordHouse != null) " in House $lordHouse" else " (position unavailable)"}\n")
+                result.append("Influence balance: $signal | Integrated influence score: $combinedScore/100\n")
+                result.append("\n")
+            }
+            result.append("Step 17 ranking (influence score):\n")
+            step17Rows.sortedByDescending { it.second }.forEachIndexed { index, row ->
+                result.append("${index + 1}. House ${row.first}: ${row.second}/100\n")
+            }
+            result.append("\nStep 17 note: this simplified layer uses broad supportive/challenging groupings, not full classical benefic/malefic judgement. Functional lordship, dignity, avastha, exact aspect strength and context remain to be developed.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1433,7 +1485,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\n")
 
         } catch (e: Exception) {
 
