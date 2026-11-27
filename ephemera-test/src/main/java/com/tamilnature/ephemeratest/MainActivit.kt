@@ -1,0 +1,1505 @@
+package com.tamilnature.ephemeratest
+
+import android.app.Activity
+import android.os.Bundle
+import android.graphics.Color
+import android.graphics.Typeface
+import android.view.Gravity
+import android.widget.*
+import io.github.intellecat.ephemera.*
+import java.util.Calendar
+import java.util.TimeZone
+import java.util.Locale
+
+class MainActivity : Activity() {
+
+    private val rasiNames = arrayOf(
+        "மேஷம்", "ரிஷபம்", "மிதுனம்", "கடகம்",
+        "சிம்மம்", "கன்னி", "துலாம்", "விருச்சிகம்",
+        "தனுசு", "மகரம்", "கும்பம்", "மீனம்"
+    )
+
+    private data class Graha(val name: String, val body: Body)
+
+    private val grahas = listOf(
+        Graha("சூரியன்", Body.SUN),
+        Graha("சந்திரன்", Body.MOON),
+        Graha("செவ்வாய்", Body.MARS),
+        Graha("புதன்", Body.MERCURY),
+        Graha("குரு", Body.JUPITER),
+        Graha("சுக்கிரன்", Body.VENUS),
+        Graha("சனி", Body.SATURN)
+    )
+
+    private fun normalize(value: Double): Double =
+        ((value % 360.0) + 360.0) % 360.0
+
+    private fun signIndex(longitude: Double): Int =
+        (normalize(longitude) / 30.0).toInt()
+
+    private fun houseNumber(
+        planetLongitude: Double,
+        lagnaLongitude: Double
+    ): Int =
+        ((signIndex(planetLongitude) -
+            signIndex(lagnaLongitude) + 12) % 12) + 1
+
+    private fun formatRasi(longitude: Double): String {
+        val normalized = normalize(longitude)
+        val index = signIndex(normalized)
+        val withinRasi = normalized % 30.0
+
+        val totalSeconds = (withinRasi * 3600.0).toInt()
+        val degrees = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+
+        return String.format(
+            Locale.US,
+            "%s %02d° %02d′ %02d″",
+            rasiNames[index], degrees, minutes, seconds
+        )
+    }
+
+    private fun formatDegree(value: Double): String =
+        String.format(Locale.US, "%.6f°", value)
+
+    // STEP 4: LORD DIGNITY STATUS
+
+    private fun getLordStatus(
+        lord: String,
+        sign: Int
+    ): String {
+
+        val ownSigns = when (lord) {
+            "சூரியன்" -> listOf(4)
+            "சந்திரன்" -> listOf(3)
+            "செவ்வாய்" -> listOf(0, 7)
+            "புதன்" -> listOf(2, 5)
+            "குரு" -> listOf(8, 11)
+            "சுக்கிரன்" -> listOf(1, 6)
+            "சனி" -> listOf(9, 10)
+            else -> emptyList()
+        }
+
+        val exaltationSigns = mapOf(
+            "சூரியன்" to 0,
+            "சந்திரன்" to 1,
+            "செவ்வாய்" to 9,
+            "புதன்" to 5,
+            "குரு" to 3,
+            "சுக்கிரன்" to 11,
+            "சனி" to 6
+        )
+
+        val debilitationSigns = mapOf(
+            "சூரியன்" to 6,
+            "சந்திரன்" to 7,
+            "செவ்வாய்" to 3,
+            "புதன்" to 11,
+            "குரு" to 9,
+            "சுக்கிரன்" to 5,
+            "சனி" to 0
+        )
+
+        return when {
+            sign in ownSigns ->
+                "ஆட்சி (Own Sign)"
+
+            exaltationSigns[lord] == sign ->
+                "உச்சம் (Exaltation)"
+
+            debilitationSigns[lord] == sign ->
+                "நீசம் (Debilitation)"
+
+            else ->
+                "மற்ற ராசி (Other Sign)"
+        }
+    }
+
+    // STEP 6: GRAHA DRISHTI OFFSETS
+    private fun getDrishtiOffsets(graha: String): List<Int> {
+        return when (graha) {
+            "செவ்வாய்" -> listOf(4, 7, 8)
+            "குரு" -> listOf(5, 7, 9)
+            "சனி" -> listOf(3, 7, 10)
+            "ராகு", "கேது" -> listOf(3, 7, 11)
+            else -> listOf(7)
+        }
+    }
+
+    private fun createCell(
+        text: String,
+        bold: Boolean = false
+    ): TextView {
+
+        return TextView(this).apply {
+            this.text = text
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(5, 10, 5, 10)
+            setTextColor(Color.BLACK)
+
+            if (bold) typeface = Typeface.DEFAULT_BOLD
+
+            setBackgroundResource(
+                android.R.drawable.editbox_background
+            )
+        }
+    }
+
+    private fun createChart(
+        lagnaSign: Int,
+        positions: Map<String, Double>,
+        retrogradeNames: Set<String>
+    ): GridLayout {
+
+        val chart = GridLayout(this).apply {
+            rowCount = 4
+            columnCount = 4
+            setPadding(4, 4, 4, 4)
+        }
+
+        val coordinates = arrayOf(
+            intArrayOf(0, 1),
+            intArrayOf(0, 2),
+            intArrayOf(0, 3),
+            intArrayOf(1, 3),
+            intArrayOf(2, 3),
+            intArrayOf(3, 3),
+            intArrayOf(3, 2),
+            intArrayOf(3, 1),
+            intArrayOf(3, 0),
+            intArrayOf(2, 0),
+            intArrayOf(1, 0),
+            intArrayOf(0, 0)
+        )
+
+        val cells = Array(4) { Array(4) { "" } }
+
+        for (sign in 0..11) {
+
+            val row = coordinates[sign][0]
+            val col = coordinates[sign][1]
+
+            val bhava =
+                ((sign - lagnaSign + 12) % 12) + 1
+
+            val text = StringBuilder()
+
+            text.append(rasiNames[sign])
+            text.append("\n")
+            text.append("பாவம் $bhava\n")
+
+            if (sign == lagnaSign) {
+                text.append("Lagna (L)\n")
+            }
+
+            val occupants = positions.filter {
+                signIndex(it.value) == sign
+            }.keys
+
+            if (occupants.isNotEmpty()) {
+
+                val displayed = occupants.map { name ->
+                    if (name in retrogradeNames)
+                        "$name (R)"
+                    else
+                        name
+                }
+
+                text.append(displayed.joinToString(" "))
+            }
+
+            cells[row][col] = text.toString()
+        }
+
+        for (row in 0..3) {
+            for (col in 0..3) {
+
+                val text = cells[row][col]
+
+                val cellText = if (
+                    row in 1..2 && col in 1..2
+                ) {
+                    if (row == 1 && col == 1)
+                        "TAMIL NATURE\n\nD1 RASI CHART"
+                    else
+                        ""
+                } else {
+                    text
+                }
+
+                val cell = createCell(cellText, true)
+
+                val params = GridLayout.LayoutParams().apply {
+                    rowSpec = GridLayout.spec(row, 1, 1f)
+                    columnSpec = GridLayout.spec(col, 1, 1f)
+                    width = 0
+                    height = 150
+                    setMargins(3, 3, 3, 3)
+                }
+
+                chart.addView(cell, params)
+            }
+        }
+
+        return chart
+    }
+
+    private fun createInput(
+        hint: String,
+        value: String = ""
+    ): EditText {
+
+        return EditText(this).apply {
+            this.hint = hint
+            setText(value)
+            textSize = 16f
+            setSingleLine(true)
+            setPadding(16, 12, 16, 12)
+        }
+    }
+
+    private lateinit var outputLayout: LinearLayout
+
+    private fun addLabel(
+        text: String,
+        size: Float = 16f
+    ) {
+
+        outputLayout.addView(TextView(this).apply {
+            this.text = text
+            textSize = size
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(8, 8, 8, 8)
+        })
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(16, 16, 16, 16)
+        }
+
+        val title = TextView(this).apply {
+            text = "Tamil Nature - Astrology Test"
+            textSize = 23f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setPadding(10, 20, 10, 20)
+        }
+
+        root.addView(title)
+
+        val inputHeading = TextView(this).apply {
+            text = "BIRTH DETAILS"
+            textSize = 19f
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(8, 10, 8, 10)
+        }
+
+        root.addView(inputHeading)
+
+        val dateInput = createInput(
+            "Date DD-MM-YYYY",
+            "19-11-1984"
+        )
+
+        val timeInput = createInput(
+            "Time HH:MM AM/PM",
+            "07:58 PM"
+        )
+
+        val placeInput = createInput(
+            "Birth Place",
+            "Oddanchatram, Tamil Nadu"
+        )
+
+        val latitudeInput = createInput(
+            "Latitude",
+            "10.48013"
+        )
+
+        val longitudeInput = createInput(
+            "Longitude",
+            "77.74977"
+        )
+
+        root.addView(dateInput)
+        root.addView(timeInput)
+        root.addView(placeInput)
+        root.addView(latitudeInput)
+        root.addView(longitudeInput)
+
+        val calculateButton = Button(this).apply {
+            text = "CALCULATE CHART"
+            textSize = 18f
+        }
+
+        root.addView(calculateButton)
+
+        outputLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        root.addView(outputLayout)
+
+        calculateButton.setOnClickListener {
+
+            outputLayout.removeAllViews()
+
+            try {
+
+                val dateText = dateInput.text.toString().trim()
+
+                if (!dateText.matches(
+                        Regex("^\\d{2}-\\d{2}-\\d{4}$")
+                    )
+                ) {
+                    throw Exception(
+                        "Date format must be DD-MM-YYYY"
+                    )
+                }
+
+                val dateParts = dateText.split("-")
+
+                val birthDay = dateParts[0].toInt()
+                val birthMonth = dateParts[1].toInt()
+                val birthYear = dateParts[2].toInt()
+
+                val validationCalendar = Calendar.getInstance(
+                    TimeZone.getTimeZone("Asia/Kolkata")
+                )
+
+                validationCalendar.isLenient = false
+
+                validationCalendar.set(
+                    birthYear,
+                    birthMonth - 1,
+                    birthDay,
+                    0, 0, 0
+                )
+
+                validationCalendar.set(
+                    Calendar.MILLISECOND, 0
+                )
+
+                validationCalendar.time
+
+                val timeText = timeInput.text.toString().trim()
+
+                val timeRegex = Regex(
+                    "^(0?[1-9]|1[0-2]):([0-5][0-9])\\s+(AM|PM)$",
+                    RegexOption.IGNORE_CASE
+                )
+
+                if (!timeRegex.matches(timeText)) {
+                    throw Exception(
+                        "Time format must be HH:MM AM/PM"
+                    )
+                }
+
+                val timeParts = timeText.split(
+                    Regex("\\s+")
+                )
+
+                val clockParts = timeParts[0].split(":")
+
+                val hour12 = clockParts[0].toInt()
+                val birthMinute = clockParts[1].toInt()
+
+                val period = timeParts[1].uppercase(Locale.US)
+
+                val birthHour = when {
+                    period == "AM" && hour12 == 12 -> 0
+                    period == "PM" && hour12 == 12 -> 12
+                    period == "PM" -> hour12 + 12
+                    else -> hour12
+                }
+
+                val place = placeInput.text.toString().trim()
+
+                if (place.isEmpty()) {
+                    throw Exception("Birth place is required")
+                }
+
+                val latitudeText =
+                    latitudeInput.text.toString().trim()
+
+                if (latitudeText.isEmpty()) {
+                    throw Exception("Latitude is required")
+                }
+
+                val latitude = latitudeText.toDoubleOrNull()
+                    ?: throw Exception("Invalid latitude")
+
+                if (!latitude.isFinite() ||
+                    latitude !in -90.0..90.0
+                ) {
+                    throw Exception(
+                        "Latitude must be between -90 and 90"
+                    )
+                }
+
+                val longitudeText =
+                    longitudeInput.text.toString().trim()
+
+                if (longitudeText.isEmpty()) {
+                    throw Exception("Longitude is required")
+                }
+
+                val longitude = longitudeText.toDoubleOrNull()
+                    ?: throw Exception("Invalid longitude")
+
+                if (!longitude.isFinite() ||
+                    longitude !in -180.0..180.0
+                ) {
+                    throw Exception(
+                        "Longitude must be between -180 and 180"
+                    )
+                }
+
+                calculate(
+                    birthYear,
+                    birthMonth,
+                    birthDay,
+                    birthHour,
+                    birthMinute,
+                    latitude,
+                    longitude,
+                    place,
+                    timeText
+                )
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this,
+                    "Input Error: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+        val scroll = ScrollView(this)
+        scroll.addView(root)
+
+        setContentView(scroll)
+    }
+
+    private fun calculate(
+        birthYear: Int,
+        birthMonth: Int,
+        birthDay: Int,
+        birthHour: Int,
+        birthMinute: Int,
+        latitude: Double,
+        longitude: Double,
+        place: String,
+        displayTime: String
+    ) {
+
+        outputLayout.removeAllViews()
+
+        val result = StringBuilder()
+
+        try {
+
+            val localCalendar = Calendar.getInstance(
+                TimeZone.getTimeZone("Asia/Kolkata")
+            )
+
+            localCalendar.isLenient = false
+
+            localCalendar.set(
+                birthYear,
+                birthMonth - 1,
+                birthDay,
+                birthHour,
+                birthMinute,
+                0
+            )
+
+            localCalendar.set(Calendar.MILLISECOND, 0)
+
+            val utcCalendar = Calendar.getInstance(
+                TimeZone.getTimeZone("UTC")
+            )
+
+            utcCalendar.timeInMillis =
+                localCalendar.timeInMillis
+
+            val year = utcCalendar.get(Calendar.YEAR)
+            val month = utcCalendar.get(Calendar.MONTH) + 1
+            val day = utcCalendar.get(Calendar.DAY_OF_MONTH)
+
+            val hour = utcCalendar.get(Calendar.HOUR_OF_DAY)
+            val minute = utcCalendar.get(Calendar.MINUTE)
+            val second = utcCalendar.get(Calendar.SECOND)
+
+            val fractionalDay =
+                day + (hour * 3600.0 +
+                    minute * 60.0 + second) / 86400.0
+
+            val jd = Ephemera.julianDate(
+                year, month, fractionalDay
+            )
+
+            val tt = Ephemera.utToTt(jd)
+
+            val lahiri = Ephemera.ayanamsa(
+                Ayanamsa.LAHIRI, tt
+            )
+
+            val angles = Ephemera.ascMc(
+                jd, longitude, latitude
+            )
+
+            val lagnaSidereal = normalize(
+                angles.asc - lahiri
+            )
+
+            val mcSidereal = normalize(
+                angles.mc - lahiri
+            )
+
+            val lagnaSign = signIndex(lagnaSidereal)
+
+            val planetPositions =
+                mutableMapOf<String, Double>()
+
+            val tropicalPositions =
+                mutableMapOf<String, Double>()
+
+            val retrogradeNames =
+                mutableSetOf<String>()
+
+            val retrogradeStatus =
+                mutableMapOf<String, String>()
+
+            for (graha in grahas) {
+
+                val position = Ephemera.position(
+                    graha.body, jd
+                ) ?: throw Exception(
+                    "${graha.name} position unavailable"
+                )
+
+                tropicalPositions[graha.name] =
+                    normalize(position.longitude)
+
+                planetPositions[graha.name] =
+                    normalize(position.longitude - lahiri)
+
+                retrogradeStatus[graha.name] =
+                    if (position.isRetrograde)
+                        "வக்கிரம் (R)"
+                    else
+                        "நேர்கதி (D)"
+
+                if (position.isRetrograde) {
+                    retrogradeNames.add(graha.name)
+                }
+            }
+
+            // RAHU & KETU
+
+            val rahuPosition = Ephemera.position(
+                Body.MEAN_NODE, jd
+            ) ?: throw Exception("Mean Node unavailable")
+
+            val rahuTropical = normalize(
+                rahuPosition.longitude
+            )
+
+            val rahuSidereal = normalize(
+                rahuTropical - lahiri
+            )
+
+            val ketuTropical = normalize(
+                rahuTropical + 180.0
+            )
+
+            val ketuSidereal = normalize(
+                rahuSidereal + 180.0
+            )
+
+            planetPositions["ராகு"] = rahuSidereal
+            planetPositions["கேது"] = ketuSidereal
+
+            tropicalPositions["ராகு"] = rahuTropical
+            tropicalPositions["கேது"] = ketuTropical
+
+            // CHART
+
+            addLabel(
+                "D1 - தென்னிந்திய ராசி கட்டம்",
+                19f
+            )
+
+            outputLayout.addView(
+                createChart(
+                    lagnaSign,
+                    planetPositions,
+                    retrogradeNames
+                )
+            )
+
+            // BIRTH DETAILS
+
+            result.append("BIRTH DETAILS\n")
+            result.append("-----------------------------\n")
+
+            result.append(
+                "Date: %02d-%02d-%04d\n".format(
+                    birthDay, birthMonth, birthYear
+                )
+            )
+
+            result.append("Time: $displayTime IST\n")
+            result.append("Place: $place\n")
+
+            result.append(
+                "UTC: %02d:%02d:%02d\n".format(
+                    hour, minute, second
+                )
+            )
+
+            result.append("Latitude: $latitude\n")
+            result.append("Longitude: $longitude\n\n")
+
+            result.append("JD: $jd\n")
+            result.append("TT: $tt\n")
+
+            result.append(
+                "Lahiri Ayanamsa: ${formatDegree(lahiri)}\n\n"
+            )
+
+            // LAGNA VALIDATION
+
+            result.append("=============================\n")
+            result.append("LAGNA VALIDATION\n")
+            result.append("=============================\n")
+
+            result.append(
+                "Tropical Ascendant: ${formatDegree(angles.asc)}\n"
+            )
+
+            result.append(
+                "Ayanamsa: ${formatDegree(lahiri)}\n"
+            )
+
+            result.append(
+                "Sidereal Ascendant: ${formatDegree(lagnaSidereal)}\n"
+            )
+
+            result.append(
+                "Final Lagna: ${formatRasi(lagnaSidereal)}\n\n"
+            )
+
+            result.append(
+                "Tropical MC: ${formatDegree(angles.mc)}\n"
+            )
+
+            result.append(
+                "Sidereal MC: ${formatDegree(mcSidereal)}\n"
+            )
+
+            result.append(
+                "Final MC: ${formatRasi(mcSidereal)}\n\n"
+            )
+
+            // STEP 5: GRAHA VALIDATION + DIGNITY
+
+            result.append("=============================\n")
+            result.append("GRAHA VALIDATION\n")
+            result.append("=============================\n\n")
+
+            for (graha in grahas) {
+
+                val tropical =
+                    tropicalPositions[graha.name]!!
+
+                val sidereal =
+                    planetPositions[graha.name]!!
+
+                val house = houseNumber(
+                    sidereal,
+                    lagnaSidereal
+                )
+
+                val grahaSign = signIndex(sidereal)
+
+                result.append("${graha.name}\n")
+
+                result.append(
+                    "Tropical: ${formatDegree(tropical)}\n"
+                )
+
+                result.append(
+                    "Lahiri: ${formatDegree(lahiri)}\n"
+                )
+
+                result.append(
+                    "Sidereal: ${formatDegree(sidereal)}\n"
+                )
+
+                result.append(
+                    "Final Position: ${formatRasi(sidereal)}\n"
+                )
+
+                result.append("House: $house\n")
+
+                result.append(
+                    "Motion: ${retrogradeStatus[graha.name]}\n"
+                )
+
+                result.append(
+                    "Graha Status: ${
+                        getLordStatus(graha.name, grahaSign)
+                    }\n"
+                )
+
+                result.append("-----------------------------\n")
+            }
+
+            // RAHU
+
+            result.append("\nராகு\n")
+
+            result.append(
+                "Tropical: ${formatDegree(rahuTropical)}\n"
+            )
+
+            result.append(
+                "Lahiri: ${formatDegree(lahiri)}\n"
+            )
+
+            result.append(
+                "Sidereal: ${formatDegree(rahuSidereal)}\n"
+            )
+
+            result.append(
+                "Final: ${formatRasi(rahuSidereal)}\n"
+            )
+
+            result.append(
+                "House: ${houseNumber(rahuSidereal, lagnaSidereal)}\n\n"
+            )
+
+            // KETU
+
+            result.append("கேது\n")
+
+            result.append(
+                "Tropical: ${formatDegree(ketuTropical)}\n"
+            )
+
+            result.append(
+                "Lahiri: ${formatDegree(lahiri)}\n"
+            )
+
+            result.append(
+                "Sidereal: ${formatDegree(ketuSidereal)}\n"
+            )
+
+            result.append(
+                "Final: ${formatRasi(ketuSidereal)}\n"
+            )
+
+            result.append(
+                "House: ${houseNumber(ketuSidereal, lagnaSidereal)}\n\n"
+            )
+
+            // 12 BHAVA MAPPING
+
+            result.append("=============================\n")
+            result.append("12 BHAVA MAPPING\n")
+            result.append("=============================\n\n")
+
+            for (house in 1..12) {
+
+                val currentSign =
+                    (lagnaSign + house - 1) % 12
+
+                result.append(
+                    "HOUSE $house - ${rasiNames[currentSign]}\n"
+                )
+
+                val occupants = planetPositions.filter {
+                    houseNumber(
+                        it.value,
+                        lagnaSidereal
+                    ) == house
+                }.keys
+
+                if (occupants.isEmpty()) {
+                    result.append("கிரகங்கள் இல்லை\n")
+                } else {
+                    result.append(
+                        occupants.joinToString(" | ")
+                    )
+                    result.append("\n")
+                }
+
+                result.append("-----------------------------\n")
+            }
+
+            // 12 BHAVA LORD ANALYSIS + STATUS
+
+            val signLords = arrayOf(
+                "செவ்வாய்",
+                "சுக்கிரன்",
+                "புதன்",
+                "சந்திரன்",
+                "சூரியன்",
+                "புதன்",
+                "சுக்கிரன்",
+                "செவ்வாய்",
+                "குரு",
+                "சனி",
+                "சனி",
+                "குரு"
+            )
+
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("12 BHAVA LORD ANALYSIS\n")
+            result.append("=============================\n\n")
+
+            for (house in 1..12) {
+
+                val currentSign =
+                    (lagnaSign + house - 1) % 12
+
+                val lord = signLords[currentSign]
+
+                val lordPosition =
+                    planetPositions[lord]
+
+                result.append(
+                    "HOUSE $house - ${rasiNames[currentSign]}\n"
+                )
+
+                result.append("Lord: $lord\n")
+
+                if (lordPosition != null) {
+
+                    val lordSign = signIndex(lordPosition)
+
+                    result.append(
+                        "Lord Position: ${formatRasi(lordPosition)}\n"
+                    )
+
+                    result.append(
+                        "Lord House: ${
+                            houseNumber(
+                                lordPosition,
+                                lagnaSidereal
+                            )
+                        }\n"
+                    )
+
+                    result.append(
+                        "Lord Status: ${
+                            getLordStatus(lord, lordSign)
+                        }\n"
+                    )
+
+                } else {
+
+                    result.append(
+                        "Lord Position unavailable\n"
+                    )
+                }
+
+                result.append("-----------------------------\n")
+            }
+
+            // STEP 6: GRAHA DRISHTI REPORT
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("STEP 6 - GRAHA DRISHTI\n")
+            result.append("=============================\n\n")
+
+            for (grahaName in planetPositions.keys) {
+                val sourceLongitude = planetPositions[grahaName]!!
+                val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                val offsets = getDrishtiOffsets(grahaName)
+
+                result.append("$grahaName\n")
+                result.append("Source House: $sourceHouse - ${rasiNames[signIndex(sourceLongitude)]}\n")
+                result.append("Drishti Offsets: ${offsets.joinToString(", ")}\n")
+
+                for (offset in offsets) {
+                    val targetHouse = ((sourceHouse + offset - 2) % 12) + 1
+                    val targetSign = (lagnaSign + targetHouse - 1) % 12
+                    val occupants = planetPositions.filter {
+                        houseNumber(it.value, lagnaSidereal) == targetHouse &&
+                            it.key != grahaName
+                    }.keys
+
+                    result.append("  -> House $targetHouse - ${rasiNames[targetSign]}\n")
+                    if (occupants.isEmpty()) {
+                        result.append("     Target occupants: இல்லை\n")
+                    } else {
+                        result.append("     Target occupants: ${occupants.joinToString(" | ")}\n")
+                    }
+                }
+                result.append("-----------------------------\n")
+            }
+
+            // STEP 7: BHAVA DRISHTI RECEIVED ANALYSIS
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("STEP 7 - BHAVA DRISHTI RECEIVED\n")
+            result.append("=============================\n\n")
+
+            val drishtiSources = planetPositions.keys.toList()
+            val bhavaScores = mutableMapOf<Int, Int>()
+
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val receivedFrom = mutableListOf<String>()
+
+                for (sourceName in drishtiSources) {
+                    val sourceLongitude = planetPositions[sourceName]!!
+                    val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                    val offsets = getDrishtiOffsets(sourceName)
+
+                    for (offset in offsets) {
+                        val calculatedTarget = ((sourceHouse + offset - 2) % 12) + 1
+                        if (calculatedTarget == targetHouse) {
+                            receivedFrom.add(sourceName)
+                            break
+                        }
+                    }
+                }
+
+                val occupants = planetPositions.filter {
+                    houseNumber(it.value, lagnaSidereal) == targetHouse
+                }.keys
+
+                result.append("HOUSE $targetHouse - ${rasiNames[targetSign]}\n")
+                result.append("Occupants: ${if (occupants.isEmpty()) "இல்லை" else occupants.joinToString(" | ")}\n")
+                result.append("Drishti received from: ${if (receivedFrom.isEmpty()) "எந்த கிரக பார்வையும் இல்லை" else receivedFrom.joinToString(" | ")}\n")
+                result.append("Aspect count: ${receivedFrom.size}\n")
+                result.append("-----------------------------\n")
+            }
+
+// STEP 8: PRELIMINARY BHAVA STRENGTH MODEL
+            result.append("\n")
+            result.append("=============================\n")
+            result.append("STEP 8 - PRELIMINARY BHAVA STRENGTH\n")
+            result.append("=============================\n")
+            result.append("Note: This is a transparent prototype scoring model, not a traditional Shadbala calculation.\n\n")
+
+            val signLordsForStrength = arrayOf(
+                "செவ்வாய்", "சுக்கிரன்", "புதன்", "சந்திரன்",
+                "சூரியன்", "புதன்", "சுக்கிரன்", "செவ்வாய்",
+                "குரு", "சனி", "சனி", "குரு"
+            )
+
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val lordName = signLordsForStrength[targetSign]
+                val lordLongitude = planetPositions[lordName]
+                var score = 50
+                val factorLines = mutableListOf<String>()
+
+                val occupants = planetPositions.filter {
+                    houseNumber(it.value, lagnaSidereal) == targetHouse
+                }.keys.toList()
+
+                // Lord dignity contribution
+                if (lordLongitude != null) {
+                    val lordSign = signIndex(lordLongitude)
+                    val dignity = getLordStatus(lordName, lordSign)
+                    val dignityPoints = when {
+                        dignity.contains("Exaltation") -> 20
+                        dignity.contains("Own Sign") -> 15
+                        dignity.contains("Debilitation") -> -15
+                        else -> 0
+                    }
+                    score += dignityPoints
+                    factorLines.add("Lord dignity: $dignity ($dignityPoints)")
+
+                    // Lord placement contribution: kendras and trikonas
+                    val lordHouse = houseNumber(lordLongitude, lagnaSidereal)
+                    val placementPoints = when (lordHouse) {
+                        1, 4, 7, 10 -> 10
+                        5, 9 -> 8
+                        2, 11 -> 5
+                        3, 6, 8, 12 -> -5
+                        else -> 0
+                    }
+                    score += placementPoints
+                    factorLines.add("Lord placement: House $lordHouse ($placementPoints)")
+                } else {
+                    factorLines.add("Lord position unavailable (0)")
+                }
+
+                // Occupancy contribution (simple prototype adjustment)
+                val occupancyPoints = occupants.size * 3
+                score += occupancyPoints
+                factorLines.add("Occupants: ${occupants.size} (+$occupancyPoints)")
+
+                // Received aspects: Jupiter/Venus/Mercury and Moon treated as supportive
+                // in this prototype; Mars/Saturn/Rahu/Ketu treated as challenging;
+                // Sun is neutral. This is deliberately simplified.
+                val aspectSources = mutableListOf<String>()
+                var aspectAdjustment = 0
+                for (sourceName in planetPositions.keys) {
+                    val sourceLongitude = planetPositions[sourceName]!!
+                    val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                    for (offset in getDrishtiOffsets(sourceName)) {
+                        val calculatedTarget = ((sourceHouse + offset - 2) % 12) + 1
+                        if (calculatedTarget == targetHouse) {
+                            aspectSources.add(sourceName)
+                            val adjustment = when (sourceName) {
+                                "குரு", "சுக்கிரன்", "புதன்", "சந்திரன்" -> 3
+                                "செவ்வாய்", "சனி", "ராகு", "கேது" -> -3
+                                else -> 0
+                            }
+                            aspectAdjustment += adjustment
+                            break
+                        }
+                    }
+                }
+                score += aspectAdjustment
+                factorLines.add("Aspect influence: ${if (aspectSources.isEmpty()) "None" else aspectSources.joinToString()} ($aspectAdjustment)")
+
+                val finalScore = score.coerceIn(0, 100)
+                bhavaScores[targetHouse] = finalScore
+
+                val strengthLabel = when {
+                    finalScore >= 75 -> "High"
+                    finalScore >= 60 -> "Above average"
+                    finalScore >= 40 -> "Moderate"
+                    finalScore >= 25 -> "Low"
+                    else -> "Very low"
+                }
+
+                result.append("HOUSE $targetHouse - ${rasiNames[targetSign]}\n")
+                result.append("Bhava Lord: $lordName\n")
+                result.append("Occupants: ${if (occupants.isEmpty()) "இல்லை" else occupants.joinToString(" | ")}\n")
+                result.append("Aspects: ${if (aspectSources.isEmpty()) "None" else aspectSources.joinToString(" | ")}\n")
+                result.append("Factors:\n")
+                factorLines.forEach { result.append(" - $it\n") }
+                result.append("Raw score: $score\n")
+                result.append("Final score (0-100): $finalScore\n")
+                result.append("Strength level: $strengthLabel\n")
+                result.append("-----------------------------\n")
+            }
+
+            // STEP 11: BHAVA SCORE SUMMARY
+            result.append("\n=============================\n")
+            result.append("STEP 11 - BHAVA SCORE SUMMARY\n")
+            result.append("=============================\n\n")
+            val sortedBhavas = bhavaScores.entries.sortedByDescending { it.value }
+            result.append("Top 3 Bhavas (prototype scores):\n")
+            sortedBhavas.take(3).forEach { entry ->
+                val sign = (lagnaSign + entry.key - 1) % 12
+                result.append("House ${entry.key} - ${rasiNames[sign]}: ${entry.value}/100\n")
+            }
+            result.append("\nLowest 3 Bhavas (prototype scores):\n")
+            sortedBhavas.takeLast(3).sortedBy { it.value }.forEach { entry ->
+                val sign = (lagnaSign + entry.key - 1) % 12
+                result.append("House ${entry.key} - ${rasiNames[sign]}: ${entry.value}/100\n")
+            }
+            result.append("\nNote: Ranking is based only on the current heuristic Bhava score model.\n")
+
+                                    // STEP 9: BASIC YOGA DETECTION
+            result.append("\n=============================\n")
+            result.append("STEP 9 - YOGA DETECTION\n")
+            result.append("=============================\n\n")
+
+            val yogaSignLords = arrayOf(
+                "செவ்வாய்", "சுக்கிரன்", "புதன்", "சந்திரன்",
+                "சூரியன்", "புதன்", "சுக்கிரன்", "செவ்வாய்",
+                "குரு", "சனி", "சனி", "குரு"
+            )
+            val yogaPlanetHouses = planetPositions.mapValues { houseNumber(it.value, lagnaSidereal) }
+            val yogaPlanetSigns = planetPositions.mapValues { signIndex(it.value) }
+            val yogaDetected = mutableListOf<String>()
+
+            fun yogaLordOfHouse(house: Int): String {
+                val sign = (lagnaSign + house - 1) % 12
+                return yogaSignLords[sign]
+            }
+            fun yogaIsKendra(house: Int) = house in listOf(1, 4, 7, 10)
+            fun yogaHasAspect(from: String, to: String): Boolean {
+                val sourceHouse = yogaPlanetHouses[from] ?: return false
+                val targetHouse = yogaPlanetHouses[to] ?: return false
+                return getDrishtiOffsets(from).any { ((sourceHouse + it - 2) % 12) + 1 == targetHouse }
+            }
+            fun yogaLinked(a: String, b: String): Boolean {
+                if (yogaPlanetSigns[a] == yogaPlanetSigns[b]) return true
+                return yogaHasAspect(a, b) || yogaHasAspect(b, a)
+            }
+
+            // Raja Yoga: Kendra lord linked with Trikona lord
+            val kendraLords = listOf(1, 4, 7, 10).map { yogaLordOfHouse(it) }.distinct()
+            val trikonaLords = listOf(5, 9).map { yogaLordOfHouse(it) }.distinct()
+            for (kl in kendraLords) for (tl in trikonaLords) if (kl != tl && yogaLinked(kl, tl)) yogaDetected.add("Raja Yoga: $kl + $tl")
+
+            // Dhana Yoga: 2nd/11th lord linked with 5th/9th/Kendra lord
+            val wealthLords = listOf(2, 11).map { yogaLordOfHouse(it) }.distinct()
+            val prosperityLords = listOf(1, 4, 5, 7, 9, 10).map { yogaLordOfHouse(it) }.distinct()
+            for (wl in wealthLords) for (pl in prosperityLords) if (wl != pl && yogaLinked(wl, pl)) yogaDetected.add("Dhana Yoga: $wl + $pl")
+
+            // Gaja Kesari: Jupiter in Kendra from Moon
+            val moonHouse = yogaPlanetHouses["சந்திரன்"]
+            val jupiterHouse = yogaPlanetHouses["குரு"]
+            if (moonHouse != null && jupiterHouse != null) {
+                val relativeHouse = ((jupiterHouse - moonHouse + 12) % 12) + 1
+                if (relativeHouse in listOf(1, 4, 7, 10)) yogaDetected.add("Gaja Kesari Yoga")
+            }
+            // Budha-Aditya: Sun and Mercury same sign
+            if (yogaPlanetSigns["சூரியன்"] == yogaPlanetSigns["புதன்"]) yogaDetected.add("Budha-Aditya Yoga")
+
+            // Neecha Bhanga prototype candidate
+            val debilitationSigns = mapOf("சூரியன்" to 6, "சந்திரன்" to 7, "செவ்வாய்" to 3, "புதன்" to 11, "குரு" to 9, "சுக்கிரன்" to 5, "சனி" to 0)
+            val signLordsForNeecha = mapOf(0 to "செவ்வாய்", 1 to "சுக்கிரன்", 2 to "புதன்", 3 to "சந்திரன்", 4 to "சூரியன்", 5 to "புதன்", 6 to "சுக்கிரன்", 7 to "செவ்வாய்", 8 to "குரு", 9 to "சனி", 10 to "சனி", 11 to "குரு")
+            for ((planet, sign) in yogaPlanetSigns) if (debilitationSigns[planet] == sign) {
+                val debSignLord = signLordsForNeecha[sign]
+                val debLordHouse = debSignLord?.let { yogaPlanetHouses[it] }
+                val cancellation = (debLordHouse != null && yogaIsKendra(debLordHouse)) || (yogaPlanetHouses[planet]?.let { yogaIsKendra(it) } == true)
+                yogaDetected.add(if (cancellation) "Neecha Bhanga candidate: $planet (prototype condition met)" else "Debilitated planet: $planet (no prototype cancellation condition)")
+            }
+            if (yogaDetected.isEmpty()) result.append("No listed Yoga detected by current prototype rules.\n")
+            else yogaDetected.distinct().forEach { result.append("• $it\n") }
+            result.append("Note: Rule-based prototype; traditional variants may differ.\n")
+
+
+            // STEP 10: YOGA STRENGTH & VALIDATION (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 10 - YOGA STRENGTH & VALIDATION\n")
+            result.append("=============================\n\n")
+
+            val yogaPlanetNames = listOf("சூரியன்", "சந்திரன்", "செவ்வாய்", "புதன்", "குரு", "சுக்கிரன்", "சனி", "ராகு", "கேது")
+            fun involvedPlanetsForYoga(yoga: String): List<String> {
+                val found = yogaPlanetNames.filter { yoga.contains(it) }
+                if (found.isNotEmpty()) return found.distinct()
+                return when {
+                    yoga.contains("Gaja Kesari") -> listOf("சந்திரன்", "குரு")
+                    yoga.contains("Budha-Aditya") -> listOf("சூரியன்", "புதன்")
+                    else -> emptyList()
+                }
+            }
+            if (yogaDetected.isEmpty()) {
+                result.append("No detected Yoga to score.\n")
+            } else {
+                for (yoga in yogaDetected.distinct()) {
+                    val involved = involvedPlanetsForYoga(yoga)
+                    var score = 50
+                    val factors = mutableListOf<String>()
+                    for (planet in involved) {
+                        val sign = yogaPlanetSigns[planet]
+                        val house = yogaPlanetHouses[planet]
+                        if (sign != null) {
+                            when (getLordStatus(planet, sign)) {
+                                "ஆட்சி (Own Sign)" -> { score += 10; factors.add("$planet: own sign +10") }
+                                "உச்சம் (Exaltation)" -> { score += 15; factors.add("$planet: exalted +15") }
+                                "நீசம் (Debilitation)" -> { score -= 15; factors.add("$planet: debilitated -15") }
+                                else -> factors.add("$planet: neutral dignity")
+                            }
+                        }
+                        if (house != null) {
+                            when (house) {
+                                in listOf(1, 4, 7, 10) -> { score += 8; factors.add("$planet: Kendra placement +8") }
+                                in listOf(5, 9) -> { score += 8; factors.add("$planet: Trikona placement +8") }
+                                in listOf(3, 6, 8, 12) -> { score -= 5; factors.add("$planet: challenging house -5") }
+                            }
+                        }
+                    }
+                    if (involved.isEmpty()) factors.add("Planet-level validation unavailable for this rule")
+                    val finalScore = score.coerceIn(0, 100)
+                    val label = when {
+                        finalScore >= 80 -> "Strong (prototype)"
+                        finalScore >= 65 -> "Above average (prototype)"
+                        finalScore >= 45 -> "Moderate (prototype)"
+                        finalScore >= 25 -> "Low (prototype)"
+                        else -> "Very low (prototype)"
+                    }
+                    result.append("Yoga: $yoga\n")
+                    result.append("Involved planets: ${if (involved.isEmpty()) "Not parsed" else involved.joinToString(" | ")}\n")
+                    result.append("Factors: ${if (factors.isEmpty()) "None" else factors.joinToString("; ")}\n")
+                    result.append("Yoga strength score: $finalScore / 100\n")
+                    result.append("Strength label: $label\n")
+                    result.append("-----------------------------\n")
+                }
+            }
+            result.append("Note: Preliminary heuristic scoring only; not classical Shadbala or a definitive traditional Yoga evaluation.\n")
+
+            // STEP 12: PLANET STRENGTH RANKING (heuristic prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 12 - PLANET STRENGTH RANKING\n")
+            result.append("=============================\n\n")
+            val planetStrengthRows = mutableListOf<Pair<String, Int>>()
+            for (planetName in planetPositions.keys) {
+                val longitude = planetPositions[planetName]!!
+                val sign = signIndex(longitude)
+                val house = houseNumber(longitude, lagnaSidereal)
+                var score = 50
+                val factors = mutableListOf<String>()
+                val dignity = getLordStatus(planetName, sign)
+                val dignityPoints = when {
+                    dignity.contains("Exaltation") -> 20
+                    dignity.contains("Own Sign") -> 15
+                    dignity.contains("Debilitation") -> -15
+                    else -> 0
+                }
+                score += dignityPoints
+                factors.add("Dignity: $dignity ($dignityPoints)")
+                val housePoints = when (house) {
+                    1, 4, 7, 10 -> 10
+                    5, 9 -> 8
+                    2, 11 -> 5
+                    3, 6, 8, 12 -> -5
+                    else -> 0
+                }
+                score += housePoints
+                factors.add("House placement: $house ($housePoints)")
+                if (retrogradeNames.contains(planetName)) {
+                    score -= 3
+                    factors.add("Retrograde: -3 (prototype adjustment)")
+                }
+                val finalPlanetScore = score.coerceIn(0, 100)
+                planetStrengthRows.add(planetName to finalPlanetScore)
+                result.append("$planetName - ${rasiNames[sign]} - House $house\n")
+                result.append("$factors\n")
+                result.append("Score: $finalPlanetScore/100\n")
+                result.append("-----------------------------\n")
+            }
+            val rankedPlanets = planetStrengthRows.sortedByDescending { it.second }
+            result.append("\nPlanet ranking (highest to lowest):\n")
+            rankedPlanets.forEachIndexed { index, entry ->
+                result.append("${index + 1}. ${entry.first}: ${entry.second}/100\n")
+            }
+            result.append("\nNote: Prototype comparative score only; not classical Shadbala or a definitive planetary strength calculation.\n")
+
+
+            // STEP 13: INTEGRATED HOROSCOPE ANALYSIS (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 13 - INTEGRATED HOROSCOPE ANALYSIS\n")
+            result.append("=============================\n\n")
+
+            result.append("Strongest Bhava themes (top 3):\n")
+            sortedBhavas.take(3).forEach { entry ->
+                result.append("House ${entry.key}: ${entry.value}/100\n")
+            }
+            result.append("\nPlanetary highlights (top 3):\n")
+            rankedPlanets.take(3).forEachIndexed { index, entry ->
+                result.append("${index + 1}. ${entry.first}: ${entry.second}/100\n")
+            }
+            result.append("\nYoga findings:\n")
+            if (yogaDetected.isEmpty()) result.append("No Yoga detected by current prototype rules.\n")
+            else yogaDetected.distinct().forEach { result.append("• $it\n") }
+
+            result.append("\nIntegrated overview: This section consolidates the current prototype's Bhava ranking, planetary ranking, and rule-based Yoga findings. It is a technical summary, not a definitive traditional horoscope judgment.\n")
+
+
+            // STEP 14: INTEGRATED BHAVA PREDICTION SCORE (heuristic prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 14 - INTEGRATED BHAVA PREDICTION SCORE\n")
+            result.append("=============================\n\n")
+            result.append("Weighted prototype model: Bhava base 65%, house-lord strength 25%, occupancy signal 10%.\n")
+            result.append("This is a research heuristic and not a classical prediction formula.\n\n")
+
+            val planetScoresForIntegrated = rankedPlanets.associate { it.first to it.second }
+            val integratedBhavaRows = mutableListOf<Pair<Int, Int>>()
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val lordName = signLordsForStrength[targetSign]
+                val baseBhava = bhavaScores[targetHouse] ?: 50
+                val lordScore = planetScoresForIntegrated[lordName] ?: 50
+                val occupants = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == targetHouse }.size
+                val occupancySignal = (50 + occupants * 10).coerceIn(0, 100)
+                val integratedScore = (baseBhava * 0.65 + lordScore * 0.25 + occupancySignal * 0.10).toInt().coerceIn(0, 100)
+                val label = when {
+                    integratedScore >= 75 -> "Strong"
+                    integratedScore >= 60 -> "Above average"
+                    integratedScore >= 40 -> "Moderate"
+                    integratedScore >= 25 -> "Below average"
+                    else -> "Low"
+                }
+                integratedBhavaRows.add(targetHouse to integratedScore)
+                result.append("House $targetHouse - ${rasiNames[targetSign]}\n")
+                result.append("Bhava base: $baseBhava | Lord ($lordName): $lordScore | Occupancy signal: $occupancySignal\n")
+                result.append("Integrated score: $integratedScore/100 - $label\n")
+                result.append("-----------------------------\n")
+            }
+            result.append("\nIntegrated Bhava ranking (highest to lowest):\n")
+            integratedBhavaRows.sortedByDescending { it.second }.forEachIndexed { index, row ->
+                result.append("${index + 1}. House ${row.first}: ${row.second}/100\n")
+            }
+            result.append("\nInterpretation caution: score indicates comparative prototype weighting only; use traditional context and practitioner judgment.\n")
+
+
+            // STEP 15: PREDICTION INTERPRETATION LAYER (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 15 - PREDICTION INTERPRETATION LAYER\n")
+            result.append("=============================\n\n")
+            result.append("Interpretations are score-based research prompts, not fixed predictions.\n\n")
+
+            val houseThemes = mapOf(
+                1 to "Self, vitality, approach and personal direction",
+                2 to "Resources, family, speech and accumulated values",
+                3 to "Initiative, communication, skills and siblings",
+                4 to "Home, emotional foundations, education and property",
+                5 to "Creativity, learning, children and discernment",
+                6 to "Daily work, service, routines and challenges",
+                7 to "Partnerships, agreements and one-to-one relationships",
+                8 to "Shared resources, transitions, research and deeper matters",
+                9 to "Higher learning, beliefs, teachers and long-distance themes",
+                10 to "Career, responsibility, public role and achievement",
+                11 to "Networks, gains, aspirations and community",
+                12 to "Rest, retreat, expenses, reflection and distant places"
+            )
+
+            integratedBhavaRows.sortedByDescending { it.second }.forEach { row ->
+                val house = row.first
+                val score = row.second
+                val theme = houseThemes[house] ?: "General house themes"
+                val interpretation = when {
+                    score >= 75 -> "Strong score: consider this area a comparatively supportive focus; examine its lord, occupants and aspects for context."
+                    score >= 60 -> "Above-average score: potentially constructive indicators; contextual factors may shape how they express."
+                    score >= 40 -> "Moderate score: mixed or balanced signals; avoid drawing conclusions from this score alone."
+                    score >= 25 -> "Below-average score: review contributing factors and consider this area for mindful effort and support."
+                    else -> "Low score: this is a relative prototype signal, not a prediction of failure; inspect the underlying factors carefully."
+                }
+                result.append("House $house (${rasiNames[(lagnaSign + house - 1) % 12]}) - $score/100\n")
+                result.append("Theme: $theme\n")
+                result.append("Interpretation: $interpretation\n")
+                result.append("-----------------------------\n")
+            }
+            result.append("\nStep 15 note: interpretations are generated from the Step 14 score bands and general house themes only; they do not yet integrate sign-specific, planetary, Yoga or transit-based narrative rules.\n")
+
+            // STEP 16: PLANET-SPECIFIC BHAVA INTERPRETATION (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 16 - PLANET-SPECIFIC BHAVA INTERPRETATION\n")
+            result.append("=============================\n\n")
+            result.append("Planet placement and house-lord links are descriptive research signals; avoid deterministic conclusions.\n\n")
+
+            val step16SignLords = arrayOf(
+                "செவ்வாய்", "சுக்கிரன்", "புதன்", "சந்திரன்", "சூரியன்", "புதன்",
+                "சுக்கிரன்", "செவ்வாய்", "குரு", "சனி", "சனி", "குரு"
+            )
+            val step16PlanetThemes = mapOf(
+                "சூரியன்" to "identity, authority, visibility and responsibility",
+                "சந்திரன்" to "emotional responses, care, adaptability and public connection",
+                "செவ்வாய்" to "initiative, effort, assertiveness and conflict management",
+                "புதன்" to "communication, learning, analysis and trade",
+                "குரு" to "growth, guidance, meaning, teaching and judgment",
+                "சுக்கிரன்" to "relationships, harmony, aesthetics and negotiation",
+                "சனி" to "discipline, persistence, boundaries and long-term duties",
+                "ராகு" to "novelty, ambition, amplification and unconventional approaches",
+                "கேது" to "detachment, specialization, introspection and simplification"
+            )
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val targetLord = step16SignLords[targetSign]
+                val occupants = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == targetHouse }.keys.toList()
+                val lordLongitude = planetPositions[targetLord]
+                val lordHouse = lordLongitude?.let { houseNumber(it, lagnaSidereal) }
+                result.append("House $targetHouse (${rasiNames[targetSign]})\n")
+                result.append("Occupying planets: ${if (occupants.isEmpty()) "None" else occupants.joinToString(" | ")}\n")
+                if (occupants.isNotEmpty()) {
+                    result.append("Planet signals: ")
+                    result.append(occupants.joinToString("; ") { planet -> "$planet: ${step16PlanetThemes[planet] ?: "planetary influence"}" })
+                    result.append("\n")
+                } else {
+                    result.append("Planet signals: No direct occupant; consider house lord, aspects and broader chart context.\n")
+                }
+                result.append("House lord: $targetLord${if (lordHouse != null) " placed in House $lordHouse" else " (position unavailable)"}\n")
+                if (lordHouse != null) {
+                    result.append("Lord-link prompt: House $targetHouse themes may connect with House $lordHouse topics; use the actual lord condition and chart context before interpreting.\n")
+                }
+                result.append("Score context: ${integratedBhavaRows.firstOrNull { it.first == targetHouse }?.second ?: "N/A"}/100\n")
+                result.append("-----------------------------\n")
+            }
+            result.append("Step 16 note: this layer lists occupants and lord-house links using the prototype chart data. It is not a predictive guarantee.\n")
+
+            // STEP 17: PLANETARY INFLUENCE INTEGRATION (simplified research layer)
+            result.append("\n=============================\n")
+            result.append("STEP 17 - PLANETARY INFLUENCE INTEGRATION\n")
+            result.append("=============================\n\n")
+            result.append("This section combines house occupants, received graha drishti, and house-lord placement into a descriptive signal. Classifications are simplified research heuristics.\n\n")
+
+            val step17Supportive = setOf("குரு", "சுக்கிரன்", "புதன்", "சந்திரன்")
+            val step17Challenging = setOf("செவ்வாய்", "சனி", "ராகு", "கேது")
+            val step17Rows = mutableListOf<Pair<Int, Int>>()
+
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val targetLord = step16SignLords[targetSign]
+                val occupants = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == targetHouse }.keys.toList()
+                val receivedFrom = mutableListOf<String>()
+                for (sourceName in planetPositions.keys) {
+                    val sourceLongitude = planetPositions[sourceName] ?: continue
+                    val sourceHouse = houseNumber(sourceLongitude, lagnaSidereal)
+                    for (offset in getDrishtiOffsets(sourceName)) {
+                        val calculatedTarget = ((sourceHouse + offset - 2) % 12) + 1
+                        if (calculatedTarget == targetHouse) {
+                            receivedFrom.add(sourceName)
+                            break
+                        }
+                    }
+                }
+                val lordHouse = planetPositions[targetLord]?.let { houseNumber(it, lagnaSidereal) }
+                val supportive = (occupants + receivedFrom).count { it in step17Supportive }
+                val challenging = (occupants + receivedFrom).count { it in step17Challenging }
+                val balance = (supportive - challenging).coerceIn(-5, 5)
+                val combinedScore = ((integratedBhavaRows.firstOrNull { it.first == targetHouse }?.second ?: 50) + balance * 3).coerceIn(0, 100)
+                val signal = when {
+                    balance >= 2 -> "Supportive influence balance"
+                    balance <= -2 -> "Challenging influence balance"
+                    else -> "Mixed / neutral influence balance"
+                }
+                step17Rows.add(targetHouse to combinedScore)
+
+                result.append("House $targetHouse (${rasiNames[targetSign]})\n")
+                result.append("Occupants: ${if (occupants.isEmpty()) "None" else occupants.joinToString()}\n")
+                result.append("Received drishti: ${if (receivedFrom.isEmpty()) "None" else receivedFrom.joinToString()}\n")
+                result.append("Supportive signal count: $supportive | Challenging signal count: $challenging\n")
+                result.append("Lord: $targetLord${if (lordHouse != null) " in House $lordHouse" else " (position unavailable)"}\n")
+                result.append("Influence balance: $signal | Integrated influence score: $combinedScore/100\n")
+                result.append("\n")
+            }
+            result.append("Step 17 ranking (influence score):\n")
+            step17Rows.sortedByDescending { it.second }.forEachIndexed { index, row ->
+                result.append("${index + 1}. House ${row.first}: ${row.second}/100\n")
+            }
+            result.append("\nStep 17 note: this simplified layer uses broad supportive/challenging groupings, not full classical benefic/malefic judgement. Functional lordship, dignity, avastha, exact aspect strength and context remain to be developed.\n")
+
+            // COMPLETION
+
+            result.append("\n")
+            result.append("CALCULATION COMPLETE\n")
+            result.append("Ayanamsa: Lahiri\n")
+            result.append("Node: Mean Node\n")
+            result.append("Step 6: Graha Drishti included\n")
+            result.append("Step 7: Bhava Drishti Received Analysis included\n")
+            result.append("Step 12: Planet Strength Ranking included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\n")
+
+        } catch (e: Exception) {
+
+            result.append("\nCALCULATION ERROR\n")
+            result.append(e.toString())
+        }
+
+        val report = TextView(this).apply {
+            text = result.toString()
+            textSize = 16f
+            typeface = Typeface.MONOSPACE
+            setPadding(15, 25, 15, 25)
+        }
+
+        outputLayout.addView(report)
+    }
+}
