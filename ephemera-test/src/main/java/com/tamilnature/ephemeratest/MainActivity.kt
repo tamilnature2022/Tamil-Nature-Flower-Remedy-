@@ -1256,7 +1256,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val total = gaps.size
         result.append("Gap | Count | Share (%) | Change from previous observed gap\n")
@@ -1304,7 +1306,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val adjacentChanges = freq.keys.toList().zipWithNext()
             .filter { (a, b) -> b == a + 1 }
             .map { (a, b) -> freq[b]!! - freq[a]!! }
@@ -1354,7 +1358,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val changes = freq.keys.toList().zipWithNext()
             .filter { (a, b) -> b == a + 1 }
             .map { (a, b) -> freq[b]!! - freq[a]!! }
@@ -1394,7 +1400,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val changes = freq.keys.toList().zipWithNext()
             .filter { (a, b) -> b == a + 1 }
             .map { (a, b) -> freq[b]!! - freq[a]!! }
@@ -1434,7 +1442,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val consecutive = keys.zipWithNext().filter { (a, b) -> b == a + 1 }
         val changes = consecutive.map { (a, b) -> freq[b]!! - freq[a]!! }
@@ -1468,7 +1478,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val peaks = mutableListOf<String>()
         val valleys = mutableListOf<String>()
@@ -1504,7 +1516,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val peaks = mutableListOf<String>()
         for (i in 1 until keys.lastIndex) {
@@ -1541,7 +1555,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val valleys = mutableListOf<String>()
         for (i in 1 until keys.lastIndex) {
@@ -1578,7 +1594,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val peaks = mutableListOf<String>()
         val valleys = mutableListOf<String>()
@@ -1618,7 +1636,9 @@ class MainActivity : Activity() {
             result.append("\\nStatistics are descriptive only, not causal or predictive.\\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         val peaks = mutableListOf<Int>()
         val valleys = mutableListOf<Int>()
@@ -1670,7 +1690,9 @@ class MainActivity : Activity() {
             result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val keys = freq.keys.toList()
         var peaks = 0
         var valleys = 0
@@ -1715,7 +1737,9 @@ class MainActivity : Activity() {
             return
         }
 
-        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val freq = if (observedFreq.isEmpty()) sortedMapOf<Int, Int>() else
+            (observedFreq.keys.first()..observedFreq.keys.last()).associateWith { observedFreq[it] ?: 0 }.toSortedMap()
         val sorted = gaps.sorted()
         val total = gaps.size
         val mean = gaps.average()
