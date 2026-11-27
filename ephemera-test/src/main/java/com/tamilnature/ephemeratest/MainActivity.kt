@@ -2802,48 +2802,6 @@ class MainActivity : Activity() {
             result.append("Graph transitivity: ${String.format(Locale.US, "%.4f", step49Transitivity)}\n")
             result.append("Step 49 note: clustering and transitivity are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
 
-            // STEP 49: LOCAL CLUSTERING COEFFICIENT AND GRAPH TRANSITIVITY (STRUCTURAL ONLY)
-            result.append("\n=============================\n")
-            result.append("STEP 49 - LOCAL CLUSTERING COEFFICIENT AND GRAPH TRANSITIVITY\n")
-            result.append("=============================\n\n")
-            result.append("Measures neighbor connectivity using triangle relationships. Structural measures only.\n\n")
-
-            var step49TriangleCount = 0L
-            var step49ConnectedTriples = 0L
-            val step49LocalCoefficients = mutableMapOf<Int, Double>()
-            for ((step49Node, step49NeighborsRaw) in step43BlockCutAdjacency) {
-                val step49Neighbors = step49NeighborsRaw.filter { it in step43BlockCutAdjacency.keys }.toSet()
-                val step49Degree = step49Neighbors.size
-                if (step49Degree < 2) {
-                    step49LocalCoefficients[step49Node] = 0.0
-                    continue
-                }
-                val step49PossiblePairs = step49Degree.toLong() * (step49Degree - 1L) / 2L
-                step49ConnectedTriples += step49PossiblePairs
-                var step49LinksAmongNeighbors = 0L
-                val step49SortedNeighbors = step49Neighbors.sorted()
-                for (i in step49SortedNeighbors.indices) {
-                    for (j in i + 1 until step49SortedNeighbors.size) {
-                        if (step49SortedNeighbors[j] in (step43BlockCutAdjacency[step49SortedNeighbors[i]] ?: emptySet())) {
-                            step49LinksAmongNeighbors++
-                        }
-                    }
-                }
-                step49TriangleCount += step49LinksAmongNeighbors
-                step49LocalCoefficients[step49Node] = step49LinksAmongNeighbors.toDouble() / step49PossiblePairs.toDouble()
-            }
-            val step49MeanLocal = if (step49LocalCoefficients.isNotEmpty()) step49LocalCoefficients.values.average() else 0.0
-            val step49Transitivity = if (step49ConnectedTriples > 0L) step49TriangleCount.toDouble() / step49ConnectedTriples.toDouble() else 0.0
-            result.append("LOCAL CLUSTERING COEFFICIENTS\n")
-            result.append(if (step49LocalCoefficients.isEmpty()) "No nodes\n" else step49LocalCoefficients.entries.sortedBy { it.key }.joinToString("\n") { "Node ${it.key}: ${String.format(Locale.US, "%.4f", it.value)}" } + "\n")
-            result.append("\nSTEP 49 SUMMARY\n")
-            result.append("Nodes evaluated: ${step49LocalCoefficients.size}\n")
-            result.append("Triangle relationships counted: $step49TriangleCount\n")
-            result.append("Connected neighbor-pairs (triples): $step49ConnectedTriples\n")
-            result.append("Mean local clustering coefficient: ${String.format(Locale.US, "%.4f", step49MeanLocal)}\n")
-            result.append("Graph transitivity: ${String.format(Locale.US, "%.4f", step49Transitivity)}\n")
-            result.append("Step 49 note: clustering and transitivity are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
-
             // COMPLETION
 
             result.append("\n")
