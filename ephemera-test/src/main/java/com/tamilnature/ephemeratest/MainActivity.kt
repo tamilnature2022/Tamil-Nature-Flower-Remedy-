@@ -3381,6 +3381,42 @@ class MainActivity : Activity() {
             }
             result.append("\nThis analysis describes shell exposure and cross-shell link distribution; it is not a simulated removal test and does not establish causal vulnerability.\n")
 
+            // STEP 69: SHELL BOUNDARY FLOW & STRUCTURAL INTERACTION ANALYSIS
+            result.append("\n=============================\n")
+            result.append("STEP 69 - SHELL BOUNDARY FLOW & STRUCTURAL INTERACTION ANALYSIS\n")
+            result.append("=============================\n\n")
+            val step69ShellInteraction = mutableMapOf<Pair<Int, Int>, Int>()
+            step67CrossShellEdges.forEach { (step69A, step69B) ->
+                val step69ShellA = step50CoreNumbers[step69A] ?: 0
+                val step69ShellB = step50CoreNumbers[step69B] ?: 0
+                val step69Pair = if (step69ShellA <= step69ShellB) step69ShellA to step69ShellB else step69ShellB to step69ShellA
+                step69ShellInteraction[step69Pair] = (step69ShellInteraction[step69Pair] ?: 0) + 1
+            }
+            result.append("Shell interaction flow (lower shell -> higher shell | links | normalized share):\n")
+            val step69TotalInteractions = step69ShellInteraction.values.sum()
+            step69ShellInteraction.toSortedMap(compareBy<Pair<Int, Int>> { it.first }.thenBy { it.second }).forEach { (step69Pair, step69Count) ->
+                val step69Share = if (step69TotalInteractions > 0) step69Count.toDouble() / step69TotalInteractions else 0.0
+                result.append("${step69Pair.first} -> ${step69Pair.second} | $step69Count | ${String.format(Locale.US, "%.4f", step69Share)}\n")
+            }
+            val step69NodeFlow = step50CoreNumbers.keys.map { step69Node ->
+                val step69Shell = step50CoreNumbers[step69Node] ?: 0
+                val step69Neighbors = (step50Graph[step69Node] ?: emptySet()).filter { (step50CoreNumbers[it] ?: 0) != step69Shell }
+                val step69ShellsReached = step69Neighbors.map { step50CoreNumbers[it] ?: 0 }.toSet().sorted()
+                Triple(step69Node, step69Neighbors.size, step69ShellsReached)
+            }.filter { it.second > 0 }.sortedWith(compareByDescending<Triple<String, Int, List<Int>>> { it.second }.thenBy { it.first })
+            result.append("\nNode boundary-flow profile (node | cross-shell links | shell levels reached):\n")
+            step69NodeFlow.forEach { (step69Node, step69Links, step69Reached) ->
+                result.append("$step69Node | $step69Links | ${step69Reached.joinToString(", ")}\n")
+            }
+            val step69ShellTotals = step68Shells.map { step69Shell ->
+                val step69Nodes = step50CoreNumbers.filterValues { it == step69Shell }.keys
+                val step69Out = step69Nodes.sumOf { step69Node -> (step50Graph[step69Node] ?: emptySet()).count { (step50CoreNumbers[it] ?: 0) != step69Shell } }
+                step69Shell to step69Out
+            }
+            result.append("\nShell boundary interaction totals (shell | incident cross-shell links counted from nodes):\n")
+            step69ShellTotals.forEach { (step69Shell, step69Count) -> result.append("$step69Shell | $step69Count\n") }
+            result.append("\nThis profile summarizes descriptive cross-shell interactions and normalized link shares; it does not represent causal flow.\n")
+
             // COMPLETION
 
             result.append("\n")
