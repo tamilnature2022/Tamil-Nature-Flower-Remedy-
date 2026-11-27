@@ -1785,6 +1785,32 @@ class MainActivity : Activity() {
             }
             result.append("Step 26 note: these are lord-placement relationships only; they are not strength, severity, or predictive scores.\n")
 
+            // STEP 27: BHAVA NETWORK SUMMARY (DESCRIPTIVE)
+            result.append("\\n=============================\\n")
+            result.append("STEP 27 - BHAVA NETWORK SUMMARY\\n")
+            result.append("=============================\\n\\n")
+            result.append("Overview of house-lord links and factor associations as a descriptive network. No scoring or prediction is applied.\\n\\n")
+
+            for (house in 1..12) {
+                val signForNetwork = (lagnaSign + house - 1) % 12
+                val lordForNetwork = signLords[signForNetwork]
+                val lordLongForNetwork = planetPositions[lordForNetwork]
+                val destinationForNetwork = lordLongForNetwork?.let { houseNumber(it, lagnaSidereal) }
+                val factorsForNetwork = step24FactorsByHouse[house] ?: emptySet()
+                val occupantsForNetwork = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == house }.keys
+                val incomingForNetwork = step26LinksByDestination[house] ?: emptyList()
+
+                result.append("HOUSE $house NETWORK NODE\\n")
+                result.append("House sign: ${rasiNames[signForNetwork]}\\n")
+                result.append("Occupants: ${if (occupantsForNetwork.isEmpty()) "None" else occupantsForNetwork.joinToString()}\\n")
+                result.append("House lord: $lordForNetwork\\n")
+                result.append("Lord destination: ${destinationForNetwork?.let { "House $it" } ?: "Unavailable"}\\n")
+                result.append("Incoming lord-links from: ${if (incomingForNetwork.isEmpty()) "None" else incomingForNetwork.joinToString { "House $it" }}\\n")
+                result.append("Associated factors: ${if (factorsForNetwork.isEmpty()) "None" else factorsForNetwork.joinToString()}\\n")
+                result.append("Network description: House $house lord links to ${destinationForNetwork?.let { "House $it" } ?: "an unavailable destination"}; ${incomingForNetwork.size} incoming link(s).\\n\\n")
+            }
+            result.append("Step 27 note: this is a structural relationship summary only. It does not imply beneficial/adverse effects, severity, or predictive certainty.\\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1794,7 +1820,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\n")
 
         } catch (e: Exception) {
 
