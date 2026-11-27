@@ -618,7 +618,7 @@ class MainActivity : Activity() {
         result.append("Pair concentration (HHI) | ${String.format(Locale.US, "%.4f", hhi)}\n")
         result.append("Normalized distribution entropy | ${String.format(Locale.US, "%.4f", normalizedEntropy)}\n")
         result.append("\nShell-pair opportunity-normalized balance (pair | observed | possible | rate):\n")
-        pairCounts.entries.sortedBy { it.key }.forEach { (pair, count) ->
+        pairCounts.entries.sortedWith(compareBy<Map.Entry<Pair<Int, Int>, Int>> { it.key.first }.thenBy { it.key.second }).forEach { (pair, count) ->
             val possible = (shellSizes[pair.first] ?: 0) * (shellSizes[pair.second] ?: 0)
             val rate = if (possible > 0) count.toDouble() / possible else 0.0
             result.append("${pair.first}-${pair.second} | $count | $possible | ${String.format(Locale.US, "%.4f", rate)}\n")
