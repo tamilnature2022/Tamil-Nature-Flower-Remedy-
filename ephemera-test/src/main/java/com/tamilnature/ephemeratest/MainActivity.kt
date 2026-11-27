@@ -3156,6 +3156,24 @@ class MainActivity : Activity() {
             result.append("Core shell is the previously calculated k-core number.\\n")
             result.append("Step 61 note: peeling order is a deterministic structural ordering, not an astrological prediction.\\n")
 
+
+            // STEP 62: CORE-PEELING LAYER STATISTICS
+            result.append("\n=============================\n")
+            result.append("STEP 62 - CORE-PEELING LAYER STATISTICS\n")
+            result.append("=============================\n\n")
+            val step62ShellStats = step61PeelingOrder.groupBy { it.third }.toSortedMap()
+            result.append("Shell | Peeled Nodes | Average Degree-at-removal | Maximum Degree-at-removal\n")
+            step62ShellStats.forEach { (step62Shell, step62Items) ->
+                val step62Avg = step62Items.map { it.second }.average()
+                val step62Max = step62Items.maxOfOrNull { it.second } ?: 0
+                result.append("$step62Shell | ${step62Items.size} | ${String.format(Locale.US, "%.4f", step62Avg)} | $step62Max\n")
+            }
+            result.append("\nShell-wise peeling count:\n")
+            step62ShellStats.forEach { (step62Shell, step62Items) ->
+                result.append("Shell $step62Shell: ${step62Items.size} nodes\n")
+            }
+            result.append("Statistics are based on the Step 61 deterministic peeling order and previously calculated core shell numbers.\n")
+
             // COMPLETION
 
             result.append("\n")
