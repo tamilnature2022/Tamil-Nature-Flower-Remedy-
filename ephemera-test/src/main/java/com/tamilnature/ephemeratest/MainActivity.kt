@@ -1840,6 +1840,41 @@ class MainActivity : Activity() {
             }
             result.append("\nStep 28 note: these are organizational patterns derived from Steps 24, 26, and 27. They do not establish strength, outcomes, or predictive certainty.\n")
 
+            // STEP 29: BHAVA NETWORK CONNECTIVITY ANALYSIS (DESCRIPTIVE)
+            result.append("\n=============================\n")
+            result.append("STEP 29 - BHAVA NETWORK CONNECTIVITY ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Direct house-lord connectivity, incoming links, and isolated nodes are summarized descriptively. No scoring is applied.\n\n")
+
+            val step29OutgoingTargets = mutableMapOf<Int, Int>()
+            val step29IncomingCounts = (1..12).associateWith { (step26LinksByDestination[it] ?: emptyList()).size }
+            for (sourceHouse in 1..12) {
+                val sourceSign = (lagnaSign + sourceHouse - 1) % 12
+                val sourceLord = signLords[sourceSign]
+                val sourceLongitude = planetPositions[sourceLord]
+                val targetHouse = sourceLongitude?.let { houseNumber(it, lagnaSidereal) }
+                if (targetHouse != null && targetHouse in 1..12) step29OutgoingTargets[sourceHouse] = targetHouse
+            }
+
+            result.append("DIRECT CONNECTIVITY (SOURCE -> DESTINATION)\n")
+            for (sourceHouse in 1..12) {
+                val target = step29OutgoingTargets[sourceHouse]
+                result.append("House $sourceHouse -> ${target?.let { "House $it" } ?: "Unavailable"}\n")
+            }
+            result.append("\nMULTI-LINK DESTINATION HOUSES (2 or more incoming)\n")
+            val step29MultiLinkHouses = (1..12).filter { (step29IncomingCounts[it] ?: 0) >= 2 }
+            result.append(if (step29MultiLinkHouses.isEmpty()) "None identified\n\n" else step29MultiLinkHouses.joinToString { "House $it (${step29IncomingCounts[it]} incoming)" } + "\n\n")
+
+            result.append("ISOLATED HOUSE NODES (no incoming links and no available outgoing link)\n")
+            val step29IsolatedHouses = (1..12).filter { house -> (step29IncomingCounts[house] ?: 0) == 0 && !step29OutgoingTargets.containsKey(house) }
+            result.append(if (step29IsolatedHouses.isEmpty()) "None identified\n\n" else step29IsolatedHouses.joinToString { "House $it" } + "\n\n")
+
+            result.append("CONNECTIVITY SUMMARY\n")
+            result.append("Available direct lord-links: ${step29OutgoingTargets.size} of 12\n")
+            result.append("Houses receiving 2 or more links: ${step29MultiLinkHouses.size}\n")
+            result.append("Isolated nodes under the defined criteria: ${step29IsolatedHouses.size}\n")
+            result.append("Step 29 note: connectivity is a structural description only; it does not indicate beneficence, maleficence, strength, or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1849,7 +1884,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\n")
 
         } catch (e: Exception) {
 
