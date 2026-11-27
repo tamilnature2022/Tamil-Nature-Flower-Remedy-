@@ -2659,6 +2659,56 @@ class MainActivity : Activity() {
             result.append("Components profiled: $step46ComponentIndex\n")
             result.append("Step 46 note: component-wise diameter and average distance are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
 
+
+            // STEP 47: COMPONENT-WISE DISTANCE DISTRIBUTION AND GLOBAL EFFICIENCY (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 47 - COMPONENT DISTANCE DISTRIBUTION AND GLOBAL EFFICIENCY\n")
+            result.append("=============================\n\n")
+            result.append("Summarizes shortest-path distance frequencies and inverse-distance efficiency within reachable node pairs. Structural measures only.\n\n")
+
+            val step47DistanceFrequency = sortedMapOf<Int, Int>()
+            var step47ReachablePairs = 0
+            var step47EfficiencySum = 0.0
+            var step47ComponentIndex = 0
+            val step47Unassigned = step44DistanceMaps.keys.toMutableSet()
+            val step47ComponentLines = mutableListOf<String>()
+            while (step47Unassigned.isNotEmpty()) {
+                val seed = step47Unassigned.sorted().first()
+                val componentNodes = (step44DistanceMaps[seed]?.keys ?: setOf(seed)).toSet()
+                step47Unassigned.removeAll(componentNodes)
+                step47ComponentIndex++
+                var localPairs = 0
+                var localEfficiency = 0.0
+                val localFrequency = sortedMapOf<Int, Int>()
+                for (source in componentNodes.sorted()) {
+                    val distances = step44DistanceMaps[source] ?: emptyMap()
+                    for ((target, distance) in distances) {
+                        if (source < target && target in componentNodes && distance > 0) {
+                            localPairs++
+                            localFrequency[distance] = (localFrequency[distance] ?: 0) + 1
+                            localEfficiency += 1.0 / distance.toDouble()
+                        }
+                    }
+                }
+                step47ReachablePairs += localPairs
+                step47EfficiencySum += localEfficiency
+                for ((distance, count) in localFrequency) {
+                    step47DistanceFrequency[distance] = (step47DistanceFrequency[distance] ?: 0) + count
+                }
+                val componentEfficiency = if (localPairs > 0) localEfficiency / localPairs.toDouble() else 0.0
+                step47ComponentLines.add("Component $step47ComponentIndex: nodes=${componentNodes.size}, reachable pairs=$localPairs, average inverse-distance efficiency=${String.format(Locale.US, "%.4f", componentEfficiency)}")
+            }
+            val step47AverageEfficiency = if (step47ReachablePairs > 0) step47EfficiencySum / step47ReachablePairs.toDouble() else 0.0
+            result.append("COMPONENT EFFICIENCY PROFILES\n")
+            result.append(if (step47ComponentLines.isEmpty()) "No components\n" else step47ComponentLines.joinToString("\n") + "\n")
+            result.append("\nSHORTEST-PATH DISTANCE FREQUENCY (UNORDERED PAIRS)\n")
+            result.append(if (step47DistanceFrequency.isEmpty()) "No reachable pairs\n" else step47DistanceFrequency.entries.joinToString("\n") { "Distance ${it.key}: ${it.value} pair(s)" } + "\n")
+            result.append("\nSTEP 47 SUMMARY\n")
+            result.append("Components evaluated: $step47ComponentIndex\n")
+            result.append("Reachable unordered pairs: $step47ReachablePairs\n")
+            result.append("Average inverse-distance efficiency across reachable pairs: ${String.format(Locale.US, "%.4f", step47AverageEfficiency)}\n")
+            result.append("Step 47 note: distance frequency and inverse-distance efficiency are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2668,7 +2718,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\n")
 
         } catch (e: Exception) {
 
