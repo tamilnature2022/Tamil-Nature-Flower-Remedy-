@@ -2928,7 +2928,7 @@ class MainActivity : Activity() {
             } else null
             result.append("CORE-SHELL EDGE CORRELATION\n")
             result.append("Edges sampled: ${step53ShellPairs.size}\n")
-            result.append("Shell assortativity (Pearson): ${step53ShellAssortativity?.let { String.format(Locale.US, "%.4f\", it) } ?: "Not defined"}\n")
+            result.append("Shell assortativity (Pearson): ${step53ShellAssortativity?.let { String.format(Locale.US, "%.4f", it) } ?: "Not defined"}\n")
             result.append("\nSTEP 53 SUMMARY\n")
             result.append("This coefficient describes whether edges tend to connect nodes with similar core-shell indices.\n")
             result.append("Step 53 note: descriptive graph topology only; it does not indicate astrological strength, causation, outcome, or prediction.\n")
