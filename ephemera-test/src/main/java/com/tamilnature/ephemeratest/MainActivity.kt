@@ -1730,6 +1730,32 @@ class MainActivity : Activity() {
             result.append("Karana: ${step21KaranaName} (recorded separately; not assigned to a bhava in this prototype).\n")
             result.append("Step 24 note: factor counts represent distinct factor types only. They are not severity, strength, or prediction scores.\n")
 
+            // STEP 25: BHAVA FACTOR CONTEXT MATRIX
+            result.append("\n=============================\n")
+            result.append("STEP 25 - BHAVA FACTOR CONTEXT MATRIX\n")
+            result.append("=============================\n\n")
+            result.append("Descriptive context matrix for all 12 bhavas. No new scoring or prediction is applied.\n\n")
+
+            for (house in 1..12) {
+                val signIndexForHouse = (lagnaSign + house - 1) % 12
+                val signNameForHouse = rasiNames[signIndexForHouse]
+                val lordNameForHouse = signLords[signIndexForHouse]
+                val occupantsForHouse = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == house }.keys
+                val factorsForHouse = step24FactorsByHouse[house] ?: emptySet()
+                val lordLongitudeForHouse = planetPositions[lordNameForHouse]
+                val lordSignForHouse = lordLongitudeForHouse?.let { rasiNames[signIndex(it)] } ?: "Unavailable"
+                val lordHouseForHouse = lordLongitudeForHouse?.let { houseNumber(it, lagnaSidereal) }
+
+                result.append("House $house\n")
+                result.append("Rasi: $signNameForHouse\n")
+                result.append("Occupants: ${if (occupantsForHouse.isEmpty()) "None" else occupantsForHouse.joinToString()}\n")
+                result.append("Bhava Lord: $lordNameForHouse\n")
+                result.append("Lord position: ${lordSignForHouse} | House ${lordHouseForHouse ?: "Unavailable"}\n")
+                result.append("Associated Factors: ${if (factorsForHouse.isEmpty()) "None" else factorsForHouse.joinToString()}\n")
+                result.append("Distinct Factor Count: ${factorsForHouse.size}\n\n")
+            }
+            result.append("Step 25 note: this matrix is descriptive context only; it does not imply severity or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
