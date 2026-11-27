@@ -725,7 +725,10 @@ class MainActivity : Activity() {
             }
         }
         result.append("Shell pair | nodes in shell A | nodes in shell B | observed cross-shell links | possible pairs | density\n")
-        pairCounts.entries.sortedWith(compareBy<Pair<Int, Int>> { it.key.first }.thenBy { it.key.second }).forEach { (pair, count) ->
+        pairCounts.entries.sortedWith(Comparator { a, b ->
+            val firstCompare = a.key.first.compareTo(b.key.first)
+            if (firstCompare != 0) firstCompare else a.key.second.compareTo(b.key.second)
+        }).forEach { (pair, count) ->
             val nA = shellNodes[pair.first]?.size ?: 0
             val nB = shellNodes[pair.second]?.size ?: 0
             val possible = nA.toLong() * nB.toLong()
