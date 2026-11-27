@@ -1567,6 +1567,31 @@ class MainActivity : Activity() {
             }
             result.append("Note: This is a table-based traditional interpretation prototype. It identifies listed signs/planets; it does not automatically reduce scores or assert effects. Validate the table tradition before using for predictions.\n")
 
+            // STEP 20: MUDakku RASI (experimental counting method)
+            result.append("\n=============================\n")
+            result.append("STEP 20 - MUDakku RASI ANALYSIS (EXPERIMENTAL)\n")
+            result.append("=============================\n\n")
+
+            val step20SunSignIndex = signIndex(planetPositions["சூரியன்"]!!)
+            val step20SagittariusIndex = 8 // தனுசு, zodiac index 8
+            val step20CountFromSunToSagittarius = ((step20SagittariusIndex - step20SunSignIndex + 12) % 12) + 1
+            val step20MudakkuSignIndex = (step20SagittariusIndex + step20CountFromSunToSagittarius - 1) % 12
+            val step20MudakkuSign = rasiNames[step20MudakkuSignIndex]
+            val step20MudakkuLord = step16SignLords[step20MudakkuSignIndex]
+            val step20PlanetsInMudakkuSign = planetPositions.filter { signIndex(it.value) == step20MudakkuSignIndex }.keys
+            val step20MudakkuLordLongitude = planetPositions[step20MudakkuLord]
+            val step20MudakkuLordSign = step20MudakkuLordLongitude?.let { rasiNames[signIndex(it)] } ?: "Unavailable"
+            val step20MudakkuLordHouse = step20MudakkuLordLongitude?.let { houseNumber(it, lagnaSidereal) }
+
+            result.append("Sun sign: ${rasiNames[step20SunSignIndex]}\n")
+            result.append("Inclusive count from Sun sign to Sagittarius: $step20CountFromSunToSagittarius\n")
+            result.append("Experimental Mudakku sign: $step20MudakkuSign\n")
+            result.append("Mudakku sign lord: $step20MudakkuLord\n")
+            result.append("Planets in Mudakku sign: ${if (step20PlanetsInMudakkuSign.isEmpty()) "None" else step20PlanetsInMudakkuSign.joinToString()}\n")
+            result.append("Mudakku lord sign: $step20MudakkuLordSign\n")
+            result.append("Mudakku lord house: ${step20MudakkuLordHouse ?: "Unavailable"}\n")
+            result.append("Note: This is an experimental sign-counting method based on the previously discussed rule; validate against the intended tradition before interpretive use.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1576,7 +1601,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\n")
 
         } catch (e: Exception) {
 
