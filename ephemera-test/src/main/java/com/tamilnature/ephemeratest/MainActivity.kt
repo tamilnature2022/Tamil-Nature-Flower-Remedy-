@@ -2164,6 +2164,53 @@ class MainActivity : Activity() {
             result.append("Zero-incoming house count: ${step35NoIncomingLinks.size}\n")
             result.append("Step 35 note: centrality is a descriptive network-connectivity measure only; it does not imply astrological strength, causation, outcomes, or predictive certainty.\n")
 
+            // STEP 36: BHAVA NETWORK CLUSTER ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 36 - BHAVA NETWORK CLUSTER ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Clusters are weakly connected groups in the house-link network, treating links as undirected for grouping only. No score or prediction is applied.\n\n")
+
+            val step36Adjacency = (1..12).associateWith { mutableSetOf<Int>() }.toMutableMap()
+            for ((source, destination) in step32Edges) {
+                if (source in 1..12 && destination in 1..12) {
+                    step36Adjacency[source]?.add(destination)
+                    step36Adjacency[destination]?.add(source)
+                }
+            }
+            val step36Visited = mutableSetOf<Int>()
+            val step36Clusters = mutableListOf<List<Int>>()
+            for (start in 1..12) {
+                if (start in step36Visited) continue
+                val queue = mutableListOf(start)
+                val cluster = mutableListOf<Int>()
+                step36Visited.add(start)
+                while (queue.isNotEmpty()) {
+                    val node = queue.removeAt(0)
+                    cluster.add(node)
+                    for (neighbor in (step36Adjacency[node] ?: emptySet()).sorted()) {
+                        if (step36Visited.add(neighbor)) queue.add(neighbor)
+                    }
+                }
+                step36Clusters.add(cluster.sorted())
+            }
+
+            result.append("WEAKLY CONNECTED CLUSTERS\n")
+            for ((index, cluster) in step36Clusters.withIndex()) {
+                result.append("Cluster ${index + 1}: ${cluster.joinToString { "House $it" }}\n")
+            }
+
+            val step36Isolated = step36Clusters.filter { cluster ->
+                cluster.size == 1 && (step36Adjacency[cluster.first()]?.isEmpty() ?: true)
+            }.map { it.first() }
+            result.append("\nISOLATED HOUSE NODES\n")
+            result.append(if (step36Isolated.isEmpty()) "None\n" else step36Isolated.joinToString { "House $it" } + "\n")
+
+            result.append("CLUSTER SUMMARY\n")
+            result.append("Cluster count: ${step36Clusters.size}\n")
+            result.append("Largest cluster size: ${step36Clusters.maxOfOrNull { it.size } ?: 0}\n")
+            result.append("Isolated nodes: ${step36Isolated.size}\n")
+            result.append("Step 36 note: cluster grouping reflects undirected connectivity only; it does not imply astrological strength, causation, outcomes, or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2173,7 +2220,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\n")
 
         } catch (e: Exception) {
 
