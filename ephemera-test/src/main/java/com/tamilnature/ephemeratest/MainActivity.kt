@@ -2110,6 +2110,60 @@ class MainActivity : Activity() {
             result.append("Shared terminal groups: ${step34SharedDependencies.size}\n")
             result.append("Step 34 note: dependency labels describe directed graph relationships only and do not imply causal, beneficial/adverse, or predictive effects.\n")
 
+            // STEP 35: BHAVA NETWORK CENTRALITY ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 35 - BHAVA NETWORK CENTRALITY ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Centrality measures describe connectivity in the directed house-link network only.\n\n")
+
+            val step35InDegree = (1..12).associateWith { house ->
+                step32Edges.values.count { destination -> destination == house }
+            }
+            val step35OutDegree = (1..12).associateWith { house ->
+                if (step32Edges[house] != null && step32Edges[house] in 1..12) 1 else 0
+            }
+            val step35MaximumInDegree = step35InDegree.values.maxOrNull() ?: 0
+            val step35CentralHouses = step35InDegree.entries
+                .filter { it.value == step35MaximumInDegree && it.value > 0 }
+                .map { it.key }
+                .sorted()
+            val step35NoIncomingLinks = step35InDegree.entries
+                .filter { it.value == 0 }
+                .map { it.key }
+                .sorted()
+
+            result.append("IN-DEGREE (incoming direct links)\n")
+            for (house in 1..12) {
+                result.append("House $house: ${step35InDegree[house] ?: 0} incoming link(s)\n")
+            }
+
+            result.append("\nOUT-DEGREE (outgoing direct links)\n")
+            for (house in 1..12) {
+                result.append("House $house: ${step35OutDegree[house] ?: 0} outgoing link(s)\n")
+            }
+
+            result.append("\nNETWORK HUB(S) - MAXIMUM IN-DEGREE\n")
+            result.append(if (step35CentralHouses.isEmpty()) {
+                "No incoming-link hub identified\n"
+            } else {
+                step35CentralHouses.joinToString(", ") { "House $it" } + " with $step35MaximumInDegree incoming link(s)\n"
+            })
+
+            result.append("\nHOUSES WITH ZERO INCOMING LINKS\n")
+            result.append(if (step35NoIncomingLinks.isEmpty()) {
+                "None\n"
+            } else {
+                step35NoIncomingLinks.joinToString(", ") { "House $it" } + "\n"
+            })
+
+            result.append("\nCENTRALITY SUMMARY\n")
+            result.append("House nodes analyzed: 12\n")
+            result.append("Valid direct links: ${step32Edges.count { it.value != null && it.value in 1..12 }}\n")
+            result.append("Maximum incoming links for any house: $step35MaximumInDegree\n")
+            result.append("Hub house(s): ${if (step35CentralHouses.isEmpty()) "None" else step35CentralHouses.joinToString(", ") { "House $it" }}\n")
+            result.append("Zero-incoming house count: ${step35NoIncomingLinks.size}\n")
+            result.append("Step 35 note: centrality is a descriptive network-connectivity measure only; it does not imply astrological strength, causation, outcomes, or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2119,7 +2173,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\n")
 
         } catch (e: Exception) {
 
