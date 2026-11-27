@@ -1875,6 +1875,28 @@ class MainActivity : Activity() {
             result.append("Isolated nodes under the defined criteria: ${step29IsolatedHouses.size}\n")
             result.append("Step 29 note: connectivity is a structural description only; it does not indicate beneficence, maleficence, strength, or predictive certainty.\n")
 
+            // STEP 30: BHAVA NETWORK STRUCTURAL CLASSIFICATION (DESCRIPTIVE)
+            result.append("\n=============================\n")
+            result.append("STEP 30 - BHAVA NETWORK STRUCTURAL CLASSIFICATION\n")
+            result.append("=============================\n\n")
+            result.append("Classifies houses by incoming lord-link count. These labels are organizational only.\n\n")
+
+            val step30IncomingCounts = (1..12).associateWith { (step26LinksByDestination[it] ?: emptyList()).size }
+            val step30HighConnectivity = (1..12).filter { (step30IncomingCounts[it] ?: 0) >= 3 }
+            val step30ModerateConnectivity = (1..12).filter { (step30IncomingCounts[it] ?: 0) in 2..2 }
+            val step30LowConnectivity = (1..12).filter { (step30IncomingCounts[it] ?: 0) == 1 }
+            val step30NoIncoming = (1..12).filter { (step30IncomingCounts[it] ?: 0) == 0 }
+
+            result.append("HIGH CONNECTIVITY (3 or more incoming links)\n")
+            result.append(if (step30HighConnectivity.isEmpty()) "None identified\n\n" else step30HighConnectivity.joinToString { "House $it (${step30IncomingCounts[it]} links)" } + "\n\n")
+            result.append("MODERATE CONNECTIVITY (2 incoming links)\n")
+            result.append(if (step30ModerateConnectivity.isEmpty()) "None identified\n\n" else step30ModerateConnectivity.joinToString { "House $it (2 links)" } + "\n\n")
+            result.append("LOW CONNECTIVITY (1 incoming link)\n")
+            result.append(if (step30LowConnectivity.isEmpty()) "None identified\n\n" else step30LowConnectivity.joinToString { "House $it (1 link)" } + "\n\n")
+            result.append("NO INCOMING LINK (0 incoming links)\n")
+            result.append(if (step30NoIncoming.isEmpty()) "None identified\n\n" else step30NoIncoming.joinToString { "House $it" } + "\n\n")
+            result.append("Step 30 note: this classification is based only on incoming-link counts and is not an astrological strength score or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1884,7 +1906,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\n")
 
         } catch (e: Exception) {
 
