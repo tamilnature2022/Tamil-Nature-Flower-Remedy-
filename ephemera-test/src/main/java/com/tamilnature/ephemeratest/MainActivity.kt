@@ -2868,6 +2868,39 @@ class MainActivity : Activity() {
             result.append("Core levels profiled: ${step51CoreLevels.size}\n")
             result.append("Step 51 note: core-level profiles describe graph structure only; they do not imply astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 52: K-CORE SHELL AND INTER-SHELL EDGE PROFILE (DESCRIPTIVE)
+            result.append("\n=============================\n")
+            result.append("STEP 52 - K-CORE SHELL AND INTER-SHELL EDGE PROFILE\n")
+            result.append("=============================\n\n")
+            val step52Shells = step50CoreNumbers.entries.groupBy { it.value }.toSortedMap()
+            result.append("CORE SHELL NODE DISTRIBUTION\n")
+            if (step52Shells.isEmpty()) {
+                result.append("No core shell data\n")
+            } else {
+                for ((step52Shell, step52Entries) in step52Shells) {
+                    result.append("Shell $step52Shell: ${step52Entries.size} node(s) - ${step52Entries.map { it.key }.sorted().joinToString(", ")}\n")
+                }
+            }
+            val step52ShellEdgeCounts = sortedMapOf<String, Long>()
+            val step52ShellKeys = step50CoreNumbers.keys
+            for (step52Node in step52ShellKeys) {
+                val step52Neighbors = step50Graph[step52Node] ?: mutableSetOf()
+                for (step52Neighbor in step52Neighbors) {
+                    if (step52Neighbor in step52ShellKeys && step52Node < step52Neighbor) {
+                        val step52A = step50CoreNumbers[step52Node] ?: 0
+                        val step52B = step50CoreNumbers[step52Neighbor] ?: 0
+                        val step52Key = if (step52A == step52B) "Shell $step52A internal" else "Shell $step52A - Shell $step52B"
+                        step52ShellEdgeCounts[step52Key] = (step52ShellEdgeCounts[step52Key] ?: 0L) + 1L
+                    }
+                }
+            }
+            result.append("\nSHELL EDGE PROFILE\n")
+            if (step52ShellEdgeCounts.isEmpty()) result.append("No edges counted\n")
+            else step52ShellEdgeCounts.forEach { (step52Key, step52Count) -> result.append("$step52Key: $step52Count edge(s)\n") }
+            result.append("\nSTEP 52 SUMMARY\n")
+            result.append("Shell levels present: ${step52Shells.keys.joinToString(", ")}\n")
+            result.append("Step 52 note: shell and edge profiles are descriptive graph topology metrics only.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2877,7 +2910,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\n")
 
         } catch (e: Exception) {
 
