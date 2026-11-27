@@ -490,6 +490,56 @@ class MainActivity : Activity() {
         setContentView(scroll)
     }
 
+
+    private fun appendStep70Analysis(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        // STEP 70: GLOBAL SHELL INTERACTION NETWORK ANALYSIS
+        result.append("\n=============================\n")
+        result.append("STEP 70 - GLOBAL SHELL INTERACTION NETWORK ANALYSIS\n")
+        result.append("=============================\n\n")
+        val step70ShellSet = step50CoreNumbers.values.toSet().sorted()
+        val step70PairWeights = mutableMapOf<Pair<Int, Int>, Int>()
+        step67CrossShellEdges.forEach { (step70A, step70B) ->
+            val step70ShellA = step50CoreNumbers[step70A] ?: 0
+            val step70ShellB = step50CoreNumbers[step70B] ?: 0
+            if (step70ShellA != step70ShellB) {
+                val step70Pair = if (step70ShellA < step70ShellB) step70ShellA to step70ShellB else step70ShellB to step70ShellA
+                step70PairWeights[step70Pair] = (step70PairWeights[step70Pair] ?: 0) + 1
+            }
+        }
+        val step70ShellDegree = step70ShellSet.associateWith { step70Shell ->
+            step70PairWeights.keys.count { step70Shell == it.first || step70Shell == it.second }
+        }
+        val step70ShellWeightedDegree = step70ShellSet.associateWith { step70Shell ->
+            step70PairWeights.filterKeys { step70Shell == it.first || step70Shell == it.second }.values.sum()
+        }
+        result.append("Shell-network node profile (shell | nodes | interaction partners | weighted interaction degree):\n")
+        step70ShellSet.forEach { step70Shell ->
+            val step70NodeCount = step50CoreNumbers.count { it.value == step70Shell }
+            result.append("$step70Shell | $step70NodeCount | ${step70ShellDegree[step70Shell] ?: 0} | ${step70ShellWeightedDegree[step70Shell] ?: 0}\n")
+        }
+        result.append("\nWeighted shell-interaction network edges (shell pair | cross-shell links):\n")
+        step70PairWeights.entries.sortedWith(compareBy({ it.key.first }, { it.key.second })).forEach { (step70Pair, step70Weight) ->
+            result.append("${step70Pair.first} - ${step70Pair.second} | $step70Weight\n")
+        }
+        val step70PossiblePairs = if (step70ShellSet.size > 1) step70ShellSet.size * (step70ShellSet.size - 1) / 2 else 0
+        val step70ObservedPairs = step70PairWeights.size
+        val step70NetworkDensity = if (step70PossiblePairs > 0) step70ObservedPairs.toDouble() / step70PossiblePairs else 0.0
+        val step70TotalCrossLinks = step70PairWeights.values.sum()
+        val step70MostConnectedShell = step70ShellSet.maxByOrNull { step70ShellDegree[it] ?: 0 }
+        result.append("\nGlobal shell network summary:\n")
+        result.append("Shell levels | ${step70ShellSet.size}\n")
+        result.append("Connected shell-pairs | $step70ObservedPairs\n")
+        result.append("Possible shell-pairs | $step70PossiblePairs\n")
+        result.append("Shell-network density | ${String.format(Locale.US, "%.4f", step70NetworkDensity)}\n")
+        result.append("Total cross-shell links | $step70TotalCrossLinks\n")
+        result.append("Most interaction-connected shell | ${step70MostConnectedShell ?: "N/A"}\n")
+        result.append("\nThis is a descriptive shell-level network summary; cross-shell link counts do not imply causal influence.\n")
+    }
+
     private fun calculate(
         birthYear: Int,
         birthMonth: Int,
@@ -3417,48 +3467,7 @@ class MainActivity : Activity() {
             step69ShellTotals.forEach { (step69Shell, step69Count) -> result.append("$step69Shell | $step69Count\n") }
             result.append("\nThis profile summarizes descriptive cross-shell interactions and normalized link shares; it does not represent causal flow.\n")
 
-            // STEP 70: GLOBAL SHELL INTERACTION NETWORK ANALYSIS
-            result.append("\n=============================\n")
-            result.append("STEP 70 - GLOBAL SHELL INTERACTION NETWORK ANALYSIS\n")
-            result.append("=============================\n\n")
-            val step70ShellSet = step50CoreNumbers.values.toSet().sorted()
-            val step70PairWeights = mutableMapOf<Pair<Int, Int>, Int>()
-            step67CrossShellEdges.forEach { (step70A, step70B) ->
-                val step70ShellA = step50CoreNumbers[step70A] ?: 0
-                val step70ShellB = step50CoreNumbers[step70B] ?: 0
-                if (step70ShellA != step70ShellB) {
-                    val step70Pair = if (step70ShellA < step70ShellB) step70ShellA to step70ShellB else step70ShellB to step70ShellA
-                    step70PairWeights[step70Pair] = (step70PairWeights[step70Pair] ?: 0) + 1
-                }
-            }
-            val step70ShellDegree = step70ShellSet.associateWith { step70Shell ->
-                step70PairWeights.keys.count { step70Shell == it.first || step70Shell == it.second }
-            }
-            val step70ShellWeightedDegree = step70ShellSet.associateWith { step70Shell ->
-                step70PairWeights.filterKeys { step70Shell == it.first || step70Shell == it.second }.values.sum()
-            }
-            result.append("Shell-network node profile (shell | nodes | interaction partners | weighted interaction degree):\n")
-            step70ShellSet.forEach { step70Shell ->
-                val step70NodeCount = step50CoreNumbers.count { it.value == step70Shell }
-                result.append("$step70Shell | $step70NodeCount | ${step70ShellDegree[step70Shell] ?: 0} | ${step70ShellWeightedDegree[step70Shell] ?: 0}\n")
-            }
-            result.append("\nWeighted shell-interaction network edges (shell pair | cross-shell links):\n")
-            step70PairWeights.entries.sortedWith(compareBy({ it.key.first }, { it.key.second })).forEach { (step70Pair, step70Weight) ->
-                result.append("${step70Pair.first} - ${step70Pair.second} | $step70Weight\n")
-            }
-            val step70PossiblePairs = if (step70ShellSet.size > 1) step70ShellSet.size * (step70ShellSet.size - 1) / 2 else 0
-            val step70ObservedPairs = step70PairWeights.size
-            val step70NetworkDensity = if (step70PossiblePairs > 0) step70ObservedPairs.toDouble() / step70PossiblePairs else 0.0
-            val step70TotalCrossLinks = step70PairWeights.values.sum()
-            val step70MostConnectedShell = step70ShellSet.maxByOrNull { step70ShellDegree[it] ?: 0 }
-            result.append("\nGlobal shell network summary:\n")
-            result.append("Shell levels | ${step70ShellSet.size}\n")
-            result.append("Connected shell-pairs | $step70ObservedPairs\n")
-            result.append("Possible shell-pairs | $step70PossiblePairs\n")
-            result.append("Shell-network density | ${String.format(Locale.US, "%.4f", step70NetworkDensity)}\n")
-            result.append("Total cross-shell links | $step70TotalCrossLinks\n")
-            result.append("Most interaction-connected shell | ${step70MostConnectedShell ?: "N/A"}\n")
-            result.append("\nThis is a descriptive shell-level network summary; cross-shell link counts do not imply causal influence.\n")
+            appendStep70Analysis(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
