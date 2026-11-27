@@ -2514,6 +2514,69 @@ class MainActivity : Activity() {
             result.append("Maximum representation-node degree: $step43MaximumDegree\n")
             result.append("Step 43 note: these are descriptive graph-topology metrics only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 44: BLOCK-CUT GRAPH DISTANCE AND CENTRALITY METRICS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 44 - BLOCK-CUT GRAPH DISTANCE AND CENTRALITY METRICS\n")
+            result.append("=============================\n\n")
+            result.append("Calculates shortest-path distances, graph diameter within connected components, and descriptive closeness values for block-cut representation nodes. Structural graph metrics only.\n\n")
+
+            val step44DistanceMaps = mutableMapOf<String, Map<String, Int>>()
+            for (sourceNode in step43BlockCutAdjacency.keys.sorted()) {
+                val distances = mutableMapOf(sourceNode to 0)
+                val queue = ArrayDeque<String>()
+                queue.add(sourceNode)
+                while (queue.isNotEmpty()) {
+                    val current = queue.removeFirst()
+                    for (neighbor in (step43BlockCutAdjacency[current] ?: emptySet()).sorted()) {
+                        if (neighbor !in distances) {
+                            distances[neighbor] = distances[current]!! + 1
+                            queue.add(neighbor)
+                        }
+                    }
+                }
+                step44DistanceMaps[sourceNode] = distances
+            }
+
+            var step44Diameter = 0
+            var step44LongestPair = "None"
+            var step44ReachablePairCount = 0
+            for ((sourceNode, distances) in step44DistanceMaps) {
+                for ((targetNode, distance) in distances) {
+                    if (sourceNode < targetNode) {
+                        step44ReachablePairCount++
+                        if (distance > step44Diameter) {
+                            step44Diameter = distance
+                            step44LongestPair = "$sourceNode - $targetNode"
+                        }
+                    }
+                }
+            }
+
+            val step44Closeness = step44DistanceMaps.mapValues { (_, distances) ->
+                val reachable = distances.size - 1
+                val distanceSum = distances.values.sum()
+                if (reachable <= 0 || distanceSum <= 0) 0.0 else reachable.toDouble() / distanceSum.toDouble()
+            }
+            val step44RankedCloseness = step44Closeness.entries.sortedWith(
+                compareByDescending<Map.Entry<String, Double>> { it.value }.thenBy { it.key }
+            )
+            val step44AverageDistance = if (step44ReachablePairCount > 0) {
+                step44DistanceMaps.values.sumOf { distances -> distances.values.sum() }.toDouble() / (step44ReachablePairCount * 2).toDouble()
+            } else 0.0
+
+            result.append("SHORTEST-PATH / DISTANCE SUMMARY\n")
+            result.append("Reachable unordered node pairs: $step44ReachablePairCount\n")
+            result.append("Maximum shortest-path distance (diameter across components): $step44Diameter\n")
+            result.append("Longest-distance node pair: $step44LongestPair\n")
+            result.append("Average shortest-path distance across reachable pairs: ${String.format(Locale.US, "%.4f", step44AverageDistance)}\n")
+            result.append("\nNODE CLOSENESS (REACHABLE-NODE NORMALIZED)\n")
+            result.append(if (step44RankedCloseness.isEmpty()) "No nodes\n" else step44RankedCloseness.joinToString("\n") { "${it.key}: ${String.format(Locale.US, "%.4f", it.value)}" } + "\n")
+            result.append("\nSTEP 44 SUMMARY\n")
+            result.append("Nodes evaluated: ${step44DistanceMaps.size}\n")
+            result.append("Reachable unordered node pairs: $step44ReachablePairCount\n")
+            result.append("Graph diameter metric: $step44Diameter\n")
+            result.append("Step 44 note: shortest paths and closeness are descriptive graph-topology metrics only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2523,7 +2586,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\n")
 
         } catch (e: Exception) {
 
