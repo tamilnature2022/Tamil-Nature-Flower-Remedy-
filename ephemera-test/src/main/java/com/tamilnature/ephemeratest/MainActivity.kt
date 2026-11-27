@@ -1476,6 +1476,48 @@ class MainActivity : Activity() {
             }
             result.append("\nStep 17 note: this simplified layer uses broad supportive/challenging groupings, not full classical benefic/malefic judgement. Functional lordship, dignity, avastha, exact aspect strength and context remain to be developed.\n")
 
+            // STEP 18: BADHAKA LORD IDENTIFICATION (research layer)
+            result.append("\n=============================\n")
+            result.append("STEP 18 - BADHAKA LORD ANALYSIS\n")
+            result.append("=============================\n\n")
+
+            val step18LagnaType = when (lagnaSign) {
+                0, 3, 6, 9 -> "சர லக்னம் (Movable)"
+                1, 4, 7, 10 -> "ஸ்திர லக்னம் (Fixed)"
+                2, 5, 8, 11 -> "உபய லக்னம் (Dual)"
+                else -> "Unknown"
+            }
+            val step18BadhakaHouse = when (lagnaSign) {
+                0, 3, 6, 9 -> 11  // Movable signs
+                1, 4, 7, 10 -> 9   // Fixed signs
+                2, 5, 8, 11 -> 7   // Dual signs
+                else -> 0
+            }
+            val step18BadhakaSign = if (step18BadhakaHouse in 1..12)
+                (lagnaSign + step18BadhakaHouse - 1) % 12 else -1
+            val step18BadhakaLord = if (step18BadhakaSign >= 0)
+                step16SignLords[step18BadhakaSign] else "Unavailable"
+            val step18BadhakaLordLongitude = planetPositions[step18BadhakaLord]
+            val step18BadhakaLordHouse = step18BadhakaLordLongitude?.let {
+                houseNumber(it, lagnaSidereal)
+            }
+            val step18BadhakaLordSign = step18BadhakaLordLongitude?.let { signIndex(it) }
+
+            result.append("Lagna: ${rasiNames[lagnaSign]}\n")
+            result.append("Lagna type: $step18LagnaType\n")
+            result.append("Badhaka sthana: House $step18BadhakaHouse\n")
+            if (step18BadhakaSign >= 0) {
+                result.append("Badhaka sign: ${rasiNames[step18BadhakaSign]}\n")
+            }
+            result.append("Badhaka lord: $step18BadhakaLord\n")
+            if (step18BadhakaLordHouse != null && step18BadhakaLordSign != null) {
+                result.append("Badhaka lord position: ${rasiNames[step18BadhakaLordSign]} (House $step18BadhakaLordHouse)\n")
+            } else {
+                result.append("Badhaka lord position: unavailable in current planetary-position data\n")
+            }
+            result.append("Interpretation prompt: assess the Badhaka lord's dignity, conjunctions, aspects, strength and chart context separately; this module identifies the classical Badhaka lord only.\n")
+            result.append("Step 18 note: Badhaka identification follows the movable/fixed/dual ascendant rule. It does not automatically label the lord or its house as harmful.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1485,7 +1527,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\n")
 
         } catch (e: Exception) {
 
