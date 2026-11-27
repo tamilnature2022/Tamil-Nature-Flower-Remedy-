@@ -3174,6 +3174,35 @@ class MainActivity : Activity() {
             }
             result.append("Statistics are based on the Step 61 deterministic peeling order and previously calculated core shell numbers.\n")
 
+            // STEP 63: CORE-PEELING PERSISTENCE & LAYER TRANSITION
+            result.append("\n=============================\n")
+            result.append("STEP 63 - CORE-PEELING PERSISTENCE & LAYER TRANSITION\n")
+            result.append("=============================\n\n")
+            val step63Shells = step62ShellStats.keys.sorted()
+            result.append("Shell | Nodes | Persistence Share | Transition to Next Shell\n")
+            step63Shells.forEachIndexed { step63Index, step63Shell ->
+                val step63Count = step62ShellStats[step63Shell]?.size ?: 0
+                val step63Share = if (step62ShellStats.values.sumOf { it.size } > 0) step63Count.toDouble() / step62ShellStats.values.sumOf { it.size } else 0.0
+                val step63NextShell = step63Shells.getOrNull(step63Index + 1)
+                val step63Transition = if (step63NextShell != null) {
+                    val step63NextCount = step62ShellStats[step63NextShell]?.size ?: 0
+                    if (step63Count > 0) step63NextCount.toDouble() / step63Count else 0.0
+                } else null
+                result.append("$step63Shell | $step63Count | ${String.format(Locale.US, "%.4f", step63Share)} | ${step63Transition?.let { String.format(Locale.US, "%.4f", it) } ?: "N/A"}\n")
+            }
+            val step63ShellNodeSets = step62ShellStats.mapValues { (_, items) -> items.map { it.first }.toSet() }
+            result.append("\nLayer-to-layer node comparison (adjacent shell labels):\n")
+            step63Shells.forEachIndexed { step63Index, step63Shell ->
+                val step63NextShell = step63Shells.getOrNull(step63Index + 1)
+                if (step63NextShell != null) {
+                    val step63CurrentSet = step63ShellNodeSets[step63Shell] ?: emptySet()
+                    val step63NextSet = step63ShellNodeSets[step63NextShell] ?: emptySet()
+                    val step63Overlap = step63CurrentSet.intersect(step63NextSet).size
+                    result.append("Shell $step63Shell -> Shell $step63NextShell: shared nodes=$step63Overlap, current layer size=${step63CurrentSet.size}, next layer size=${step63NextSet.size}\n")
+                }
+            }
+            result.append("Persistence is descriptive shell-wise distribution; adjacent shell groups are not temporal states and may contain different node sets.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -3183,7 +3212,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\n")
 
         } catch (e: Exception) {
 
