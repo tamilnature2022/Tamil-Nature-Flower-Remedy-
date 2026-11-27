@@ -1993,6 +1993,61 @@ class MainActivity : Activity() {
             result.append("Reachability rows: ${step32Reachability.size}\n")
             result.append("Step 32 note: path and reachability descriptions reflect the directed house-lord network only; they do not imply astrological strength, outcomes, or predictive certainty.\n")
 
+            // STEP 33: BHAVA NETWORK INFLUENCE PROPAGATION (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 33 - BHAVA NETWORK INFLUENCE PROPAGATION\n")
+            result.append("=============================\n\n")
+            result.append("Direct and indirect propagation chains are described by traversing house-lord links. No influence strength, positive/negative interpretation, score, or prediction is applied.\n\n")
+
+            val step33PropagationChains = mutableMapOf<Int, List<Int>>()
+            val step33Termination = mutableMapOf<Int, String>()
+            for (source in 1..12) {
+                val chain = mutableListOf<Int>()
+                val visited = mutableSetOf<Int>()
+                visited.add(source)
+                var current = step32Edges[source]
+                var termination = "No outgoing link"
+                while (current != null && current in 1..12) {
+                    if (!visited.add(current)) {
+                        chain.add(current)
+                        termination = "Loop detected at House $current"
+                        break
+                    }
+                    chain.add(current)
+                    if (chain.size >= 12) {
+                        termination = "Traversal limit reached"
+                        break
+                    }
+                    val next = step32Edges[current]
+                    if (next == null) {
+                        termination = "Chain ends at House $current"
+                        break
+                    }
+                    current = next
+                }
+                if (chain.isEmpty() && source in step32Edges) termination = "Invalid or unavailable destination"
+                step33PropagationChains[source] = chain
+                step33Termination[source] = termination
+            }
+
+            result.append("LEVEL 1 - DIRECT LINKS\n")
+            result.append(if (step32Edges.isEmpty()) "None identified\n\n" else step32Edges.entries.sortedBy { it.key }.joinToString("\n") { "House ${it.key} -> House ${it.value}" } + "\n\n")
+
+            result.append("PROPAGATION CHAINS (direct and indirect structural links)\n")
+            for (source in 1..12) {
+                val chain = step33PropagationChains[source] ?: emptyList()
+                result.append("House $source: ${if (chain.isEmpty()) "No propagation chain" else (listOf(source) + chain).joinToString(" -> ") { "House $it" }}\n")
+            }
+            result.append("\nCHAIN TERMINATION\n")
+            for (source in 1..12) {
+                result.append("House $source: ${step33Termination[source] ?: "Unavailable"}\n")
+            }
+            result.append("\nPROPAGATION SUMMARY\n")
+            result.append("Chains analyzed: ${step33PropagationChains.size}\n")
+            result.append("Chains with at least one indirect step: ${step33PropagationChains.values.count { it.size >= 2 }}\n")
+            result.append("Chains with loop detection: ${step33Termination.values.count { it.contains("Loop detected") }}\n")
+            result.append("Step 33 note: propagation is a graph traversal of house-lord links only and does not establish astrological strength, causation, outcomes, or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2002,7 +2057,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\n")
 
         } catch (e: Exception) {
 
