@@ -2768,7 +2768,7 @@ class MainActivity : Activity() {
 
             var step49TriangleCount = 0L
             var step49ConnectedTriples = 0L
-            val step49LocalCoefficients = mutableMapOf<Int, Double>()
+            val step49LocalCoefficients = mutableMapOf<String, Double>()
             for ((step49Node, step49NeighborsRaw) in step43BlockCutAdjacency) {
                 val step49Neighbors = step49NeighborsRaw.filter { it in step43BlockCutAdjacency.keys }.toSet()
                 val step49Degree = step49Neighbors.size
