@@ -1756,6 +1756,35 @@ class MainActivity : Activity() {
             }
             result.append("Step 25 note: this matrix is descriptive context only; it does not imply severity or predictive certainty.\n")
 
+            // STEP 26: BHAVA LORD CROSS-LINK MATRIX
+            result.append("\n=============================\n")
+            result.append("STEP 26 - BHAVA LORD CROSS-LINK MATRIX\n")
+            result.append("=============================\n\n")
+            result.append("Descriptive mapping of each bhava to the bhava occupied by its lord. No scoring or prediction is applied.\n\n")
+
+            val step26LinksByDestination = mutableMapOf<Int, MutableList<Int>>()
+            for (sourceHouse in 1..12) {
+                val sourceSignIndex = (lagnaSign + sourceHouse - 1) % 12
+                val sourceLord = signLords[sourceSignIndex]
+                val sourceLordLongitude = planetPositions[sourceLord]
+                val destinationHouse = sourceLordLongitude?.let { houseNumber(it, lagnaSidereal) }
+                result.append("House $sourceHouse lord ($sourceLord): ")
+                if (destinationHouse != null && destinationHouse in 1..12) {
+                    result.append("placed in House $destinationHouse\n")
+                    step26LinksByDestination.getOrPut(destinationHouse) { mutableListOf() }.add(sourceHouse)
+                } else {
+                    result.append("position unavailable\n")
+                }
+            }
+            result.append("\nDESTINATION HOUSE SUMMARY\n")
+            for (destinationHouse in 1..12) {
+                val sourceHouses = step26LinksByDestination[destinationHouse] ?: emptyList()
+                result.append("House $destinationHouse receives lord-links from: ")
+                result.append(if (sourceHouses.isEmpty()) "None" else sourceHouses.joinToString { "House $it" })
+                result.append("\n")
+            }
+            result.append("Step 26 note: these are lord-placement relationships only; they are not strength, severity, or predictive scores.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1765,7 +1794,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\n")
 
         } catch (e: Exception) {
 
