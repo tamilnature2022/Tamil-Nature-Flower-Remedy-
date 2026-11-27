@@ -1664,7 +1664,7 @@ class MainActivity : Activity() {
 
             result.append("1. BADHAKA HOUSE ASSOCIATION\n")
             result.append("Badhaka house: $step18BadhakaHouse | Sign: ${if (step18BadhakaSign >= 0) rasiNames[step18BadhakaSign] else "Unavailable"}\n")
-            result.append("Mapped bhava: ${step18HouseBySignName.entries.firstOrNull { it.value == step18BadhakaHouse }?.key ?: "Unavailable"} (House $step18BadhakaHouse)\n\n")
+            result.append("Mapped bhava: ${step23HouseBySignName.entries.firstOrNull { it.value == step18BadhakaHouse }?.key ?: "Unavailable"} (House $step18BadhakaHouse)\n\n")
 
             result.append("2. TITHI SUNYA SIGN ASSOCIATIONS\n")
             if (step19SunyaSigns.isEmpty()) {
