@@ -1282,53 +1282,6 @@ class MainActivity : Activity() {
             }
             result.append("\nNote: Prototype comparative score only; not classical Shadbala or a definitive planetary strength calculation.\n")
 
-            // STEP 12: PLANET STRENGTH RANKING (heuristic prototype)
-            result.append("\n=============================\n")
-            result.append("STEP 12 - PLANET STRENGTH RANKING\n")
-            result.append("=============================\n\n")
-            val planetStrengthRows = mutableListOf<Pair<String, Int>>()
-            for (planetName in planetPositions.keys) {
-                val longitude = planetPositions[planetName]!!
-                val sign = signIndex(longitude)
-                val house = houseNumber(longitude, lagnaSidereal)
-                var score = 50
-                val factors = mutableListOf<String>()
-                val dignity = getLordStatus(planetName, sign)
-                val dignityPoints = when {
-                    dignity.contains("Exaltation") -> 20
-                    dignity.contains("Own Sign") -> 15
-                    dignity.contains("Debilitation") -> -15
-                    else -> 0
-                }
-                score += dignityPoints
-                factors.add("Dignity: $dignity ($dignityPoints)")
-                val housePoints = when (house) {
-                    1, 4, 7, 10 -> 10
-                    5, 9 -> 8
-                    2, 11 -> 5
-                    3, 6, 8, 12 -> -5
-                    else -> 0
-                }
-                score += housePoints
-                factors.add("House placement: $house ($housePoints)")
-                if (retrogradeNames.contains(planetName)) {
-                    score -= 3
-                    factors.add("Retrograde: -3 (prototype adjustment)")
-                }
-                val finalPlanetScore = score.coerceIn(0, 100)
-                planetStrengthRows.add(planetName to finalPlanetScore)
-                result.append("$planetName - ${rasiNames[sign]} - House $house\n")
-                result.append("$factors\n")
-                result.append("Score: $finalPlanetScore/100\n")
-                result.append("-----------------------------\n")
-            }
-            val rankedPlanets = planetStrengthRows.sortedByDescending { it.second }
-            result.append("\nPlanet ranking (highest to lowest):\n")
-            rankedPlanets.forEachIndexed { index, entry ->
-                result.append("${index + 1}. ${entry.first}: ${entry.second}/100\n")
-            }
-            result.append("\nNote: Prototype comparative score only; not classical Shadbala or a definitive planetary strength calculation.\n")
-
 
             // STEP 13: INTEGRATED HOROSCOPE ANALYSIS (prototype)
             result.append("\n=============================\n")
