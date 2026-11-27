@@ -3443,7 +3443,7 @@ class MainActivity : Activity() {
                 result.append("$step70Shell | $step70NodeCount | ${step70ShellDegree[step70Shell] ?: 0} | ${step70ShellWeightedDegree[step70Shell] ?: 0}\n")
             }
             result.append("\nWeighted shell-interaction network edges (shell pair | cross-shell links):\n")
-            step70PairWeights.toSortedMap(compareBy<Pair<Int, Int>> { it.first }.thenBy { it.second }).forEach { (step70Pair, step70Weight) ->
+            step70PairWeights.entries.sortedWith(compareBy({ it.key.first }, { it.key.second })).forEach { (step70Pair, step70Weight) ->
                 result.append("${step70Pair.first} - ${step70Pair.second} | $step70Weight\n")
             }
             val step70PossiblePairs = if (step70ShellSet.size > 1) step70ShellSet.size * (step70ShellSet.size - 1) / 2 else 0
