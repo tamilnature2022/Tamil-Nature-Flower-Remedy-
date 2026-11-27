@@ -2449,6 +2449,71 @@ class MainActivity : Activity() {
             result.append("Total block-cut representation nodes: $step42BlockCutNodeCount\n")
             result.append("Step 42 note: block-cut representation describes connectivity structure only and does not indicate astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 43: BLOCK-CUT REPRESENTATION TOPOLOGY METRICS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 43 - BLOCK-CUT REPRESENTATION TOPOLOGY METRICS\n")
+            result.append("=============================\n\n")
+            result.append("Measures degree, leaf nodes, branching nodes, and connected components in the block-cut representation. Structural graph metrics only.\n\n")
+
+            val step43BlockCutAdjacency = mutableMapOf<String, MutableSet<String>>()
+            for (blockIndex in step41UniqueBlocks.indices) {
+                step43BlockCutAdjacency["B${blockIndex + 1}"] = mutableSetOf()
+            }
+            for (house in step42ArticulationHouses) {
+                step43BlockCutAdjacency["H$house"] = mutableSetOf()
+            }
+            for ((blockId, house) in step42BlockCutLinks.distinct()) {
+                val blockNode = "B$blockId"
+                val houseNode = "H$house"
+                step43BlockCutAdjacency[blockNode]?.add(houseNode)
+                step43BlockCutAdjacency[houseNode]?.add(blockNode)
+            }
+
+            val step43Degrees = step43BlockCutAdjacency.mapValues { it.value.size }
+            val step43Leaves = step43Degrees.filterValues { it == 1 }.keys.sorted()
+            val step43BranchingNodes = step43Degrees.filterValues { it >= 3 }.keys.sorted()
+            val step43Visited = mutableSetOf<String>()
+            val step43Components = mutableListOf<Set<String>>()
+            for (node in step43BlockCutAdjacency.keys.sorted()) {
+                if (node !in step43Visited) {
+                    val queue = ArrayDeque<String>()
+                    val component = mutableSetOf<String>()
+                    queue.add(node)
+                    step43Visited.add(node)
+                    while (queue.isNotEmpty()) {
+                        val current = queue.removeFirst()
+                        component.add(current)
+                        for (neighbor in (step43BlockCutAdjacency[current] ?: emptySet()).sorted()) {
+                            if (neighbor !in step43Visited) {
+                                step43Visited.add(neighbor)
+                                queue.add(neighbor)
+                            }
+                        }
+                    }
+                    step43Components.add(component)
+                }
+            }
+            val step43MaximumDegree = step43Degrees.values.maxOrNull() ?: 0
+            val step43DegreeOneCount = step43Leaves.size
+            val step43DegreeZeroCount = step43Degrees.count { it.value == 0 }
+
+            result.append("BLOCK-CUT NODE DEGREES\n")
+            result.append(if (step43Degrees.isEmpty()) "No nodes\n" else step43Degrees.toSortedMap().entries.joinToString("\n") { "${it.key}: degree ${it.value}" } + "\n")
+            result.append("\nLEAF NODES (DEGREE 1)\n")
+            result.append(if (step43Leaves.isEmpty()) "None identified\n" else step43Leaves.joinToString(", ") + "\n")
+            result.append("\nBRANCHING NODES (DEGREE >= 3)\n")
+            result.append(if (step43BranchingNodes.isEmpty()) "None identified\n" else step43BranchingNodes.joinToString(", ") + "\n")
+            result.append("\nBLOCK-CUT COMPONENTS\n")
+            result.append(if (step43Components.isEmpty()) "None\n" else step43Components.mapIndexed { index, component -> "Component ${index + 1}: " + component.sorted().joinToString(", ") }.joinToString("\n") + "\n")
+            result.append("\nSTEP 43 SUMMARY\n")
+            result.append("Representation node count: ${step43BlockCutAdjacency.size}\n")
+            result.append("Connected component count: ${step43Components.size}\n")
+            result.append("Degree-1 leaf count: $step43DegreeOneCount\n")
+            result.append("Degree-0 isolated node count: $step43DegreeZeroCount\n")
+            result.append("Branching node count (degree >= 3): ${step43BranchingNodes.size}\n")
+            result.append("Maximum representation-node degree: $step43MaximumDegree\n")
+            result.append("Step 43 note: these are descriptive graph-topology metrics only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2458,7 +2523,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\n")
 
         } catch (e: Exception) {
 
