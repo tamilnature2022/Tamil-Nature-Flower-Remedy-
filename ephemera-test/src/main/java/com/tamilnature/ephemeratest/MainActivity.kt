@@ -2350,6 +2350,73 @@ class MainActivity : Activity() {
             result.append("Bridge links: ${step40BridgeLinks.size}\n")
             result.append("Alternate-route links are not bridges in this undirected graph; this is a graph-topology description only, not astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 41: BHAVA NETWORK BICONNECTED COMPONENT ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 41 - BHAVA NETWORK BICONNECTED COMPONENT ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Identifies vertex-biconnected blocks in the undirected graph using DFS low-link values and an edge stack.\n\n")
+
+            val step41Discovery = mutableMapOf<Int, Int>()
+            val step41Low = mutableMapOf<Int, Int>()
+            val step41EdgeStack = mutableListOf<Pair<Int, Int>>()
+            val step41Blocks = mutableListOf<Set<Int>>()
+            var step41Time = 0
+
+            fun step41Dfs(node: Int, parent: Int) {
+                step41Time++
+                step41Discovery[node] = step41Time
+                step41Low[node] = step41Time
+                var step41Children = 0
+                for (neighbor in (step36Adjacency[node] ?: emptySet()).sorted()) {
+                    if (neighbor !in step41Discovery) {
+                        step41Children++
+                        step41EdgeStack.add(node to neighbor)
+                        step41Dfs(neighbor, node)
+                        step41Low[node] = minOf(step41Low[node] ?: step41Time, step41Low[neighbor] ?: step41Time)
+                        if ((step41Low[neighbor] ?: step41Time) >= (step41Discovery[node] ?: step41Time)) {
+                            val step41BlockEdges = mutableListOf<Pair<Int, Int>>()
+                            while (step41EdgeStack.isNotEmpty()) {
+                                val edge = step41EdgeStack.removeAt(step41EdgeStack.lastIndex)
+                                step41BlockEdges.add(edge)
+                                if (edge.first == node && edge.second == neighbor) break
+                                if (edge.first == neighbor && edge.second == node) break
+                            }
+                            val step41BlockNodes = step41BlockEdges.flatMap { listOf(it.first, it.second) }.toSet()
+                            if (step41BlockNodes.isNotEmpty()) step41Blocks.add(step41BlockNodes)
+                        }
+                    } else if (neighbor != parent && (step41Discovery[neighbor] ?: 0) < (step41Discovery[node] ?: 0)) {
+                        step41EdgeStack.add(node to neighbor)
+                        step41Low[node] = minOf(step41Low[node] ?: step41Time, step41Discovery[neighbor] ?: step41Time)
+                    }
+                }
+            }
+
+            for (node in 1..12) {
+                if (node !in step41Discovery) {
+                    if ((step36Adjacency[node] ?: emptySet()).isEmpty()) {
+                        step41Blocks.add(setOf(node))
+                    } else {
+                        step41Dfs(node, -1)
+                        if (step41EdgeStack.isNotEmpty()) {
+                            val step41RemainingEdges = step41EdgeStack.toList()
+                            step41EdgeStack.clear()
+                            val step41RemainingNodes = step41RemainingEdges.flatMap { listOf(it.first, it.second) }.toSet()
+                            if (step41RemainingNodes.isNotEmpty()) step41Blocks.add(step41RemainingNodes)
+                        }
+                    }
+                }
+            }
+
+            val step41UniqueBlocks = step41Blocks.distinct().sortedBy { it.minOrNull() ?: 0 }
+            result.append("BICONNECTED BLOCKS\n")
+            result.append(if (step41UniqueBlocks.isEmpty()) "None identified\n" else step41UniqueBlocks.mapIndexed { index, block ->
+                "Block ${index + 1}: " + block.sorted().joinToString(", ") { "House $it" }
+            }.joinToString("\n") + "\n")
+            result.append("\nSTRUCTURAL SUMMARY\n")
+            result.append("Biconnected block count: ${step41UniqueBlocks.size}\n")
+            result.append("Largest block size: ${step41UniqueBlocks.maxOfOrNull { it.size } ?: 0} houses\n")
+            result.append("This block decomposition describes graph topology only; it does not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2359,7 +2426,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\n")
 
         } catch (e: Exception) {
 
