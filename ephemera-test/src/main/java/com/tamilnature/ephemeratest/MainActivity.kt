@@ -1618,6 +1618,38 @@ class MainActivity : Activity() {
             result.append("Karana: $step21KaranaName\n")
             result.append("Note: Karana is calculated from tropical Sun-Moon elongation; this is a Panchanga name identification layer, not an interpretive score.\n")
 
+
+            // STEP 22: COMBINED FACTOR SUMMARY (DESCRIPTIVE ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 22 - COMBINED ASTROLOGICAL FACTOR SUMMARY\n")
+            result.append("=============================\n\n")
+            result.append("This summary consolidates the previously calculated factors without applying a combined penalty or prediction score.\n\n")
+
+            result.append("1. BADHAKA FACTOR\n")
+            result.append("Lagna type: $step18LagnaType\n")
+            result.append("Badhaka house: $step18BadhakaHouse\n")
+            result.append("Badhaka sign: ${if (step18BadhakaSign >= 0) rasiNames[step18BadhakaSign] else "Unavailable"}\n")
+            result.append("Badhaka lord: $step18BadhakaLord\n")
+            result.append("Badhaka lord house: ${step18BadhakaLordHouse ?: "Unavailable"}\n\n")
+
+            result.append("2. TITHI SUNYA FACTOR\n")
+            result.append("Tithi: $step19TithiName ($step19Paksha)\n")
+            result.append("Sunya signs: ${if (step19SunyaSigns.isEmpty()) "Not applied / unavailable" else step19SunyaSigns.joinToString()}\n")
+            result.append("Planets in Sunya signs: ${if (step19ChartPlanetsInSunyaSigns.isEmpty()) "None detected" else step19ChartPlanetsInSunyaSigns.joinToString()}\n")
+            result.append("Sunya planets and positions: ${if (step19SunyaPlanetPositions.isEmpty()) "None / not applicable" else step19SunyaPlanetPositions.joinToString { "${it.first} in ${it.second}" }}\n\n")
+
+            result.append("3. MUDakku FACTOR (EXPERIMENTAL)\n")
+            result.append("Mudakku sign: $step20MudakkuSign\n")
+            result.append("Mudakku sign lord: $step20MudakkuLord\n")
+            result.append("Planets in Mudakku sign: ${if (step20PlanetsInMudakkuSign.isEmpty()) "None" else step20PlanetsInMudakkuSign.joinToString()}\n")
+            result.append("Mudakku lord sign: $step20MudakkuLordSign\n")
+            result.append("Mudakku lord house: ${step20MudakkuLordHouse ?: "Unavailable"}\n\n")
+
+            result.append("4. KARANA FACTOR\n")
+            result.append("Karana: $step21KaranaName (index $step21KaranaIndex)\n")
+            result.append("Sun-Moon elongation: %.3f degrees\n".format(Locale.US, step21Elongation))
+            result.append("\nCombined summary note: these are separate descriptive factors. No combined score or automatic adverse interpretation is applied. Validate tradition-specific rules before predictive use.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1627,7 +1659,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\n")
 
         } catch (e: Exception) {
 
