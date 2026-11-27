@@ -2048,6 +2048,68 @@ class MainActivity : Activity() {
             result.append("Chains with loop detection: ${step33Termination.values.count { it.contains("Loop detected") }}\n")
             result.append("Step 33 note: propagation is a graph traversal of house-lord links only and does not establish astrological strength, causation, outcomes, or predictive certainty.\n")
 
+            // STEP 34: BHAVA NETWORK DEPENDENCY ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 34 - BHAVA NETWORK DEPENDENCY ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Dependency is summarized from the directed house-lord link network. This is structural only; no strength, outcome, or prediction is inferred.\n\n")
+
+            val step34PrimaryDependency = mutableMapOf<Int, Int?>()
+            val step34DependencyChains = mutableMapOf<Int, List<Int>>()
+            val step34TerminalNodes = mutableMapOf<Int, Int?>()
+            for (source in 1..12) {
+                val direct = step32Edges[source]
+                step34PrimaryDependency[source] = direct
+                val chain = mutableListOf<Int>()
+                val visited = mutableSetOf(source)
+                var current = direct
+                while (current != null && current in 1..12 && visited.add(current) && chain.size < 12) {
+                    chain.add(current)
+                    current = step32Edges[current]
+                }
+                step34DependencyChains[source] = chain
+                step34TerminalNodes[source] = chain.lastOrNull()
+            }
+
+            result.append("PRIMARY DEPENDENCY (direct link)\n")
+            for (source in 1..12) {
+                val direct = step34PrimaryDependency[source]
+                result.append("House $source: ${direct?.let { "depends structurally on House $it" } ?: "No direct link"}\n")
+            }
+
+            result.append("\nSECONDARY DEPENDENCY (indirect chain)\n")
+            for (source in 1..12) {
+                val chain = step34DependencyChains[source] ?: emptyList()
+                val indirect = chain.drop(1)
+                result.append("House $source: ${if (indirect.isEmpty()) "No secondary dependency identified" else indirect.joinToString(" -> ") { "House $it" }}\n")
+            }
+
+            result.append("\nDEPENDENCY CHAINS\n")
+            for (source in 1..12) {
+                val chain = step34DependencyChains[source] ?: emptyList()
+                result.append("House $source: ${if (chain.isEmpty()) "No chain" else (listOf(source) + chain).joinToString(" -> ") { "House $it" }}\n")
+            }
+
+            val step34SharedDependencies = step34TerminalNodes.entries
+                .filter { it.value != null }
+                .groupBy { it.value!! }
+                .filterValues { it.size > 1 }
+            result.append("\nSHARED DEPENDENCY (common terminal nodes)\n")
+            if (step34SharedDependencies.isEmpty()) {
+                result.append("No shared terminal dependency groups identified\n")
+            } else {
+                for ((destination, sources) in step34SharedDependencies.toSortedMap()) {
+                    result.append("House $destination is a common terminal node for: ${sources.keys.sorted().joinToString { "House $it" }}\n")
+                }
+            }
+
+            result.append("\nDEPENDENCY SUMMARY\n")
+            result.append("House nodes analyzed: 12\n")
+            result.append("Direct dependencies identified: ${step34PrimaryDependency.values.count { it != null }}\n")
+            result.append("Chains with indirect dependency: ${step34DependencyChains.values.count { it.size >= 2 }}\n")
+            result.append("Shared terminal groups: ${step34SharedDependencies.size}\n")
+            result.append("Step 34 note: dependency labels describe directed graph relationships only and do not imply causal, beneficial/adverse, or predictive effects.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2057,7 +2119,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\n")
 
         } catch (e: Exception) {
 
