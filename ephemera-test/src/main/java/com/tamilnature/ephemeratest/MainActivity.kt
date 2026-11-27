@@ -1592,6 +1592,32 @@ class MainActivity : Activity() {
             result.append("Mudakku lord house: ${step20MudakkuLordHouse ?: "Unavailable"}\n")
             result.append("Note: This is an experimental sign-counting method based on the previously discussed rule; validate against the intended tradition before interpretive use.\n")
 
+            // STEP 21: KARANA (PANCHANGA) CALCULATION
+            result.append("\nSTEP 21 - KARANA ANALYSIS\n")
+            result.append("-----------------------------\n")
+
+            val step21SunLongitude = tropicalPositions["சூரியன்"]
+                ?: throw Exception("Sun longitude unavailable for Karana")
+            val step21MoonLongitude = tropicalPositions["சந்திரன்"]
+                ?: throw Exception("Moon longitude unavailable for Karana")
+            val step21Elongation = normalize(step21MoonLongitude - step21SunLongitude)
+            val step21KaranaIndex = (step21Elongation / 6.0).toInt().coerceIn(0, 59)
+            val step21RepeatingKaranas = listOf(
+                "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti"
+            )
+            val step21KaranaName = when (step21KaranaIndex) {
+                0 -> "Kimstughna"
+                in 1..56 -> step21RepeatingKaranas[(step21KaranaIndex - 1) % 7]
+                57 -> "Shakuni"
+                58 -> "Chatushpada"
+                59 -> "Nagava (Naga)"
+                else -> "Unavailable"
+            }
+            result.append("Sun-Moon elongation: %.3f degrees\n".format(Locale.US, step21Elongation))
+            result.append("Karana interval index (0-59): $step21KaranaIndex\n")
+            result.append("Karana: $step21KaranaName\n")
+            result.append("Note: Karana is calculated from tropical Sun-Moon elongation; this is a Panchanga name identification layer, not an interpretive score.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1601,7 +1627,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\n")
 
         } catch (e: Exception) {
 
