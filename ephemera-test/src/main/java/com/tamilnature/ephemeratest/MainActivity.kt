@@ -2760,6 +2760,90 @@ class MainActivity : Activity() {
             result.append("Degree assortativity (Pearson correlation across edge endpoints): ${if (step48Assortativity.isNaN()) "Undefined" else String.format(Locale.US, "%.4f", step48Assortativity)}\n")
             result.append("Step 48 note: degree distribution and degree assortativity are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 49: LOCAL CLUSTERING COEFFICIENT AND GRAPH TRANSITIVITY (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 49 - LOCAL CLUSTERING COEFFICIENT AND GRAPH TRANSITIVITY\n")
+            result.append("=============================\n\n")
+            result.append("Measures neighbor connectivity using triangle relationships. Structural measures only.\n\n")
+
+            var step49TriangleCount = 0L
+            var step49ConnectedTriples = 0L
+            val step49LocalCoefficients = mutableMapOf<Int, Double>()
+            for ((step49Node, step49NeighborsRaw) in step43BlockCutAdjacency) {
+                val step49Neighbors = step49NeighborsRaw.filter { it in step43BlockCutAdjacency.keys }.toSet()
+                val step49Degree = step49Neighbors.size
+                if (step49Degree < 2) {
+                    step49LocalCoefficients[step49Node] = 0.0
+                    continue
+                }
+                val step49PossiblePairs = step49Degree.toLong() * (step49Degree - 1L) / 2L
+                step49ConnectedTriples += step49PossiblePairs
+                var step49LinksAmongNeighbors = 0L
+                val step49SortedNeighbors = step49Neighbors.sorted()
+                for (i in step49SortedNeighbors.indices) {
+                    for (j in i + 1 until step49SortedNeighbors.size) {
+                        if (step49SortedNeighbors[j] in (step43BlockCutAdjacency[step49SortedNeighbors[i]] ?: emptySet())) {
+                            step49LinksAmongNeighbors++
+                        }
+                    }
+                }
+                step49TriangleCount += step49LinksAmongNeighbors
+                step49LocalCoefficients[step49Node] = step49LinksAmongNeighbors.toDouble() / step49PossiblePairs.toDouble()
+            }
+            val step49MeanLocal = if (step49LocalCoefficients.isNotEmpty()) step49LocalCoefficients.values.average() else 0.0
+            val step49Transitivity = if (step49ConnectedTriples > 0L) step49TriangleCount.toDouble() / step49ConnectedTriples.toDouble() else 0.0
+            result.append("LOCAL CLUSTERING COEFFICIENTS\n")
+            result.append(if (step49LocalCoefficients.isEmpty()) "No nodes\n" else step49LocalCoefficients.entries.sortedBy { it.key }.joinToString("\n") { "Node ${it.key}: ${String.format(Locale.US, "%.4f", it.value)}" } + "\n")
+            result.append("\nSTEP 49 SUMMARY\n")
+            result.append("Nodes evaluated: ${step49LocalCoefficients.size}\n")
+            result.append("Triangle relationships counted: $step49TriangleCount\n")
+            result.append("Connected neighbor-pairs (triples): $step49ConnectedTriples\n")
+            result.append("Mean local clustering coefficient: ${String.format(Locale.US, "%.4f", step49MeanLocal)}\n")
+            result.append("Graph transitivity: ${String.format(Locale.US, "%.4f", step49Transitivity)}\n")
+            result.append("Step 49 note: clustering and transitivity are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
+            // STEP 49: LOCAL CLUSTERING COEFFICIENT AND GRAPH TRANSITIVITY (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 49 - LOCAL CLUSTERING COEFFICIENT AND GRAPH TRANSITIVITY\n")
+            result.append("=============================\n\n")
+            result.append("Measures neighbor connectivity using triangle relationships. Structural measures only.\n\n")
+
+            var step49TriangleCount = 0L
+            var step49ConnectedTriples = 0L
+            val step49LocalCoefficients = mutableMapOf<Int, Double>()
+            for ((step49Node, step49NeighborsRaw) in step43BlockCutAdjacency) {
+                val step49Neighbors = step49NeighborsRaw.filter { it in step43BlockCutAdjacency.keys }.toSet()
+                val step49Degree = step49Neighbors.size
+                if (step49Degree < 2) {
+                    step49LocalCoefficients[step49Node] = 0.0
+                    continue
+                }
+                val step49PossiblePairs = step49Degree.toLong() * (step49Degree - 1L) / 2L
+                step49ConnectedTriples += step49PossiblePairs
+                var step49LinksAmongNeighbors = 0L
+                val step49SortedNeighbors = step49Neighbors.sorted()
+                for (i in step49SortedNeighbors.indices) {
+                    for (j in i + 1 until step49SortedNeighbors.size) {
+                        if (step49SortedNeighbors[j] in (step43BlockCutAdjacency[step49SortedNeighbors[i]] ?: emptySet())) {
+                            step49LinksAmongNeighbors++
+                        }
+                    }
+                }
+                step49TriangleCount += step49LinksAmongNeighbors
+                step49LocalCoefficients[step49Node] = step49LinksAmongNeighbors.toDouble() / step49PossiblePairs.toDouble()
+            }
+            val step49MeanLocal = if (step49LocalCoefficients.isNotEmpty()) step49LocalCoefficients.values.average() else 0.0
+            val step49Transitivity = if (step49ConnectedTriples > 0L) step49TriangleCount.toDouble() / step49ConnectedTriples.toDouble() else 0.0
+            result.append("LOCAL CLUSTERING COEFFICIENTS\n")
+            result.append(if (step49LocalCoefficients.isEmpty()) "No nodes\n" else step49LocalCoefficients.entries.sortedBy { it.key }.joinToString("\n") { "Node ${it.key}: ${String.format(Locale.US, "%.4f", it.value)}" } + "\n")
+            result.append("\nSTEP 49 SUMMARY\n")
+            result.append("Nodes evaluated: ${step49LocalCoefficients.size}\n")
+            result.append("Triangle relationships counted: $step49TriangleCount\n")
+            result.append("Connected neighbor-pairs (triples): $step49ConnectedTriples\n")
+            result.append("Mean local clustering coefficient: ${String.format(Locale.US, "%.4f", step49MeanLocal)}\n")
+            result.append("Graph transitivity: ${String.format(Locale.US, "%.4f", step49Transitivity)}\n")
+            result.append("Step 49 note: clustering and transitivity are descriptive graph-topology measures only; they do not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2769,7 +2853,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\n")
 
         } catch (e: Exception) {
 
