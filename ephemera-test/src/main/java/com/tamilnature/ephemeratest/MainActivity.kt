@@ -1897,6 +1897,61 @@ class MainActivity : Activity() {
             result.append(if (step30NoIncoming.isEmpty()) "None identified\n\n" else step30NoIncoming.joinToString { "House $it" } + "\n\n")
             result.append("Step 30 note: this classification is based only on incoming-link counts and is not an astrological strength score or prediction.\n")
 
+            // STEP 31: BHAVA NETWORK TOPOLOGY ANALYSIS (DESCRIPTIVE)
+            result.append("\n=============================\n")
+            result.append("STEP 31 - BHAVA NETWORK TOPOLOGY ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Source nodes, destination nodes, reciprocal links, and directed loops are summarized structurally. No scoring or prediction is applied.\n\n")
+
+            val step31Edges = step29OutgoingTargets.filter { (source, target) -> source in 1..12 && target in 1..12 }
+            val step31Sources = step31Edges.keys.sorted()
+            val step31Destinations = step31Edges.values.toSet().sorted()
+
+            result.append("SOURCE NODES (houses with available outgoing lord-links)\n")
+            result.append(if (step31Sources.isEmpty()) "None identified\n\n" else step31Sources.joinToString { "House $it -> House ${step31Edges[it]}" } + "\n\n")
+
+            result.append("DESTINATION NODES (houses receiving outgoing lord-links)\n")
+            result.append(if (step31Destinations.isEmpty()) "None identified\n\n" else step31Destinations.joinToString { "House $it" } + "\n\n")
+
+            val step31Bidirectional = mutableListOf<String>()
+            for (a in 1..12) {
+                val b = step31Edges[a] ?: continue
+                if (b != a && step31Edges[b] == a && a < b) step31Bidirectional.add("House $a <-> House $b")
+            }
+            result.append("BIDIRECTIONAL LINKS (reciprocal direct connections)\n")
+            result.append(if (step31Bidirectional.isEmpty()) "None identified\n\n" else step31Bidirectional.joinToString("\n") + "\n\n")
+
+            // Find directed cycles in the single-outgoing-edge network, avoiding duplicate cycle reports.
+            val step31Cycles = mutableListOf<List<Int>>()
+            val step31CycleKeys = mutableSetOf<String>()
+            for (startNode in 1..12) {
+                val path = mutableListOf<Int>()
+                val indexInPath = mutableMapOf<Int, Int>()
+                var current: Int? = startNode
+                while (current != null && current in 1..12 && !indexInPath.containsKey(current)) {
+                    indexInPath[current] = path.size
+                    path.add(current)
+                    current = step31Edges[current]
+                }
+                if (current != null && indexInPath.containsKey(current)) {
+                    val cycle = path.subList(indexInPath[current]!!, path.size).toList()
+                    if (cycle.isNotEmpty()) {
+                        val canonical = cycle.indices.map { offset -> cycle.drop(offset) + cycle.take(offset) }.minBy { it.joinToString(",") }
+                        val key = canonical.joinToString(",")
+                        if (step31CycleKeys.add(key)) step31Cycles.add(canonical)
+                    }
+                }
+            }
+            result.append("DIRECTED NETWORK LOOPS (cycles in house-lord destinations)\n")
+            result.append(if (step31Cycles.isEmpty()) "None identified\n\n" else step31Cycles.joinToString("\n") { cycle -> cycle.joinToString(" -> ") { "House $it" } + " -> House ${cycle.first()}" } + "\n\n")
+
+            result.append("TOPOLOGY SUMMARY\n")
+            result.append("Source nodes: ${step31Sources.size}\n")
+            result.append("Distinct destination nodes: ${step31Destinations.size}\n")
+            result.append("Reciprocal link pairs: ${step31Bidirectional.size}\n")
+            result.append("Directed loop patterns: ${step31Cycles.size}\n")
+            result.append("Step 31 note: topology labels describe connection structure only and do not imply astrological strength, outcomes, or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1906,7 +1961,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\n")
 
         } catch (e: Exception) {
 
