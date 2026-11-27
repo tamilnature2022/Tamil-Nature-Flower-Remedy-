@@ -2324,6 +2324,32 @@ class MainActivity : Activity() {
             result.append("Bridge links are connections whose removal separates part of this undirected graph.\n")
             result.append("Step 39 note: this is descriptive graph structure only; it does not indicate astrological strength, causation, outcomes, or predictive certainty.\n")
 
+            // STEP 40: BHAVA NETWORK LINK REDUNDANCY ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 40 - BHAVA NETWORK LINK REDUNDANCY ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Classifies each unique undirected network link by whether it is a bridge-link or has an alternate route in the graph.\n\n")
+
+            val step40AllLinks = mutableListOf<Pair<Int, Int>>()
+            for (node in 1..12) {
+                for (neighbor in (step36Adjacency[node] ?: emptySet()).sorted()) {
+                    if (node < neighbor) step40AllLinks.add(node to neighbor)
+                }
+            }
+            val step40UniqueLinks = step40AllLinks.distinct().sortedWith(compareBy<Pair<Int, Int>> { it.first }.thenBy { it.second })
+            val step40RedundantLinks = step40UniqueLinks.filter { it !in step39UniqueBridges }
+            val step40BridgeLinks = step40UniqueLinks.filter { it in step39UniqueBridges }
+
+            result.append("LINKS WITH ALTERNATE ROUTES (NON-BRIDGE)\n")
+            result.append(if (step40RedundantLinks.isEmpty()) "None identified\n" else step40RedundantLinks.joinToString("\n") { "House ${it.first} <-> House ${it.second}" } + "\n")
+            result.append("\nBRIDGE LINKS (NO ALTERNATE ROUTE)\n")
+            result.append(if (step40BridgeLinks.isEmpty()) "None identified\n" else step40BridgeLinks.joinToString("\n") { "House ${it.first} <-> House ${it.second}" } + "\n")
+            result.append("\nSTRUCTURAL SUMMARY\n")
+            result.append("Unique undirected link count: ${step40UniqueLinks.size}\n")
+            result.append("Links with alternate routes: ${step40RedundantLinks.size}\n")
+            result.append("Bridge links: ${step40BridgeLinks.size}\n")
+            result.append("Alternate-route links are not bridges in this undirected graph; this is a graph-topology description only, not astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2333,7 +2359,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\n")
 
         } catch (e: Exception) {
 
