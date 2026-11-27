@@ -3417,6 +3417,49 @@ class MainActivity : Activity() {
             step69ShellTotals.forEach { (step69Shell, step69Count) -> result.append("$step69Shell | $step69Count\n") }
             result.append("\nThis profile summarizes descriptive cross-shell interactions and normalized link shares; it does not represent causal flow.\n")
 
+            // STEP 70: GLOBAL SHELL INTERACTION NETWORK ANALYSIS
+            result.append("\n=============================\n")
+            result.append("STEP 70 - GLOBAL SHELL INTERACTION NETWORK ANALYSIS\n")
+            result.append("=============================\n\n")
+            val step70ShellSet = step50CoreNumbers.values.toSet().sorted()
+            val step70PairWeights = mutableMapOf<Pair<Int, Int>, Int>()
+            step67CrossShellEdges.forEach { (step70A, step70B) ->
+                val step70ShellA = step50CoreNumbers[step70A] ?: 0
+                val step70ShellB = step50CoreNumbers[step70B] ?: 0
+                if (step70ShellA != step70ShellB) {
+                    val step70Pair = if (step70ShellA < step70ShellB) step70ShellA to step70ShellB else step70ShellB to step70ShellA
+                    step70PairWeights[step70Pair] = (step70PairWeights[step70Pair] ?: 0) + 1
+                }
+            }
+            val step70ShellDegree = step70ShellSet.associateWith { step70Shell ->
+                step70PairWeights.keys.count { step70Shell == it.first || step70Shell == it.second }
+            }
+            val step70ShellWeightedDegree = step70ShellSet.associateWith { step70Shell ->
+                step70PairWeights.filterKeys { step70Shell == it.first || step70Shell == it.second }.values.sum()
+            }
+            result.append("Shell-network node profile (shell | nodes | interaction partners | weighted interaction degree):\n")
+            step70ShellSet.forEach { step70Shell ->
+                val step70NodeCount = step50CoreNumbers.count { it.value == step70Shell }
+                result.append("$step70Shell | $step70NodeCount | ${step70ShellDegree[step70Shell] ?: 0} | ${step70ShellWeightedDegree[step70Shell] ?: 0}\n")
+            }
+            result.append("\nWeighted shell-interaction network edges (shell pair | cross-shell links):\n")
+            step70PairWeights.toSortedMap(compareBy<Pair<Int, Int>> { it.first }.thenBy { it.second }).forEach { (step70Pair, step70Weight) ->
+                result.append("${step70Pair.first} - ${step70Pair.second} | $step70Weight\n")
+            }
+            val step70PossiblePairs = if (step70ShellSet.size > 1) step70ShellSet.size * (step70ShellSet.size - 1) / 2 else 0
+            val step70ObservedPairs = step70PairWeights.size
+            val step70NetworkDensity = if (step70PossiblePairs > 0) step70ObservedPairs.toDouble() / step70PossiblePairs else 0.0
+            val step70TotalCrossLinks = step70PairWeights.values.sum()
+            val step70MostConnectedShell = step70ShellSet.maxByOrNull { step70ShellDegree[it] ?: 0 }
+            result.append("\nGlobal shell network summary:\n")
+            result.append("Shell levels | ${step70ShellSet.size}\n")
+            result.append("Connected shell-pairs | $step70ObservedPairs\n")
+            result.append("Possible shell-pairs | $step70PossiblePairs\n")
+            result.append("Shell-network density | ${String.format(Locale.US, "%.4f", step70NetworkDensity)}\n")
+            result.append("Total cross-shell links | $step70TotalCrossLinks\n")
+            result.append("Most interaction-connected shell | ${step70MostConnectedShell ?: "N/A"}\n")
+            result.append("\nThis is a descriptive shell-level network summary; cross-shell link counts do not imply causal influence.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -3426,7 +3469,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\nStep 64: Core-Peeling Structural Stability Profile included\nStep 65: Core-Peeling Structural Boundary Analysis included\nStep 66: Boundary Connectivity & Boundary Influence Analysis included\nStep 67: Boundary Bridge & Structural Bottleneck Analysis included\nStep 68: Boundary Vulnerability & Shell Separation Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\nStep 64: Core-Peeling Structural Stability Profile included\nStep 65: Core-Peeling Structural Boundary Analysis included\nStep 66: Boundary Connectivity & Boundary Influence Analysis included\nStep 67: Boundary Bridge & Structural Bottleneck Analysis included\nStep 68: Boundary Vulnerability & Shell Separation Analysis included\nStep 69: Shell Boundary Flow & Structural Interaction Analysis included\nStep 70: Global Shell Interaction Network Analysis included\n")
 
         } catch (e: Exception) {
 
