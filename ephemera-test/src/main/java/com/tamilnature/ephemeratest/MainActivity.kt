@@ -1339,6 +1339,46 @@ class MainActivity : Activity() {
             }
             result.append("\nInterpretation caution: score indicates comparative prototype weighting only; use traditional context and practitioner judgment.\n")
 
+
+            // STEP 15: PREDICTION INTERPRETATION LAYER (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 15 - PREDICTION INTERPRETATION LAYER\n")
+            result.append("=============================\n\n")
+            result.append("Interpretations are score-based research prompts, not fixed predictions.\n\n")
+
+            val houseThemes = mapOf(
+                1 to "Self, vitality, approach and personal direction",
+                2 to "Resources, family, speech and accumulated values",
+                3 to "Initiative, communication, skills and siblings",
+                4 to "Home, emotional foundations, education and property",
+                5 to "Creativity, learning, children and discernment",
+                6 to "Daily work, service, routines and challenges",
+                7 to "Partnerships, agreements and one-to-one relationships",
+                8 to "Shared resources, transitions, research and deeper matters",
+                9 to "Higher learning, beliefs, teachers and long-distance themes",
+                10 to "Career, responsibility, public role and achievement",
+                11 to "Networks, gains, aspirations and community",
+                12 to "Rest, retreat, expenses, reflection and distant places"
+            )
+
+            integratedBhavaRows.sortedByDescending { it.second }.forEach { row ->
+                val house = row.first
+                val score = row.second
+                val theme = houseThemes[house] ?: "General house themes"
+                val interpretation = when {
+                    score >= 75 -> "Strong score: consider this area a comparatively supportive focus; examine its lord, occupants and aspects for context."
+                    score >= 60 -> "Above-average score: potentially constructive indicators; contextual factors may shape how they express."
+                    score >= 40 -> "Moderate score: mixed or balanced signals; avoid drawing conclusions from this score alone."
+                    score >= 25 -> "Below-average score: review contributing factors and consider this area for mindful effort and support."
+                    else -> "Low score: this is a relative prototype signal, not a prediction of failure; inspect the underlying factors carefully."
+                }
+                result.append("House $house (${rasiNames[(lagnaSign + house - 1) % 12]}) - $score/100\n")
+                result.append("Theme: $theme\n")
+                result.append("Interpretation: $interpretation\n")
+                result.append("-----------------------------\n")
+            }
+            result.append("\nStep 15 note: interpretations are generated from the Step 14 score bands and general house themes only; they do not yet integrate sign-specific, planetary, Yoga or transit-based narrative rules.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1348,7 +1388,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\n")
 
         } catch (e: Exception) {
 
