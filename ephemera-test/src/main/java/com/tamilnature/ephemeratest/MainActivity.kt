@@ -1531,7 +1531,11 @@ class MainActivity : Activity() {
             val step19Paksha = if (step19TithiNumber <= 15) "வளர்பிறை (Shukla Paksha)" else "தேய்பிறை (Krishna Paksha)"
             val step19TithiWithinPaksha = if (step19TithiNumber <= 15) step19TithiNumber else step19TithiNumber - 15
             val step19TithiNames = listOf("", "பிரதமை", "துவிதியை", "திரிதியை", "சதுர்த்தி", "பஞ்சமி", "ஷஷ்டி", "சப்தமி", "அஷ்டமி", "நவமி", "தசமி", "ஏகாதசி", "துவாதசி", "திரயோதசி", "சதுர்த்தசி", "பௌர்ணமி")
-            val step19TithiName = if (step19TithiWithinPaksha == 15) "பௌர்ணமி" else step19TithiNames[step19TithiWithinPaksha]
+            val step19TithiName = when {
+                step19TithiNumber == 15 -> "பௌர்ணமி"
+                step19TithiNumber == 30 -> "அமாவாசை"
+                else -> step19TithiNames[step19TithiWithinPaksha]
+            }
 
             val step19SunyaTable = mapOf(
                 1 to (listOf("மகரம்", "துலாம்") to listOf("சனி", "சுக்கிரன்")),
