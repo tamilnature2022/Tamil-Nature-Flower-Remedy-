@@ -2245,6 +2245,44 @@ class MainActivity : Activity() {
             result.append("Unique links crossing cluster boundaries: $step37InterClusterEdges\n")
             result.append("Step 37 note: cluster cohesion and density are descriptive graph properties only; they do not indicate astrological strength, causation, outcomes, or predictive certainty.\n")
 
+            // STEP 38: BHAVA NETWORK BRIDGE / ARTICULATION NODE ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 38 - BHAVA NETWORK BRIDGE / ARTICULATION NODE ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Identifies house nodes whose removal would increase the number of connected components in the undirected network.\n\n")
+
+            val step38Discovery = mutableMapOf<Int, Int>()
+            val step38Low = mutableMapOf<Int, Int>()
+            val step38Parent = mutableMapOf<Int, Int>()
+            val step38Articulation = mutableSetOf<Int>()
+            var step38Time = 0
+            fun step38Dfs(node: Int) {
+                step38Time++
+                step38Discovery[node] = step38Time
+                step38Low[node] = step38Time
+                var children = 0
+                for (neighbor in (step36Adjacency[node] ?: emptySet()).sorted()) {
+                    if (neighbor !in step38Discovery) {
+                        children++
+                        step38Parent[neighbor] = node
+                        step38Dfs(neighbor)
+                        step38Low[node] = minOf(step38Low[node] ?: step38Time, step38Low[neighbor] ?: step38Time)
+                        if (node !in step38Parent && children > 1) step38Articulation.add(node)
+                        if (node in step38Parent && (step38Low[neighbor] ?: step38Time) >= (step38Discovery[node] ?: step38Time)) step38Articulation.add(node)
+                    } else if (neighbor != step38Parent[node]) {
+                        step38Low[node] = minOf(step38Low[node] ?: step38Time, step38Discovery[neighbor] ?: step38Time)
+                    }
+                }
+            }
+            for (node in 1..12) if (node !in step38Discovery) step38Dfs(node)
+
+            result.append("ARTICULATION / BRIDGE-NODE HOUSES\n")
+            result.append(if (step38Articulation.isEmpty()) "None identified\n" else step38Articulation.sorted().joinToString { "House $it" } + "\n")
+            result.append("\nSTRUCTURAL SUMMARY\n")
+            result.append("Articulation-node count: ${step38Articulation.size}\n")
+            result.append("These nodes are structural connectors in the undirected graph under this model.\n")
+            result.append("Step 38 note: graph separation properties are descriptive only and do not indicate astrological strength, causation, outcomes, or predictive certainty.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2254,7 +2292,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\n")
 
         } catch (e: Exception) {
 
