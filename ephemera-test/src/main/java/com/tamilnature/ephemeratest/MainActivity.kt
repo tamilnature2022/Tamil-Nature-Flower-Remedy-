@@ -3285,7 +3285,7 @@ class MainActivity : Activity() {
             result.append("STEP 66 - BOUNDARY CONNECTIVITY & BOUNDARY INFLUENCE ANALYSIS\n")
             result.append("=============================\n\n")
             result.append("Shell | Nodes | Boundary nodes | Cross-shell links | Avg cross-shell degree | Boundary influence ratio\n")
-            step66ShellLevels.forEach { step66Shell ->
+            step65ShellLevels.forEach { step66Shell ->
                 val step66Nodes = step50CoreNumbers.filterValues { it == step66Shell }.keys
                 val step66BoundaryNodes = step66Nodes.filter { step66Node ->
                     (step50Graph[step66Node] ?: emptySet()).any { step50CoreNumbers[it] != step66Shell }
