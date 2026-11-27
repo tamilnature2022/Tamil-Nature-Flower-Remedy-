@@ -1237,6 +1237,53 @@ class MainActivity : Activity() {
         result.append("\nThis is a descriptive comparison of observed shell-gap frequencies, not causal or predictive.\n")
     }
 
+
+    private fun appendStep89Analysis(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 89 - SHELL GAP FREQUENCY TREND PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.isEmpty()) {
+            result.append("No cross-shell links available for Step 89 trend analysis.\n")
+            result.append("\nStatistics are descriptive only, not causal or predictive.\n")
+            return
+        }
+        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val keys = freq.keys.toList()
+        val total = gaps.size
+        result.append("Gap | Count | Share (%) | Change from previous observed gap\n")
+        var previous: Int? = null
+        var previousCount: Int? = null
+        freq.forEach { (gap, count) ->
+            val share = count.toDouble() / total * 100.0
+            val change = if (previous != null && previousCount != null && gap == previous!! + 1) count - previousCount!! else null
+            result.append("$gap | $count | ${String.format(Locale.US, "%.5f", share)} | ${change?.toString() ?: "N/A"}\n")
+            previous = gap
+            previousCount = count
+        }
+        val adjacentChanges = keys.zipWithNext().filter { (a, b) -> b == a + 1 }.map { (a, b) -> freq[b]!! - freq[a]!! }
+        if (adjacentChanges.isNotEmpty()) {
+            val rising = adjacentChanges.count { it > 0 }
+            val falling = adjacentChanges.count { it < 0 }
+            val unchanged = adjacentChanges.count { it == 0 }
+            result.append("Adjacent-gap count increases | $rising\n")
+            result.append("Adjacent-gap count decreases | $falling\n")
+            result.append("Adjacent-gap count unchanged | $unchanged\n")
+            result.append("Mean adjacent frequency change | ${String.format(Locale.US, "%.5f", adjacentChanges.average())}\n")
+        } else {
+            result.append("Adjacent-gap trend | Insufficient consecutive gap categories\n")
+        }
+        result.append("\nObserved frequency changes are descriptive; they do not imply causation or prediction.\n")
+    }
+
     private fun calculate(
         birthYear: Int,
         birthMonth: Int,
@@ -4183,6 +4230,7 @@ class MainActivity : Activity() {
             appendStep86Analysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep87Analysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep88Analysis(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep89Analysis(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -4193,7 +4241,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\nStep 64: Core-Peeling Structural Stability Profile included\nStep 65: Core-Peeling Structural Boundary Analysis included\nStep 66: Boundary Connectivity & Boundary Influence Analysis included\nStep 67: Boundary Bridge & Structural Bottleneck Analysis included\nStep 68: Boundary Vulnerability & Shell Separation Analysis included\nStep 69: Shell Boundary Flow & Structural Interaction Analysis included\nStep 70: Global Shell Interaction Network Analysis included\nStep 71: Shell Interaction Intensity & Participation Analysis included\nStep 72: Shell Interaction Distribution & Balance Analysis included\nStep 73: Node Shell Interaction Centrality & Participation Analysis included\nStep 74: Node Cross-Shell Interaction Diversity Analysis included\nStep 75: Cross-Shell Edge Density & Occupancy Profile included\nStep 76: Shell Gap Connectivity Profile included\nStep 77: Shell Gap Link Share & Entropy Profile included\nStep 78: Shell Gap Weighted Distance Profile included\nStep 79: Shell Gap Cumulative Distribution Profile included\nStep 80: Shell Gap Dispersion and Shape Profile included\nStep 81: Shell Gap Quartile and Robust Spread Profile included\nStep 82: Shell Gap Outlier Detail Profile included\nStep 83: Shell Gap Frequency Concentration Profile included\nStep 84: Shell Gap Frequency Balance Profile included\nStep 85: Shell Gap Comparative Frequency Profile included\nStep 86: Shell Gap Frequency Rank & Relative Deviation Profile included\nStep 87: Shell Gap Comparative Frequency Ratio Profile included\nStep 88: Shell Gap Frequency Comparison Summary included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\nStep 64: Core-Peeling Structural Stability Profile included\nStep 65: Core-Peeling Structural Boundary Analysis included\nStep 66: Boundary Connectivity & Boundary Influence Analysis included\nStep 67: Boundary Bridge & Structural Bottleneck Analysis included\nStep 68: Boundary Vulnerability & Shell Separation Analysis included\nStep 69: Shell Boundary Flow & Structural Interaction Analysis included\nStep 70: Global Shell Interaction Network Analysis included\nStep 71: Shell Interaction Intensity & Participation Analysis included\nStep 72: Shell Interaction Distribution & Balance Analysis included\nStep 73: Node Shell Interaction Centrality & Participation Analysis included\nStep 74: Node Cross-Shell Interaction Diversity Analysis included\nStep 75: Cross-Shell Edge Density & Occupancy Profile included\nStep 76: Shell Gap Connectivity Profile included\nStep 77: Shell Gap Link Share & Entropy Profile included\nStep 78: Shell Gap Weighted Distance Profile included\nStep 79: Shell Gap Cumulative Distribution Profile included\nStep 80: Shell Gap Dispersion and Shape Profile included\nStep 81: Shell Gap Quartile and Robust Spread Profile included\nStep 82: Shell Gap Outlier Detail Profile included\nStep 83: Shell Gap Frequency Concentration Profile included\nStep 84: Shell Gap Frequency Balance Profile included\nStep 85: Shell Gap Comparative Frequency Profile included\nStep 86: Shell Gap Frequency Rank & Relative Deviation Profile included\nStep 87: Shell Gap Comparative Frequency Ratio Profile included\nStep 88: Shell Gap Frequency Comparison Summary included\nStep 89: Shell Gap Frequency Trend Profile included\n")
 
         } catch (e: Exception) {
 
