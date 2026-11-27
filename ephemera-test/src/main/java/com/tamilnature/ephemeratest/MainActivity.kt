@@ -1693,6 +1693,71 @@ class MainActivity : Activity() {
         result.append("\nThis profile is descriptive and does not imply causation or prediction.\n")
     }
 
+    private fun appendStep100MilestoneAnalysis(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 100 - SHELL GAP ANALYSIS MILESTONE SUMMARY\n")
+        result.append("=============================\n\n")
+
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+
+        if (gaps.isEmpty()) {
+            result.append("No cross-shell links available for Step 100 summary.\n")
+            result.append("Summary metrics cannot be calculated for an empty gap dataset.\n")
+            result.append("\nStatistics are descriptive only, not causal or predictive.\n")
+            return
+        }
+
+        val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
+        val sorted = gaps.sorted()
+        val total = gaps.size
+        val mean = gaps.average()
+        val median = if (sorted.size % 2 == 1) sorted[sorted.size / 2].toDouble()
+            else (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0
+        val variance = gaps.map { (it - mean) * (it - mean) }.average()
+        val sd = kotlin.math.sqrt(variance)
+        val cumulative = freq.entries.fold(0) { acc, entry -> acc + entry.value }
+        val shares = freq.mapValues { it.value.toDouble() / total.toDouble() }
+        val entropy = -shares.values.filter { it > 0.0 }.sumOf { it * kotlin.math.ln(it) }
+        val normalizedEntropy = if (freq.size > 1) entropy / kotlin.math.ln(freq.size.toDouble()) else 0.0
+        val peakGaps = freq.keys.filterIndexed { index, gap ->
+            index > 0 && index < freq.size - 1 &&
+                freq[gap]!! > freq[freq.keys.elementAt(index - 1)]!! &&
+                freq[gap]!! > freq[freq.keys.elementAt(index + 1)]!!
+        }
+        val valleyGaps = freq.keys.filterIndexed { index, gap ->
+            index > 0 && index < freq.size - 1 &&
+                freq[gap]!! < freq[freq.keys.elementAt(index - 1)]!! &&
+                freq[gap]!! < freq[freq.keys.elementAt(index + 1)]!!
+        }
+
+        result.append("Total cross-shell links represented | $total\n")
+        result.append("Observed shell-gap categories | ${freq.size}\n")
+        result.append("Minimum gap | ${sorted.first()}\n")
+        result.append("Maximum gap | ${sorted.last()}\n")
+        result.append("Mean gap | %.3f\n".format(mean))
+        result.append("Median gap | %.3f\n".format(median))
+        result.append("Variance | %.3f\n".format(variance))
+        result.append("Standard deviation | %.3f\n".format(sd))
+        result.append("Gap frequency | ${freq.entries.joinToString { "${it.key}:${it.value}" }}\n")
+        result.append("Gap share (%) | ${freq.entries.joinToString { "${it.key}:%.2f".format(shares[it.key]!! * 100.0) }}\n")
+        result.append("Cumulative count (ordered gap categories) | $cumulative\n")
+        result.append("Shannon entropy | %.4f\n".format(entropy))
+        result.append("Normalized entropy | %.4f\n".format(normalizedEntropy))
+        result.append("Detected local peaks | ${if (peakGaps.isEmpty()) "none" else peakGaps.joinToString()}\n")
+        result.append("Detected local valleys | ${if (valleyGaps.isEmpty()) "none" else valleyGaps.joinToString()}\n")
+        result.append("Peak and valley detection uses strict comparisons of adjacent observed gap categories.\n")
+        result.append("\nThis milestone summary consolidates descriptive metrics and does not imply causation or prediction.\n")
+    }
+
+
     private fun calculate(
         birthYear: Int,
         birthMonth: Int,
@@ -4650,6 +4715,7 @@ class MainActivity : Activity() {
             appendStep97Analysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep98Analysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep99Analysis(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep100MilestoneAnalysis(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
