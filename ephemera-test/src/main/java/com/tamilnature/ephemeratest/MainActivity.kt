@@ -2099,7 +2099,7 @@ class MainActivity : Activity() {
                 result.append("No shared terminal dependency groups identified\n")
             } else {
                 for ((destination, sources) in step34SharedDependencies.toSortedMap()) {
-                    result.append("House $destination is a common terminal node for: ${sources.keys.sorted().joinToString { "House $it" }}\n")
+                    result.append("House $destination is a common terminal node for: ${sources.map { it.key }.sorted().joinToString { "House $it" }}\n")
                 }
             }
 
