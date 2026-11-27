@@ -2417,6 +2417,38 @@ class MainActivity : Activity() {
             result.append("Largest block size: ${step41UniqueBlocks.maxOfOrNull { it.size } ?: 0} houses\n")
             result.append("This block decomposition describes graph topology only; it does not indicate astrological strength, causation, outcome, or prediction.\n")
 
+            // STEP 42: BHAVA BLOCK-CUT TREE ANALYSIS (STRUCTURAL ONLY)
+            result.append("\n=============================\n")
+            result.append("STEP 42 - BHAVA BLOCK-CUT TREE ANALYSIS\n")
+            result.append("=============================\n\n")
+            result.append("Constructs the block-cut representation linking biconnected blocks to articulation houses. This is a structural graph representation only.\n\n")
+
+            val step42ArticulationHouses = step38Articulation.sorted()
+            val step42BlockCutLinks = mutableListOf<Pair<Int, Int>>()
+            for (articulationHouse in step42ArticulationHouses) {
+                for (blockIndex in step41UniqueBlocks.indices) {
+                    if (articulationHouse in step41UniqueBlocks[blockIndex]) {
+                        step42BlockCutLinks.add((blockIndex + 1) to articulationHouse)
+                    }
+                }
+            }
+
+            result.append("ARTICULATION HOUSE NODES\n")
+            result.append(if (step42ArticulationHouses.isEmpty()) "None identified\n" else step42ArticulationHouses.joinToString { "House $it" } + "\n")
+
+            result.append("BLOCK-CUT CONNECTIONS (BLOCK -> ARTICULATION HOUSE)\n")
+            result.append(if (step42BlockCutLinks.isEmpty()) "None identified\n" else step42BlockCutLinks.distinct().joinToString("\n") { (blockId, house) -> "Block $blockId <-> House $house" } + "\n")
+
+            val step42BlocksConnectedToArticulation = step42BlockCutLinks.map { it.first }.toSet().size
+            val step42BlockCutNodeCount = step41UniqueBlocks.size + step42ArticulationHouses.size
+            result.append("BLOCK-CUT SUMMARY\n")
+            result.append("Biconnected blocks: ${step41UniqueBlocks.size}\n")
+            result.append("Articulation-house nodes: ${step42ArticulationHouses.size}\n")
+            result.append("Block-articulation incidences: ${step42BlockCutLinks.distinct().size}\n")
+            result.append("Blocks linked to articulation houses: $step42BlocksConnectedToArticulation\n")
+            result.append("Total block-cut representation nodes: $step42BlockCutNodeCount\n")
+            result.append("Step 42 note: block-cut representation describes connectivity structure only and does not indicate astrological strength, causation, outcome, or prediction.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -2426,7 +2458,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\n")
 
         } catch (e: Exception) {
 
