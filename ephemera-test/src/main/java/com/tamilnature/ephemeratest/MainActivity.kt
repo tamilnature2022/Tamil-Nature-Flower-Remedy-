@@ -1379,6 +1379,51 @@ class MainActivity : Activity() {
             }
             result.append("\nStep 15 note: interpretations are generated from the Step 14 score bands and general house themes only; they do not yet integrate sign-specific, planetary, Yoga or transit-based narrative rules.\n")
 
+            // STEP 16: PLANET-SPECIFIC BHAVA INTERPRETATION (prototype)
+            result.append("\n=============================\n")
+            result.append("STEP 16 - PLANET-SPECIFIC BHAVA INTERPRETATION\n")
+            result.append("=============================\n\n")
+            result.append("Planet placement and house-lord links are descriptive research signals; avoid deterministic conclusions.\n\n")
+
+            val step16SignLords = arrayOf(
+                "செவ்வாய்", "சுக்கிரன்", "புதன்", "சந்திரன்", "சூரியன்", "புதன்",
+                "சுக்கிரன்", "செவ்வாய்", "குரு", "சனி", "சனி", "குரு"
+            )
+            val step16PlanetThemes = mapOf(
+                "சூரியன்" to "identity, authority, visibility and responsibility",
+                "சந்திரன்" to "emotional responses, care, adaptability and public connection",
+                "செவ்வாய்" to "initiative, effort, assertiveness and conflict management",
+                "புதன்" to "communication, learning, analysis and trade",
+                "குரு" to "growth, guidance, meaning, teaching and judgment",
+                "சுக்கிரன்" to "relationships, harmony, aesthetics and negotiation",
+                "சனி" to "discipline, persistence, boundaries and long-term duties",
+                "ராகு" to "novelty, ambition, amplification and unconventional approaches",
+                "கேது" to "detachment, specialization, introspection and simplification"
+            )
+            for (targetHouse in 1..12) {
+                val targetSign = (lagnaSign + targetHouse - 1) % 12
+                val targetLord = step16SignLords[targetSign]
+                val occupants = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == targetHouse }.keys.toList()
+                val lordLongitude = planetPositions[targetLord]
+                val lordHouse = lordLongitude?.let { houseNumber(it, lagnaSidereal) }
+                result.append("House $targetHouse (${rasiNames[targetSign]})\n")
+                result.append("Occupying planets: ${if (occupants.isEmpty()) "None" else occupants.joinToString(" | ")}\n")
+                if (occupants.isNotEmpty()) {
+                    result.append("Planet signals: ")
+                    result.append(occupants.joinToString("; ") { planet -> "$planet: ${step16PlanetThemes[planet] ?: "planetary influence"}" })
+                    result.append("\n")
+                } else {
+                    result.append("Planet signals: No direct occupant; consider house lord, aspects and broader chart context.\n")
+                }
+                result.append("House lord: $targetLord${if (lordHouse != null) " placed in House $lordHouse" else " (position unavailable)"}\n")
+                if (lordHouse != null) {
+                    result.append("Lord-link prompt: House $targetHouse themes may connect with House $lordHouse topics; use the actual lord condition and chart context before interpreting.\n")
+                }
+                result.append("Score context: ${integratedBhavaRows.firstOrNull { it.first == targetHouse }?.second ?: "N/A"}/100\n")
+                result.append("-----------------------------\n")
+            }
+            result.append("Step 16 note: this layer lists occupants and lord-house links using the prototype chart data. It is not a predictive guarantee.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1388,7 +1433,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\n")
 
         } catch (e: Exception) {
 
