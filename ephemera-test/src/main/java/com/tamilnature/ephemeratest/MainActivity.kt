@@ -1518,6 +1518,55 @@ class MainActivity : Activity() {
             result.append("Interpretation prompt: assess the Badhaka lord's dignity, conjunctions, aspects, strength and chart context separately; this module identifies the classical Badhaka lord only.\n")
             result.append("Step 18 note: Badhaka identification follows the movable/fixed/dual ascendant rule. It does not automatically label the lord or its house as harmful.\n")
 
+
+            // STEP 19: TITHI SUNYA IDENTIFICATION (traditional table, research layer)
+            result.append("\n=============================\n")
+            result.append("STEP 19 - TITHI SUNYA ANALYSIS\n")
+            result.append("=============================\n\n")
+
+            val step19SunLongitude = planetPositions["சூரியன்"]!!
+            val step19MoonLongitude = planetPositions["சந்திரன்"]!!
+            val step19PhaseAngle = normalize(step19MoonLongitude - step19SunLongitude)
+            val step19TithiNumber = (step19PhaseAngle / 12.0).toInt() + 1
+            val step19Paksha = if (step19TithiNumber <= 15) "வளர்பிறை (Shukla Paksha)" else "தேய்பிறை (Krishna Paksha)"
+            val step19TithiWithinPaksha = if (step19TithiNumber <= 15) step19TithiNumber else step19TithiNumber - 15
+            val step19TithiNames = listOf("", "பிரதமை", "துவிதியை", "திரிதியை", "சதுர்த்தி", "பஞ்சமி", "ஷஷ்டி", "சப்தமி", "அஷ்டமி", "நவமி", "தசமி", "ஏகாதசி", "துவாதசி", "திரயோதசி", "சதுர்த்தசி", "பௌர்ணமி")
+            val step19TithiName = if (step19TithiWithinPaksha == 15) "பௌர்ணமி" else step19TithiNames[step19TithiWithinPaksha]
+
+            val step19SunyaTable = mapOf(
+                1 to (listOf("மகரம்", "துலாம்") to listOf("சனி", "சுக்கிரன்")),
+                2 to (listOf("தனுசு", "மீனம்") to listOf("குரு")),
+                3 to (listOf("மகரம்", "சிம்மம்") to listOf("சனி", "சூரியன்")),
+                4 to (listOf("கும்பம்", "ரிஷபம்") to listOf("சனி", "சுக்கிரன்")),
+                5 to (listOf("மிதுனம்", "கன்னி") to listOf("புதன்")),
+                6 to (listOf("மேஷம்", "சிம்மம்") to listOf("செவ்வாய்", "சூரியன்")),
+                7 to (listOf("தனுசு", "கடகம்") to listOf("குரு", "சந்திரன்")),
+                8 to (listOf("மிதுனம்", "கன்னி") to listOf("புதன்")),
+                9 to (listOf("சிம்மம்", "விருச்சிகம்") to listOf("சூரியன்", "செவ்வாய்")),
+                10 to (listOf("சிம்மம்", "விருச்சிகம்") to listOf("சூரியன்", "செவ்வாய்")),
+                11 to (listOf("தனுசு", "மீனம்") to listOf("குரு")),
+                12 to (listOf("மகரம்", "துலாம்") to listOf("சனி", "சுக்கிரன்")),
+                13 to (listOf("ரிஷபம்", "சிம்மம்") to listOf("சுக்கிரன்", "சூரியன்")),
+                14 to (listOf("மிதுனம்", "கன்னி", "தனுசு", "மீனம்") to listOf("புதன்", "குரு"))
+            )
+            val step19SunyaEntry = if (step19TithiWithinPaksha in 1..14) step19SunyaTable[step19TithiWithinPaksha] else null
+            val step19SunyaSigns = step19SunyaEntry?.first ?: emptyList()
+            val step19SunyaPlanets = step19SunyaEntry?.second ?: emptyList()
+            val step19ChartPlanetsInSunyaSigns = planetPositions.filter { rasiNames[signIndex(it.value)] in step19SunyaSigns }.keys
+            val step19SunyaPlanetPositions = step19SunyaPlanets.mapNotNull { name -> planetPositions[name]?.let { name to rasiNames[signIndex(it)] } }
+
+            result.append("Moon-Sun phase angle: ${String.format(Locale.US, "%.2f", step19PhaseAngle)} degrees\n")
+            result.append("Tithi: $step19TithiName | $step19Paksha | Paksha tithi #$step19TithiWithinPaksha\n")
+            if (step19SunyaEntry == null) {
+                result.append("Tithi Sunya table entry: Not applied for Purnima/Amavasya in this table.\n")
+            } else {
+                result.append("Tithi Sunya signs: ${step19SunyaSigns.joinToString()}\n")
+                result.append("Tithi Sunya planets: ${step19SunyaPlanets.joinToString()}\n")
+                result.append("Chart planets placed in Tithi Sunya signs: ${if (step19ChartPlanetsInSunyaSigns.isEmpty()) "None" else step19ChartPlanetsInSunyaSigns.joinToString()}\n")
+                result.append("Tithi Sunya planet positions: ${if (step19SunyaPlanetPositions.isEmpty()) "None" else step19SunyaPlanetPositions.joinToString { "${it.first} in ${it.second}" }}\n")
+            }
+            result.append("Note: This is a table-based traditional interpretation prototype. It identifies listed signs/planets; it does not automatically reduce scores or assert effects. Validate the table tradition before using for predictions.\n")
+
             // COMPLETION
 
             result.append("\n")
@@ -1527,7 +1576,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\n")
 
         } catch (e: Exception) {
 
