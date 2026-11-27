@@ -1650,6 +1650,54 @@ class MainActivity : Activity() {
             result.append("Sun-Moon elongation: %.3f degrees\n".format(Locale.US, step21Elongation))
             result.append("\nCombined summary note: these are separate descriptive factors. No combined score or automatic adverse interpretation is applied. Validate tradition-specific rules before predictive use.\n")
 
+            // STEP 23: 12 BHAVA FACTOR ASSOCIATION (DESCRIPTIVE, NO SCORE)
+            result.append("\n=============================\n")
+            result.append("STEP 23 - 12 BHAVA FACTOR ASSOCIATION\n")
+            result.append("=============================\n\n")
+            result.append("This layer maps sign-based factors to houses from the current Lagna. It does not alter scores.\n\n")
+
+            val step23HouseBySignName = rasiNames.indices.associate { rasiNames[it] to ((it - lagnaSign + 12) % 12 + 1) }
+
+            result.append("1. BADHAKA HOUSE ASSOCIATION\n")
+            result.append("Badhaka house: $step18BadhakaHouse | Sign: ${if (step18BadhakaSign >= 0) rasiNames[step18BadhakaSign] else "Unavailable"}\n")
+            result.append("Mapped bhava: ${step18HouseBySignName.entries.firstOrNull { it.value == step18BadhakaHouse }?.key ?: "Unavailable"} (House $step18BadhakaHouse)\n\n")
+
+            result.append("2. TITHI SUNYA SIGN ASSOCIATIONS\n")
+            if (step19SunyaSigns.isEmpty()) {
+                result.append("No Sunya signs available from the selected table.\n")
+            } else {
+                for (sunyaSign in step19SunyaSigns) {
+                    val mappedHouse = step23HouseBySignName[sunyaSign]
+                    val occupantsInSign = planetPositions.filter { rasiNames[signIndex(it.value)] == sunyaSign }.keys
+                    result.append("$sunyaSign -> House ${mappedHouse ?: "Unavailable"} | Occupants: ${if (occupantsInSign.isEmpty()) "None" else occupantsInSign.joinToString()}\n")
+                }
+            }
+            result.append("\n")
+
+            result.append("3. MUDakku SIGN ASSOCIATION\n")
+            val step23MudakkuHouse = step23HouseBySignName[step20MudakkuSign]
+            result.append("Mudakku sign: $step20MudakkuSign -> House ${step23MudakkuHouse ?: "Unavailable"}\n")
+            result.append("Planets in Mudakku sign: ${if (step20PlanetsInMudakkuSign.isEmpty()) "None" else step20PlanetsInMudakkuSign.joinToString()}\n")
+            result.append("Mudakku lord: $step20MudakkuLord | Lord house: ${step20MudakkuLordHouse ?: "Unavailable"}\n\n")
+
+            result.append("4. KARANA ASSOCIATION\n")
+            result.append("Karana: $step21KaranaName | Panchanga factor recorded as a general factor; no bhava mapping is applied without a defined tradition-specific rule.\n\n")
+
+            result.append("5. ASSOCIATED BHAVAS - SUMMARY\n")
+            val step23AssociatedHouseSet = linkedSetOf<Int>()
+            if (step18BadhakaHouse in 1..12) step23AssociatedHouseSet.add(step18BadhakaHouse)
+            for (sunyaSign in step19SunyaSigns) {
+                step23HouseBySignName[sunyaSign]?.let { step23AssociatedHouseSet.add(it) }
+            }
+            step23MudakkuHouse?.let { step23AssociatedHouseSet.add(it) }
+            if (step23AssociatedHouseSet.isEmpty()) {
+                result.append("No house associations could be mapped.\n")
+            } else {
+                result.append(step23AssociatedHouseSet.sorted().joinToString { "House $it" })
+                result.append("\n")
+                result.append("These are factor associations only, not adverse or beneficial judgments.\n")
+            }
+
             // COMPLETION
 
             result.append("\n")
@@ -1659,7 +1707,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\n")
 
         } catch (e: Exception) {
 
