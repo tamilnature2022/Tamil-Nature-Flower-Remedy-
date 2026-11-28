@@ -6013,6 +6013,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep124TransitionPatternDistribution(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep125TransitionPatternConcentration(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep126TransitionPatternAssociation(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep127AssociationEntropyAndStrength(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6572,6 +6573,75 @@ private fun appendStep114RankAgreementRobustness(
             }
         }
         result.append("This conditional association profile is descriptive of constructed boundary-shift scenarios; it does not establish causal relationships or predictive validity.\n")
+    }
+
+
+    private fun appendStep127AssociationEntropyAndStrength(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 127 - ASSOCIATION ENTROPY & STRENGTH PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps127 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps127.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Association entropy and strength profile unavailable.\n")
+            return
+        }
+        val maxGap127 = gaps127.maxOrNull() ?: 0.0
+        val normalized127 = gaps127.map { if (maxGap127 > 0.0) it / maxGap127 * 100.0 else 0.0 }
+        val shifts127 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band127(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val index = bounds.indexOfFirst { value <= it }
+            return if (index < 0) 4 else index
+        }
+        val scenarios127 = shifts127.map { shift -> normalized127.map { band127(it, shift) } }
+        val matrix127 = Array(5) { IntArray(5) }
+        (0 until shifts127.size - 1).forEach { scenario ->
+            scenarios127[scenario].indices.forEach { item ->
+                matrix127[scenarios127[scenario][item]][scenarios127[scenario + 1][item]]++
+            }
+        }
+        val total127 = matrix127.sumOf { row -> row.sum() }
+        if (total127 <= 0) {
+            result.append("No adjacent-scenario association events counted.\n")
+            return
+        }
+        val rowTotals127 = matrix127.map { it.sum() }
+        val colTotals127 = IntArray(5) { col -> matrix127.sumOf { row -> row[col] } }
+        fun entropy127(probabilities: List<Double>): Double = probabilities.filter { it > 0.0 }.sumOf { -it * kotlin.math.ln(it) }
+        val maxEntropy127 = kotlin.math.ln(5.0)
+        var weightedRowEntropy127 = 0.0
+        result.append("Row-wise conditional entropy (natural-log units):\n")
+        matrix127.indices.forEach { row ->
+            val rowTotal = rowTotals127[row]
+            if (rowTotal > 0) {
+                val probs = matrix127[row].map { it.toDouble() / rowTotal }
+                val h = entropy127(probs)
+                weightedRowEntropy127 += rowTotal.toDouble() / total127 * h
+                result.append("B${row + 1}: %.4f (normalized %.4f)\n".format(h, if (maxEntropy127 > 0) h / maxEntropy127 else 0.0))
+            } else result.append("B${row + 1}: no events\n")
+        }
+        val sourceProb127 = rowTotals127.map { it.toDouble() / total127 }
+        val destinationProb127 = colTotals127.map { it.toDouble() / total127 }
+        val sourceEntropy127 = entropy127(sourceProb127)
+        val destinationEntropy127 = entropy127(destinationProb127)
+        val jointEntropy127 = entropy127(matrix127.flatMap { row -> row.map { it.toDouble() / total127 } })
+        val association127 = (sourceEntropy127 + destinationEntropy127 - jointEntropy127).coerceAtLeast(0.0)
+        val normalizedAssociation127 = if (minOf(sourceEntropy127, destinationEntropy127) > 0.0) association127 / minOf(sourceEntropy127, destinationEntropy127) else 0.0
+        result.append("Weighted conditional entropy: %.4f\n".format(weightedRowEntropy127))
+        result.append("Source-band entropy: %.4f\n".format(sourceEntropy127))
+        result.append("Destination-band entropy: %.4f\n".format(destinationEntropy127))
+        result.append("Descriptive association information: %.4f\n".format(association127))
+        result.append("Normalized association indicator: %.4f\n".format(normalizedAssociation127.coerceIn(0.0, 1.0)))
+        result.append("These entropy and association indicators summarize constructed boundary-shift transitions only; they do not establish causal relationships or predictive validity.\n")
     }
 
 
