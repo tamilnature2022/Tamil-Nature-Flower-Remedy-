@@ -6022,6 +6022,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep133RobustnessTierSummary(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep134RobustnessIndex(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep135RobustnessAudit(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep136GapQuantileProfile(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7045,6 +7046,40 @@ private fun appendStep114RankAgreementRobustness(
             result.append("%s: %d (%.2f%%)\n".format(label, count, count.toDouble() / auditScores135.size * 100.0))
         }
         result.append("Audit summarizes score consistency under the selected boundary-shift scenarios; it is descriptive and not predictive or validation evidence.\n")
+    }
+
+
+    private fun appendStep136GapQuantileProfile(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 136: Gap Quantile Profile ---\n")
+        val values136 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb).toDouble() else null
+        }.sorted()
+        if (values136.isEmpty()) {
+            result.append("Quantile profile unavailable: no valid observations.\n")
+            return
+        }
+        fun quantile136(p: Double): Double {
+            val pos = (values136.size - 1) * p
+            val lower = pos.toInt()
+            val upper = kotlin.math.ceil(pos).toInt()
+            if (lower == upper) return values136[lower]
+            val fraction = pos - lower
+            return values136[lower] * (1.0 - fraction) + values136[upper] * fraction
+        }
+        result.append("Valid observations: %d\n".format(values136.size))
+        result.append("Minimum gap: %.2f\n".format(values136.first()))
+        result.append("Q1 (25th percentile): %.2f\n".format(quantile136(0.25)))
+        result.append("Median (50th percentile): %.2f\n".format(quantile136(0.50)))
+        result.append("Q3 (75th percentile): %.2f\n".format(quantile136(0.75)))
+        result.append("Maximum gap: %.2f\n".format(values136.last()))
+        result.append("Interquartile range (Q3-Q1): %.2f\n".format(quantile136(0.75) - quantile136(0.25)))
+        result.append("Quantiles describe the distribution of absolute score gaps; they do not imply significance, prediction, or causal interpretation.\n")
     }
 
 }
