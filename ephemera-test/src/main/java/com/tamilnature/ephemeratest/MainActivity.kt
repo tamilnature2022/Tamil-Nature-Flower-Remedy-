@@ -6719,8 +6719,8 @@ private fun appendStep114RankAgreementRobustness(
 
     private fun appendStep129DirectionalAssociationAsymmetry(
         result: StringBuilder,
-        step50CoreNumbers: Map<Int, Int>,
-        step67CrossShellEdges: List<Pair<Int, Int>>
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
     ) {
         result.append("\n--- Step 129: Directional Association Asymmetry Profile ---\n")
         val gaps129 = step67CrossShellEdges.mapNotNull { (a, b) ->
