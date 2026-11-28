@@ -6034,6 +6034,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep145GapIntervalStatistics(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep146GapIntervalDispersion(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep147GapIntervalRangeProfile(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep148GapIntervalCoverage(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7487,6 +7488,42 @@ private fun appendStep114RankAgreementRobustness(
             }
         }
         result.append("Interval ranges summarize observed values within each band only; they do not establish prediction, causation, or astrological validity.\n")
+    }
+
+
+    private fun appendStep148GapIntervalCoverage(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 148: Gap Interval Coverage ---\n")
+        val gaps148 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps148.isEmpty()) {
+            result.append("Gap interval coverage unavailable: no valid observations.\n")
+            return
+        }
+        val intervals148 = listOf(
+            Pair("0-10", 0..10), Pair("11-20", 11..20), Pair("21-30", 21..30),
+            Pair("31-40", 31..40), Pair("41-50", 41..50), Pair("51+", 51..Int.MAX_VALUE)
+        )
+        val occupied148 = intervals148.count { (_, range) -> gaps148.any { it in range } }
+        val empty148 = intervals148.size - occupied148
+        val coverage148 = occupied148.toDouble() / intervals148.size * 100.0
+        result.append("Valid observations: %d\n".format(gaps148.size))
+        result.append("Intervals defined: %d\n".format(intervals148.size))
+        result.append("Occupied intervals: %d\n".format(occupied148))
+        result.append("Empty intervals: %d\n".format(empty148))
+        result.append("Interval coverage: %.1f%%\n".format(coverage148))
+        intervals148.forEach { (label, range) ->
+            val count = gaps148.count { it in range }
+            val pct = count.toDouble() / gaps148.size * 100.0
+            result.append("Interval %s: count=%d, share=%.1f%%, %s\n".format(label, count, pct, if (count > 0) "occupied" else "empty"))
+        }
+        result.append("Coverage reflects observed occupancy of the defined absolute-gap intervals only; it is descriptive and does not establish prediction, causation, or astrological validity.\n")
     }
 
 }
