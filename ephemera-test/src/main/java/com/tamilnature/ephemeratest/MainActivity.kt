@@ -6005,6 +6005,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep116RankStabilityConsensusProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep117ConsensusThresholdSensitivity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep118ConsensusScoreDistribution(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep119ConsensusDistributionConcentration(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6076,6 +6077,55 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Band separation (adjacent band midpoint difference): 20.00 score points.\n")
         result.append("Distribution summary: the current calculation yields one aggregate consensus score, not a population of independent scores; band counts therefore represent placement of this aggregate score only.\n")
         result.append("Limitations: this is a descriptive heuristic profile and is not validated statistical confidence or predictive evidence.\n")
+    }
+
+
+
+    private fun appendStep119ConsensusDistributionConcentration(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 119 - CONSENSUS DISTRIBUTION CONCENTRATION & DOMINANCE PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps119 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps119.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Concentration profile unavailable.\n")
+            return
+        }
+        val maxGap119 = gaps119.maxOrNull()?.toDouble() ?: 0.0
+        val normalized119 = gaps119.map { if (maxGap119 > 0.0) it.toDouble() / maxGap119 * 100.0 else 0.0 }
+        val bands119 = listOf(0.0 to 19.999, 20.0 to 39.999, 40.0 to 59.999, 60.0 to 79.999, 80.0 to 100.0)
+        val counts119 = bands119.map { (lo, hi) -> normalized119.count { it >= lo && it <= hi } }
+        val total119 = counts119.sum()
+        result.append("Normalized cross-shell gap distribution (band | count | share):\n")
+        bands119.forEachIndexed { i, (lo, hi) ->
+            val count = counts119[i]
+            val share = if (total119 > 0) count.toDouble() / total119 else 0.0
+            result.append("%.0f-%.0f%% | %d | %.4f\n".format(lo, hi, count, share))
+        }
+        val dominantIndex119 = counts119.indices.maxByOrNull { counts119[it] } ?: 0
+        val dominantCount119 = counts119.getOrElse(dominantIndex119) { 0 }
+        val dominantBand119 = bands119[dominantIndex119]
+        val dominance119 = if (total119 > 0) dominantCount119.toDouble() / total119 else 0.0
+        val shares119 = counts119.filter { it > 0 }.map { it.toDouble() / total119 }
+        val concentration119 = shares119.sumOf { it * it }
+        val entropy119 = if (shares119.size > 1) -shares119.sumOf { it * kotlin.math.ln(it) } / kotlin.math.ln(5.0) else 0.0
+        result.append("\nDominant band: %.0f-%.0f%% (%d observations)\n".format(dominantBand119.first, dominantBand119.second, dominantCount119))
+        result.append("Band dominance ratio: %.4f\n".format(dominance119))
+        result.append("Band concentration index (sum of squared band shares): %.4f\n".format(concentration119))
+        result.append("Normalized band entropy (0-1; higher indicates more spread across bands): %.4f\n".format(entropy119))
+        result.append("Concentration/dispersion interpretation: ")
+        result.append(if (dominance119 >= 0.60) "observations are concentrated in one normalized band.\n" else "observations are distributed across multiple normalized bands.\n")
+        result.append("Distribution imbalance indicator (dominant share minus average band share): %.4f\n".format(dominance119 - 0.2))
+        result.append("Normalization uses the maximum observed cross-shell gap in this calculation; bands describe this dataset only.\n")
+        result.append("Limitations: descriptive distribution metrics are not validated statistical confidence or predictive evidence.\n")
     }
 
 }
