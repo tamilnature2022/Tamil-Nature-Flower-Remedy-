@@ -6030,6 +6030,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep141GapBandEntropy(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep142GapBandCumulativeProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep143ExtendedGapThresholdProfile(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep144GapIntervalDistribution(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7338,6 +7339,40 @@ private fun appendStep114RankAgreementRobustness(
         val above50Count143 = gaps143.count { it > 50 }
         result.append("Gap > 50: %d (%.2f%%)\n".format(above50Count143, above50Count143 * 100.0 / total143))
         result.append("Extended thresholds describe observed absolute gap coverage only; they do not establish prediction, causation, or astrological validity.\n")
+    }
+
+
+
+    private fun appendStep144GapIntervalDistribution(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 144: Gap Interval Distribution ---\n")
+        val gaps144 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps144.isEmpty()) {
+            result.append("Gap interval distribution unavailable: no valid observations.\n")
+            return
+        }
+        val total144 = gaps144.size
+        val intervals144 = listOf(
+            Pair("0-10", 0..10),
+            Pair("11-20", 11..20),
+            Pair("21-30", 21..30),
+            Pair("31-40", 31..40),
+            Pair("41-50", 41..50),
+            Pair("51+", 51..Int.MAX_VALUE)
+        )
+        result.append("Valid observations: %d\n".format(total144))
+        intervals144.forEach { (label, range) ->
+            val count144 = gaps144.count { it in range }
+            result.append("Gap %s: %d (%.2f%%)\n".format(label, count144, count144 * 100.0 / total144))
+        }
+        result.append("Interval counts partition observed absolute gaps; they are descriptive and not predictive or evidence of an astrological effect.\n")
     }
 
 }
