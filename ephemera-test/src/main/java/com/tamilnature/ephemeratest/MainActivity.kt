@@ -1833,6 +1833,119 @@ class MainActivity : Activity() {
 
 
 
+    private fun appendStep113RankAgreementCorrelation(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 113 - RANK AGREEMENT & CORRELATION PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 3) {
+            result.append("At least three valid cross-shell links are required.\n")
+            result.append("Rank agreement analysis unavailable.\n")
+            return
+        }
+        fun median(values: List<Double>): Double {
+            val sorted = values.sorted()
+            return if (sorted.size % 2 == 1) sorted[sorted.size / 2]
+            else (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0
+        }
+        fun metrics(sample: List<Int>): List<Double> {
+            val v = sample.map { it.toDouble() }
+            val med = median(v)
+            val sorted = v.sorted()
+            val lower = sorted.take(sorted.size / 2)
+            val upper = sorted.drop((sorted.size + 1) / 2)
+            val q1 = if (lower.isNotEmpty()) median(lower) else med
+            val q3 = if (upper.isNotEmpty()) median(upper) else med
+            val mad = median(v.map { kotlin.math.abs(it - med) })
+            return listOf(med, q3 - q1, mad, 1.4826 * mad)
+        }
+        val names = listOf("Median", "IQR", "MAD", "MAD-based robust scale")
+        val rng = java.util.Random(113L)
+        val componentScores = MutableList(4) { 0.0 }
+        repeat(4) { metricIndex ->
+            val batchScores = ArrayList<Double>()
+            repeat(10) {
+                val batchValues = ArrayList<Double>()
+                repeat(200) {
+                    val sample = List(gaps.size) { gaps[rng.nextInt(gaps.size)] }
+                    batchValues.add(metrics(sample)[metricIndex])
+                }
+                batchScores.add(batchValues.average())
+            }
+            val mean = batchScores.average()
+            val tolerance = kotlin.math.max(kotlin.math.abs(mean) * 0.05, 0.0001)
+            val deviation = batchScores.maxOf { kotlin.math.abs(it - mean) }
+            val trend = batchScores.drop(5).average() - batchScores.take(5).average()
+            val dScore = (100.0 * (1.0 - deviation / tolerance)).coerceIn(0.0, 100.0)
+            val tScore = (100.0 * (1.0 - kotlin.math.abs(trend) / tolerance)).coerceIn(0.0, 100.0)
+            componentScores[metricIndex] = (dScore + tScore) / 2.0
+        }
+        val scenarios = listOf(
+            "Equal weight" to listOf(0.25, 0.25, 0.25, 0.25),
+            "Median emphasis" to listOf(0.40, 0.20, 0.20, 0.20),
+            "IQR emphasis" to listOf(0.20, 0.40, 0.20, 0.20),
+            "MAD emphasis" to listOf(0.20, 0.20, 0.40, 0.20),
+            "Robust scale emphasis" to listOf(0.20, 0.20, 0.20, 0.40)
+        )
+        val rankVectors = scenarios.map { (_, weights) ->
+            val contributions = names.indices.map { componentScores[it] * weights[it] }
+            val order = contributions.indices.sortedByDescending { contributions[it] }
+            val ranks = MutableList(4) { 0 }
+            order.forEachIndexed { rank, index -> ranks[index] = rank + 1 }
+            ranks
+        }
+        result.append("Scenario pair comparison (4 components):\n")
+        var pairCount = 0
+        var exactPositionSum = 0.0
+        var concordantPairs = 0
+        var totalPairs = 0
+        for (a in rankVectors.indices) {
+            for (b in a + 1 until rankVectors.size) {
+                pairCount++
+                val ra = rankVectors[a]
+                val rb = rankVectors[b]
+                val exact = ra.indices.count { ra[it] == rb[it] }
+                val exactPct = exact / 4.0 * 100.0
+                exactPositionSum += exactPct
+                var concordance = 0
+                for (i in ra.indices) for (j in i + 1 until ra.size) {
+                    val signA = ra[i] - ra[j]
+                    val signB = rb[i] - rb[j]
+                    if (signA == signB) concordance++
+                }
+                concordantPairs += concordance
+                totalPairs += 6
+                result.append("${scenarios[a].first} vs ${scenarios[b].first} | exact position agreement %.2f%% | pair order agreement %.2f%%\n".format(exactPct, concordance / 6.0 * 100.0))
+            }
+        }
+        val averageExactAgreement = if (pairCount > 0) exactPositionSum / pairCount else 0.0
+        val overallPairAgreement = if (totalPairs > 0) concordantPairs / totalPairs.toDouble() * 100.0 else 0.0
+        result.append("\nAverage exact-position agreement across scenario pairs | %.2f%%\n".format(averageExactAgreement))
+        result.append("Overall pair-order agreement | %.2f%%\n".format(overallPairAgreement))
+        result.append("\nSpearman-style rank correlation (scenario pairs):\n")
+        for (a in rankVectors.indices) for (b in a + 1 until rankVectors.size) {
+            val ra = rankVectors[a].map { it.toDouble() }
+            val rb = rankVectors[b].map { it.toDouble() }
+            val meanA = ra.average()
+            val meanB = rb.average()
+            val covariance = ra.indices.sumOf { (ra[it] - meanA) * (rb[it] - meanB) }
+            val denomA = kotlin.math.sqrt(ra.sumOf { (it - meanA) * (it - meanA) })
+            val denomB = kotlin.math.sqrt(rb.sumOf { (it - meanB) * (it - meanB) })
+            val rho = if (denomA > 0.0 && denomB > 0.0) covariance / (denomA * denomB) else 0.0
+            result.append("${scenarios[a].first} vs ${scenarios[b].first} | rho %.4f\n".format(rho))
+        }
+        result.append("\nSummary | Average exact-position agreement %.2f%%; overall pair-order agreement %.2f%%.\n".format(averageExactAgreement, overallPairAgreement))
+        result.append("Limitations | Rank comparisons are descriptive and heuristic; they are not validated predictive or inferential statistics.\n")
+    }
+
     private fun appendStep112RankConsistency(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
@@ -5547,6 +5660,7 @@ class MainActivity : Activity() {
             appendStep110CompositeBootstrapStabilityIndex(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep111WeightSensitivity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep112RankConsistency(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep113RankAgreementCorrelation(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
