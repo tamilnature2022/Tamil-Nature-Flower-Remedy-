@@ -6014,6 +6014,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep125TransitionPatternConcentration(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep126TransitionPatternAssociation(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep127AssociationEntropyAndStrength(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep128AssociationBalanceAndReciprocity(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6644,5 +6645,74 @@ private fun appendStep114RankAgreementRobustness(
         result.append("These entropy and association indicators summarize constructed boundary-shift transitions only; they do not establish causal relationships or predictive validity.\n")
     }
 
+
+
+
+    private fun appendStep128AssociationBalanceAndReciprocity(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 128 - ASSOCIATION BALANCE & RECIPROCITY PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps128 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps128.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Association balance and reciprocity profile unavailable.\n")
+            return
+        }
+        val maxGap128 = gaps128.maxOrNull() ?: 0.0
+        val normalized128 = gaps128.map { if (maxGap128 > 0.0) it / maxGap128 * 100.0 else 0.0 }
+        val shifts128 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band128(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val index = bounds.indexOfFirst { value <= it }
+            return if (index < 0) 4 else index
+        }
+        val scenarios128 = shifts128.map { shift -> normalized128.map { band128(it, shift) } }
+        val matrix128 = Array(5) { IntArray(5) }
+        (0 until shifts128.size - 1).forEach { scenario ->
+            scenarios128[scenario].indices.forEach { item ->
+                matrix128[scenarios128[scenario][item]][scenarios128[scenario + 1][item]]++
+            }
+        }
+        val total128 = matrix128.sumOf { row -> row.sum() }
+        if (total128 <= 0) {
+            result.append("No adjacent-scenario association events counted.\n")
+            return
+        }
+        val rowTotals128 = matrix128.map { row -> row.sum() }
+        val colTotals128 = IntArray(5) { col -> matrix128.sumOf { row -> row[col] } }
+        val diagonal128 = matrix128.indices.sumOf { matrix128[it][it] }
+        val diagonalShare128 = diagonal128.toDouble() / total128
+        var reciprocalPairs128 = 0
+        var reciprocalMass128 = 0
+        matrix128.indices.forEach { i ->
+            (i + 1 until matrix128.size).forEach { j ->
+                val pairMass = minOf(matrix128[i][j], matrix128[j][i])
+                if (pairMass > 0) reciprocalPairs128++
+                reciprocalMass128 += pairMass
+            }
+        }
+        val imbalance128 = rowTotals128.indices.map { i -> kotlin.math.abs(rowTotals128[i] - colTotals128[i]) }.sum().toDouble() / (2.0 * total128)
+        result.append("Adjacent-scenario transition matrix (rows B1-B5; columns B1-B5):\n")
+        matrix128.forEachIndexed { row, values ->
+            result.append("B${row + 1}: ")
+            result.append(values.joinToString(" "))
+            result.append("\n")
+        }
+        result.append("Diagonal retention count: %d/%d (share %.4f)\n".format(diagonal128, total128, diagonalShare128))
+        result.append("Reciprocal nonzero band-pair count: %d\n".format(reciprocalPairs128))
+        result.append("Reciprocal transition mass (paired minimum counts): %d\n".format(reciprocalMass128))
+        result.append("Source-destination marginal imbalance indicator: %.4f\n".format(imbalance128.coerceIn(0.0, 1.0)))
+        result.append("Row totals: %s\n".format(rowTotals128.joinToString(" ")))
+        result.append("Column totals: %s\n".format(colTotals128.joinToString(" ")))
+        result.append("These balance and reciprocity metrics describe constructed boundary-shift scenarios only; they do not establish causal relationships or predictive validity.\n")
+    }
 
 }
