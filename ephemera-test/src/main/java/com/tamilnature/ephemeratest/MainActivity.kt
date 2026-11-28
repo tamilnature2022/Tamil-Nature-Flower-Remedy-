@@ -6020,6 +6020,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep131ScenarioBandPersistence(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep132ScenarioBandSpread(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep133RobustnessTierSummary(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep134RobustnessIndex(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6960,6 +6961,47 @@ private fun appendStep114RankAgreementRobustness(
             result.append("%s: %d (%.2f%%)\n".format(label, count, count.toDouble() / spreads133.size * 100.0))
         }
         result.append("Tiering is a descriptive grouping of scenario band sensitivity, not predictive, causal, or scientific validation.\n")
+    }
+
+
+
+    private fun appendStep134RobustnessIndex(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 134: Descriptive Robustness Index ---\n")
+        val gaps134 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps134.isEmpty()) {
+            result.append("Robustness index unavailable: no valid observations.\n")
+            return
+        }
+        val maxGap134 = gaps134.maxOrNull() ?: 0.0
+        val normalized134 = gaps134.map { if (maxGap134 > 0.0) it / maxGap134 * 100.0 else 0.0 }
+        val shifts134 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band134(value: Double, shift: Double): Int {
+            val boundaries = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift)
+                .map { it.coerceAtMost(100.0) }
+            val found = boundaries.indexOfFirst { value <= it }
+            return if (found < 0) 4 else found
+        }
+        val scenarioBands134 = shifts134.map { shift -> normalized134.map { band134(it, shift) } }
+        val indexValues134 = normalized134.indices.map { idx ->
+            val bands = scenarioBands134.map { it[idx] }
+            val spread = (bands.maxOrNull() ?: 0) - (bands.minOrNull() ?: 0)
+            (100.0 - spread * 25.0).coerceIn(0.0, 100.0)
+        }
+        val distribution134 = indexValues134.groupingBy { it.toInt() }.eachCount().toSortedMap()
+        result.append("Observations scored: %d\n".format(indexValues134.size))
+        result.append("Mean descriptive robustness index: %.2f / 100\n".format(indexValues134.average()))
+        result.append("Minimum index: %.2f\n".format(indexValues134.minOrNull() ?: 0.0))
+        result.append("Maximum index: %.2f\n".format(indexValues134.maxOrNull() ?: 0.0))
+        result.append("Index distribution (score : count): %s\n".format(distribution134.entries.joinToString(", ") { "${it.key}:${it.value}" }))
+        result.append("Index is a descriptive encoding of band spread under the selected scenarios, not a predictive or scientifically validated score.\n")
     }
 
 }
