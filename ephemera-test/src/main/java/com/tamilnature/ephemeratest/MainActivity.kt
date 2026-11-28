@@ -7497,6 +7497,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep146GapIntervalDispersion(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep147GapIntervalRangeProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep148GapIntervalCoverage(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep149GapIntervalCoverageDetail(result, step50CoreNumbers, step67CrossShellEdges)
 
     }
 
@@ -7533,6 +7534,37 @@ private fun appendStep114RankAgreementRobustness(
             result.append("Interval %s: count=%d, share=%.1f%%, %s\n".format(label, count, pct, if (count > 0) "occupied" else "empty"))
         }
         result.append("Coverage reflects observed occupancy of the defined absolute-gap intervals only; it is descriptive and does not establish prediction, causation, or astrological validity.\n")
+    }
+
+
+    private fun appendStep149GapIntervalCoverageDetail(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 149: Gap Interval Coverage Detail ---\n")
+        val gaps149 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps149.isEmpty()) {
+            result.append("Coverage detail unavailable: no valid observations.\n")
+            return
+        }
+        val intervals149 = listOf(
+            Pair("0-10", 0..10), Pair("11-20", 11..20), Pair("21-30", 21..30),
+            Pair("31-40", 31..40), Pair("41-50", 41..50), Pair("51+", 51..Int.MAX_VALUE)
+        )
+        result.append("Interval coverage detail (occupied/empty):\n")
+        intervals149.forEach { (label, range) ->
+            val count = gaps149.count { it in range }
+            val status = if (count > 0) "OCCUPIED" else "EMPTY"
+            val share = count.toDouble() / gaps149.size * 100.0
+            result.append("$label | $status | count=$count | share=%.2f%%\n".format(share))
+        }
+        result.append("Total valid gap observations: ${gaps149.size}\n")
+        result.append("This is a descriptive interval audit, not predictive or causal evidence.\n")
     }
 
 }
