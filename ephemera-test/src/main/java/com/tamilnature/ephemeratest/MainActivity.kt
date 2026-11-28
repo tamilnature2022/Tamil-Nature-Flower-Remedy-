@@ -6006,6 +6006,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep117ConsensusThresholdSensitivity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep118ConsensusScoreDistribution(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep119ConsensusDistributionConcentration(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep120ConcentrationStabilitySensitivity(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6126,6 +6127,63 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Distribution imbalance indicator (dominant share minus average band share): %.4f\n".format(dominance119 - 0.2))
         result.append("Normalization uses the maximum observed cross-shell gap in this calculation; bands describe this dataset only.\n")
         result.append("Limitations: descriptive distribution metrics are not validated statistical confidence or predictive evidence.\n")
+    }
+
+
+    private fun appendStep120ConcentrationStabilitySensitivity(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 120 - CONSENSUS CONCENTRATION STABILITY & SENSITIVITY PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps120 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps120.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Concentration sensitivity profile unavailable.\n")
+            return
+        }
+        val max120 = gaps120.maxOrNull() ?: 0.0
+        val values120 = gaps120.map { if (max120 > 0.0) it / max120 * 100.0 else 0.0 }
+        val shifts120 = listOf(0.0, 5.0, 10.0, 15.0)
+        result.append("Band-boundary sensitivity scenarios (shift | dominant band | dominance ratio | concentration index | normalized entropy):\n")
+        val scenarioDominants120 = mutableListOf<Int>()
+        shifts120.forEach { shift ->
+            val bounds = listOf(
+                (0.0 + shift).coerceAtMost(20.0),
+                (20.0 + shift).coerceAtMost(40.0),
+                (40.0 + shift).coerceAtMost(60.0),
+                (60.0 + shift).coerceAtMost(80.0),
+                100.0
+            )
+            val counts = MutableList(5) { 0 }
+            values120.forEach { value ->
+                val index = bounds.indexOfFirst { value <= it }.coerceAtLeast(0).coerceAtMost(4)
+                counts[index]++
+            }
+            val total = counts.sum()
+            val dominantIndex = counts.indices.maxByOrNull { counts[it] } ?: 0
+            scenarioDominants120.add(dominantIndex)
+            val dominantRatio = if (total > 0) counts[dominantIndex].toDouble() / total else 0.0
+            val shares = counts.filter { it > 0 }.map { it.toDouble() / total }
+            val concentration = shares.sumOf { it * it }
+            val entropy = if (shares.size > 1) -shares.sumOf { it * kotlin.math.ln(it) } / kotlin.math.ln(5.0) else 0.0
+            result.append("%.0f | band %d | %.4f | %.4f | %.4f\n".format(shift, dominantIndex + 1, dominantRatio, concentration, entropy))
+        }
+        val uniqueDominants = scenarioDominants120.toSet().size
+        val dominantStability = if (scenarioDominants120.isNotEmpty()) scenarioDominants120.count { it == scenarioDominants120[0] }.toDouble() / scenarioDominants120.size else 0.0
+        result.append("\nDominant-band scenario count: ${scenarioDominants120.size}\n")
+        result.append("Distinct dominant bands across scenarios: $uniqueDominants\n")
+        result.append("Dominant-band stability ratio (relative to baseline): %.4f\n".format(dominantStability))
+        result.append("Sensitivity interpretation: ")
+        result.append(if (uniqueDominants == 1) "dominant band remained unchanged across tested boundary shifts.\n" else "dominant band changed under at least one tested boundary shift.\n")
+        result.append("Scenario shifts are illustrative boundary perturbations and do not constitute statistical validation.\n")
+        result.append("Limitations: descriptive sensitivity analysis only; no causal or predictive claim is implied.\n")
     }
 
 }
