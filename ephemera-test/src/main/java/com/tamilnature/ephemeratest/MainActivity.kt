@@ -6029,6 +6029,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep140GapBandConcentration(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep141GapBandEntropy(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep142GapBandCumulativeProfile(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep143ExtendedGapThresholdProfile(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7308,6 +7309,35 @@ private fun appendStep114RankAgreementRobustness(
         val above20Count142 = gaps142.count { it > 20 }
         result.append("Gap > 20: %d (%.2f%%)\n".format(above20Count142, above20Count142 * 100.0 / total142))
         result.append("Cumulative proportions summarize observed absolute gaps only; they are descriptive and not predictive or evidence of an astrological effect.\n")
+    }
+
+
+    private fun appendStep143ExtendedGapThresholdProfile(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 143: Extended Gap Threshold Profile ---\n")
+        val gaps143 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps143.isEmpty()) {
+            result.append("Extended threshold profile unavailable: no valid observations.\n")
+            return
+        }
+        val total143 = gaps143.size
+        val thresholds143 = listOf(25, 30, 35, 40, 45, 50)
+        result.append("Valid observations: %d\n".format(total143))
+        thresholds143.forEach { threshold ->
+            val count143 = gaps143.count { it <= threshold }
+            val pct143 = count143 * 100.0 / total143
+            result.append("Gap <= %d: %d (%.2f%%)\n".format(threshold, count143, pct143))
+        }
+        val above50Count143 = gaps143.count { it > 50 }
+        result.append("Gap > 50: %d (%.2f%%)\n".format(above50Count143, above50Count143 * 100.0 / total143))
+        result.append("Extended thresholds describe observed absolute gap coverage only; they do not establish prediction, causation, or astrological validity.\n")
     }
 
 }
