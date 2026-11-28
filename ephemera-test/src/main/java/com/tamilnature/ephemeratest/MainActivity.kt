@@ -1828,6 +1828,79 @@ class MainActivity : Activity() {
 
 
 
+
+
+    private fun appendStep108BootstrapConvergence(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 108 - BOOTSTRAP CONVERGENCE ANALYSIS\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 3) {
+            result.append("At least three valid cross-shell links are required.\n")
+            result.append("Bootstrap convergence analysis unavailable.\n")
+            return
+        }
+        fun median(values: List<Double>): Double {
+            val s = values.sorted()
+            return if (s.size % 2 == 1) s[s.size / 2] else (s[s.size / 2 - 1] + s[s.size / 2]) / 2.0
+        }
+        fun metric(sample: List<Int>): List<Double> {
+            val v = sample.map { it.toDouble() }
+            val med = median(v)
+            val s = v.sorted()
+            val lower = s.take(s.size / 2)
+            val upper = s.drop((s.size + 1) / 2)
+            val q1 = if (lower.isNotEmpty()) median(lower) else med
+            val q3 = if (upper.isNotEmpty()) median(upper) else med
+            val mad = median(v.map { kotlin.math.abs(it - med) })
+            return listOf(med, q3 - q1, mad, 1.4826 * mad)
+        }
+        val labels = listOf("Median", "IQR", "MAD", "MAD-based robust scale")
+        val batchCount = 10
+        val perBatch = 200
+        val rng = java.util.Random(108L)
+        val cumulative = labels.indices.map { ArrayList<Double>() }
+        result.append("Valid cross-shell gap count | ${gaps.size}\n")
+        result.append("Bootstrap batches | $batchCount\n")
+        result.append("Resamples per batch | $perBatch\n")
+        result.append("Total resamples | ${batchCount * perBatch}\n\n")
+        repeat(batchCount) { batchIndex ->
+            val batchValues = labels.indices.map { ArrayList<Double>(perBatch) }
+            repeat(perBatch) {
+                val sample = List(gaps.size) { gaps[rng.nextInt(gaps.size)] }
+                val m = metric(sample)
+                m.forEachIndexed { i, value ->
+                    batchValues[i].add(value)
+                    cumulative[i].add(value)
+                }
+            }
+            result.append("Batch ${batchIndex + 1}:\n")
+            labels.forEachIndexed { i, label ->
+                result.append("$label batch mean | %.4f\n".format(batchValues[i].average()))
+            }
+            result.append("\n")
+        }
+        result.append("Cumulative convergence summary:\n")
+        labels.forEachIndexed { i, label ->
+            val values = cumulative[i]
+            val overallMean = values.average()
+            val overallSD = kotlin.math.sqrt(values.map { (it - overallMean) * (it - overallMean) }.average())
+            val lastBatch = values.takeLast(perBatch).average()
+            result.append("$label cumulative mean | %.4f\n".format(overallMean))
+            result.append("$label cumulative SD | %.4f\n".format(overallSD))
+            result.append("$label last-batch vs cumulative mean difference | %.4f\n".format(lastBatch - overallMean))
+        }
+        result.append("\nInterpretation | Batch summaries and last-batch differences provide a descriptive convergence check.\n")
+        result.append("Convergence diagnostics are descriptive and do not establish causality or prediction.\n")
+    }
     private fun appendStep107BootstrapDistributionShape(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
@@ -5138,6 +5211,7 @@ class MainActivity : Activity() {
             appendStep105RobustBootstrapProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep106BootstrapIntervalStability(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep107BootstrapDistributionShape(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep108BootstrapConvergence(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
