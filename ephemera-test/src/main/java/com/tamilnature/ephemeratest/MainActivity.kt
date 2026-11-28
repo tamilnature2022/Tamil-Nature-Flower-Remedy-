@@ -1833,6 +1833,111 @@ class MainActivity : Activity() {
 
 
 
+
+    private fun appendStep114RankAgreementRobustness(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 114 - RANK AGREEMENT ROBUSTNESS PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 3) {
+            result.append("At least three valid cross-shell links are required.\n")
+            result.append("Leave-one-scenario-out rank robustness unavailable.\n")
+            return
+        }
+        fun median(values: List<Double>): Double {
+            val s = values.sorted()
+            return if (s.size % 2 == 1) s[s.size / 2]
+            else (s[s.size / 2 - 1] + s[s.size / 2]) / 2.0
+        }
+        fun metrics(sample: List<Int>): List<Double> {
+            val v = sample.map { it.toDouble() }
+            val med = median(v)
+            val sorted = v.sorted()
+            val lower = sorted.take(sorted.size / 2)
+            val upper = sorted.drop((sorted.size + 1) / 2)
+            val q1 = if (lower.isNotEmpty()) median(lower) else med
+            val q3 = if (upper.isNotEmpty()) median(upper) else med
+            val mad = median(v.map { kotlin.math.abs(it - med) })
+            return listOf(med, q3 - q1, mad, 1.4826 * mad)
+        }
+        val names = listOf("Median", "IQR", "MAD", "MAD-based robust scale")
+        val rng = java.util.Random(114L)
+        val componentScores = MutableList(4) { 0.0 }
+        repeat(4) { k ->
+            val batchMeans = List(10) {
+                List(200) {
+                    val sample = List(gaps.size) { gaps[rng.nextInt(gaps.size)] }
+                    metrics(sample)[k]
+                }.average()
+            }
+            val mean = batchMeans.average()
+            val tol = kotlin.math.max(kotlin.math.abs(mean) * 0.05, 0.0001)
+            val deviation = batchMeans.maxOf { kotlin.math.abs(it - mean) }
+            val trend = batchMeans.drop(5).average() - batchMeans.take(5).average()
+            val dScore = (100.0 * (1.0 - deviation / tol)).coerceIn(0.0, 100.0)
+            val tScore = (100.0 * (1.0 - kotlin.math.abs(trend) / tol)).coerceIn(0.0, 100.0)
+            componentScores[k] = (dScore + tScore) / 2.0
+        }
+        val scenarios = listOf(
+            "Equal weight" to listOf(0.25, 0.25, 0.25, 0.25),
+            "Median emphasis" to listOf(0.40, 0.20, 0.20, 0.20),
+            "IQR emphasis" to listOf(0.20, 0.40, 0.20, 0.20),
+            "MAD emphasis" to listOf(0.20, 0.20, 0.40, 0.20),
+            "Robust scale emphasis" to listOf(0.20, 0.20, 0.20, 0.40)
+        )
+        val vectors = scenarios.map { (_, weights) ->
+            val contributions = names.indices.map { componentScores[it] * weights[it] }
+            val order = contributions.indices.sortedByDescending { contributions[it] }
+            val ranks = MutableList(4) { 0 }
+            order.forEachIndexed { rank, idx -> ranks[idx] = rank + 1 }
+            ranks
+        }
+        fun pairAgreement(indices: List<Int>): Pair<Double, Double> {
+            if (indices.size < 2) return 0.0 to 0.0
+            var exactSum = 0.0
+            var pairOrderAgree = 0
+            var pairOrderTotal = 0
+            var comparisons = 0
+            for (x in 0 until indices.size) for (y in x + 1 until indices.size) {
+                comparisons++
+                val ra = vectors[indices[x]]
+                val rb = vectors[indices[y]]
+                exactSum += ra.indices.count { ra[it] == rb[it] } / 4.0 * 100.0
+                for (i in 0 until 4) for (j in i + 1 until 4) {
+                    if ((ra[i] - ra[j]) == (rb[i] - rb[j])) pairOrderAgree++
+                    pairOrderTotal++
+                }
+            }
+            return (exactSum / comparisons) to (if (pairOrderTotal > 0) pairOrderAgree / pairOrderTotal.toDouble() * 100.0 else 0.0)
+        }
+        result.append("Leave-one-scenario-out results:\n")
+        val exactScores = mutableListOf<Double>()
+        val orderScores = mutableListOf<Double>()
+        for (omit in scenarios.indices) {
+            val retained = scenarios.indices.filter { it != omit }
+            val (exact, order) = pairAgreement(retained)
+            exactScores.add(exact)
+            orderScores.add(order)
+            result.append("Omit ${scenarios[omit].first} | exact-position agreement %.2f%% | pair-order agreement %.2f%%\n".format(exact, order))
+        }
+        val (fullExact, fullOrder) = pairAgreement(scenarios.indices.toList())
+        result.append("\nFull scenario-set baseline | exact-position agreement %.2f%% | pair-order agreement %.2f%%\n".format(fullExact, fullOrder))
+        result.append("LOSO exact-position agreement range | %.2f%% to %.2f%%\n".format(exactScores.minOrNull() ?: 0.0, exactScores.maxOrNull() ?: 0.0))
+        result.append("LOSO pair-order agreement range | %.2f%% to %.2f%%\n".format(orderScores.minOrNull() ?: 0.0, orderScores.maxOrNull() ?: 0.0))
+        result.append("LOSO sensitivity | maximum absolute exact-agreement shift from baseline %.2f percentage points\n".format(exactScores.maxOfOrNull { kotlin.math.abs(it - fullExact) } ?: 0.0))
+        result.append("LOSO sensitivity | maximum absolute pair-order shift from baseline %.2f percentage points\n".format(orderScores.maxOfOrNull { kotlin.math.abs(it - fullOrder) } ?: 0.0))
+        result.append("Interpretation | Ranges summarize how aggregate rank agreement changes when one weighting scenario is omitted.\n")
+        result.append("Limitations | Descriptive, heuristic sensitivity analysis; not validated inferential or predictive statistics.\n")
+    }
+
     private fun appendStep113RankAgreementCorrelation(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
@@ -5661,6 +5766,7 @@ class MainActivity : Activity() {
             appendStep111WeightSensitivity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep112RankConsistency(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep113RankAgreementCorrelation(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep114RankAgreementRobustness(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
