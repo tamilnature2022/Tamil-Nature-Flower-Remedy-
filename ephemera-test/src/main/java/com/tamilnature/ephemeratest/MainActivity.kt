@@ -6016,6 +6016,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep127AssociationEntropyAndStrength(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep128AssociationBalanceAndReciprocity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep129DirectionalAssociationAsymmetry(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep130DirectionalMagnitudeProfile(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6777,5 +6778,58 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Dominant direction share among off-diagonal transitions: %.4f\n".format(dominance129))
         result.append("These indicators describe constructed adjacent boundary-shift scenarios only; they do not establish causality or predictive validity.\n")
     }
+
+    private fun appendStep130DirectionalMagnitudeProfile(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 130: Directional Transition Magnitude Profile ---\n")
+        val gaps130 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps130.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Directional magnitude profile unavailable.\n")
+            return
+        }
+        val maxGap130 = gaps130.maxOrNull() ?: 0.0
+        val normalized130 = gaps130.map { if (maxGap130 > 0.0) it / maxGap130 * 100.0 else 0.0 }
+        val shifts130 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band130(value: Double, shift: Double): Int {
+            val boundaries = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val found = boundaries.indexOfFirst { value <= it }
+            return if (found < 0) 4 else found
+        }
+        val scenarios130 = shifts130.map { shift -> normalized130.map { band130(it, shift) } }
+        val moves130 = mutableListOf<Int>()
+        (0 until shifts130.size - 1).forEach { scenarioIndex ->
+            scenarios130[scenarioIndex].indices.forEach { observationIndex ->
+                moves130.add(scenarios130[scenarioIndex + 1][observationIndex] - scenarios130[scenarioIndex][observationIndex])
+            }
+        }
+        if (moves130.isEmpty()) {
+            result.append("No adjacent-scenario movement observations counted.\n")
+            return
+        }
+        val total130 = moves130.size
+        val upward130 = moves130.count { it > 0 }
+        val downward130 = moves130.count { it < 0 }
+        val stationary130 = moves130.count { it == 0 }
+        val net130 = moves130.sum().toDouble() / total130
+        val meanAbs130 = moves130.sumOf { kotlin.math.abs(it) }.toDouble() / total130
+        val maxAbs130 = moves130.maxOf { kotlin.math.abs(it) }
+        result.append("Adjacent-scenario movement observations: %d\n".format(total130))
+        result.append("Upward movement count: %d\n".format(upward130))
+        result.append("Downward movement count: %d\n".format(downward130))
+        result.append("Stationary movement count: %d\n".format(stationary130))
+        result.append("Mean signed band-step movement: %.4f\n".format(net130))
+        result.append("Mean absolute band-step movement: %.4f\n".format(meanAbs130))
+        result.append("Maximum absolute band-step movement: %d\n".format(maxAbs130))
+        result.append("These descriptive measures summarize adjacent boundary-shift scenarios only; they do not establish predictive validity or causality.\n")
+    }
+
 
 }
