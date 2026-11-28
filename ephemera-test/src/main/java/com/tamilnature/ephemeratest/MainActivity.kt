@@ -6024,6 +6024,8 @@ private fun appendStep114RankAgreementRobustness(
             appendStep135RobustnessAudit(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep136GapQuantileProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep137GapIqrOutlierSummary(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep138GapOutlierDetail(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep139GapBandFrequency(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7121,6 +7123,79 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Above upper fence: %d\n".format(upperCount))
         result.append("IQR-flagged observations: %d (%.2f%%)\n".format(lowerCount + upperCount, (lowerCount + upperCount) * 100.0 / gaps137.size))
         result.append("Tukey fences are descriptive flags for unusually distant gap values, not evidence of error, significance, or prediction.\n")
+    }
+
+    private fun appendStep138GapOutlierDetail(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 138: Gap Outlier Detail ---\n")
+        val observations138 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) Triple(a, b, kotlin.math.abs(sa - sb).toDouble()) else null
+        }.sortedBy { it.third }
+        if (observations138.isEmpty()) {
+            result.append("Outlier detail unavailable: no valid observations.\n")
+            return
+        }
+        val gaps = observations138.map { it.third }
+        fun quantile138(p: Double): Double {
+            val pos = (gaps.size - 1) * p
+            val lower = pos.toInt()
+            val upper = kotlin.math.ceil(pos).toInt()
+            if (lower == upper) return gaps[lower]
+            val fraction = pos - lower
+            return gaps[lower] * (1.0 - fraction) + gaps[upper] * fraction
+        }
+        val q1 = quantile138(0.25)
+        val q3 = quantile138(0.75)
+        val upperFence = q3 + 1.5 * (q3 - q1)
+        val flagged = observations138.filter { it.third > upperFence }
+        result.append("Valid edges: %d\n".format(observations138.size))
+        result.append("Upper fence: %.2f\n".format(upperFence))
+        result.append("High-gap flagged edges: %d\n".format(flagged.size))
+        if (flagged.isEmpty()) {
+            result.append("No edges exceeded the upper Tukey fence.\n")
+        } else {
+            flagged.forEach { (a, b, gap) ->
+                result.append("%s ↔ %s | gap %.2f\n".format(a, b, gap))
+            }
+        }
+        result.append("These are descriptive high-gap flags only; they are not predictions or evidence of astrological effect.\n")
+    }
+
+
+    private fun appendStep139GapBandFrequency(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 139: Gap Band Frequency Profile ---\n")
+        val gaps139 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps139.isEmpty()) {
+            result.append("Gap-band frequency unavailable: no valid observations.\n")
+            return
+        }
+        val bands139 = listOf("0–5", "6–10", "11–15", "16–20", "21+")
+        val counts139 = listOf(
+            gaps139.count { it in 0..5 },
+            gaps139.count { it in 6..10 },
+            gaps139.count { it in 11..15 },
+            gaps139.count { it in 16..20 },
+            gaps139.count { it >= 21 }
+        )
+        result.append("Valid observations: %d\n".format(gaps139.size))
+        bands139.forEachIndexed { index, band ->
+            val count = counts139[index]
+            result.append("Gap %s: %d (%.2f%%)\n".format(band, count, count * 100.0 / gaps139.size))
+        }
+        result.append("Bands summarize absolute score-gap frequency descriptively; they do not imply significance or prediction.\n")
     }
 
 }
