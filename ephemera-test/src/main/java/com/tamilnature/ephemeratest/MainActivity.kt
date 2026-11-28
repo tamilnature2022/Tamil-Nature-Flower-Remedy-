@@ -1715,6 +1715,101 @@ class MainActivity : Activity() {
         result.append("\nThis profile is descriptive and does not imply causation or prediction.\n")
     }
 
+
+    private fun appendStep101Analysis(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 101 - SHELL GAP FREQUENCY LEAVE-ONE-LINK-OUT SENSITIVITY\n")
+        result.append("=============================\n\n")
+
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 2) {
+            result.append("At least two cross-shell links are required for leave-one-link-out sensitivity.\n")
+            result.append("Sensitivity metrics unavailable for this dataset.\n")
+            result.append("Statistics are descriptive only, not causal or predictive.\n")
+            return
+        }
+
+        fun normalizedEntropy(values: List<Int>): Double {
+            if (values.isEmpty()) return 0.0
+            val f = values.groupingBy { it }.eachCount()
+            if (f.size <= 1) return 0.0
+            val n = values.size.toDouble()
+            val h = -f.values.map { it / n }.sumOf { p -> p * kotlin.math.ln(p) }
+            return h / kotlin.math.ln(f.size.toDouble())
+        }
+
+        val baselineEntropy = normalizedEntropy(gaps)
+        val baselineTopShare = gaps.groupingBy { it }.eachCount().values.maxOrNull()?.toDouble()?.div(gaps.size) ?: 0.0
+        val entropyChanges = gaps.indices.map { index ->
+            normalizedEntropy(gaps.filterIndexed { i, _ -> i != index }) - baselineEntropy
+        }
+        val topShareChanges = gaps.indices.map { index ->
+            val remaining = gaps.filterIndexed { i, _ -> i != index }
+            val top = remaining.groupingBy { it }.eachCount().values.maxOrNull() ?: 0
+            top.toDouble() / remaining.size - baselineTopShare
+        }
+        result.append("Cross-shell gap link count | ${gaps.size}\n")
+        result.append("Baseline normalized gap entropy | %.4f\n".format(baselineEntropy))
+        result.append("Baseline dominant-gap share | %.4f\n".format(baselineTopShare))
+        result.append("Leave-one-link-out entropy change range | %.4f to %.4f\n".format(entropyChanges.minOrNull() ?: 0.0, entropyChanges.maxOrNull() ?: 0.0))
+        result.append("Leave-one-link-out dominant-share change range | %.4f to %.4f\n".format(topShareChanges.minOrNull() ?: 0.0, topShareChanges.maxOrNull() ?: 0.0))
+        result.append("Largest absolute entropy change | %.4f\n".format(entropyChanges.maxOfOrNull { kotlin.math.abs(it) } ?: 0.0))
+        result.append("Largest absolute dominant-share change | %.4f\n".format(topShareChanges.maxOfOrNull { kotlin.math.abs(it) } ?: 0.0))
+        result.append("Interpretation | Indicates how sensitive gap-frequency summaries are to removal of one link.\n")
+        result.append("Statistics are descriptive only, not causal or predictive.\n")
+    }
+
+
+    private fun appendStep102Analysis(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 102 - CROSS-SHELL GAP MEAN AND VARIANCE JACKKNIFE PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 2) {
+            result.append("At least two cross-shell links are required for jackknife analysis.\n")
+            result.append("Metrics unavailable for this dataset.\n")
+            result.append("Statistics are descriptive only, not causal or predictive.\n")
+            return
+        }
+        val mean = gaps.average()
+        val variance = gaps.map { (it - mean) * (it - mean) }.average()
+        val jackMeans = gaps.indices.map { i -> gaps.filterIndexed { j, _ -> j != i }.average() }
+        val jackVars = gaps.indices.map { i ->
+            val remaining = gaps.filterIndexed { j, _ -> j != i }
+            val m = remaining.average()
+            remaining.map { (it - m) * (it - m) }.average()
+        }
+        val meanRange = (jackMeans.minOrNull() ?: mean)..(jackMeans.maxOrNull() ?: mean)
+        val varianceRange = (jackVars.minOrNull() ?: variance)..(jackVars.maxOrNull() ?: variance)
+        val meanJackknifeSE = kotlin.math.sqrt((gaps.size - 1).toDouble() / gaps.size * jackMeans.sumOf { (it - jackMeans.average()) * (it - jackMeans.average()) })
+        val varJackknifeSE = kotlin.math.sqrt((gaps.size - 1).toDouble() / gaps.size * jackVars.sumOf { (it - jackVars.average()) * (it - jackVars.average()) })
+        result.append("Cross-shell gap link count | ${gaps.size}\n")
+        result.append("Baseline mean gap | %.4f\n".format(mean))
+        result.append("Baseline population variance | %.4f\n".format(variance))
+        result.append("Leave-one-link-out mean range | %.4f to %.4f\n".format(meanRange.start, meanRange.end))
+        result.append("Leave-one-link-out variance range | %.4f to %.4f\n".format(varianceRange.start, varianceRange.end))
+        result.append("Jackknife SE (mean gap) | %.4f\n".format(meanJackknifeSE))
+        result.append("Jackknife SE (variance) | %.4f\n".format(varJackknifeSE))
+        result.append("Interpretation | Describes the sensitivity of mean and variance summaries to one-link removal.\n")
+        result.append("Statistics are descriptive only, not causal or predictive.\n")
+    }
+
     private fun appendStep100MilestoneAnalysis(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
@@ -4740,6 +4835,8 @@ class MainActivity : Activity() {
             appendStep98Analysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep99Analysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep100MilestoneAnalysis(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep101Analysis(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep102Analysis(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -4750,7 +4847,7 @@ class MainActivity : Activity() {
             result.append("Step 6: Graha Drishti included\n")
             result.append("Step 7: Bhava Drishti Received Analysis included\n")
             result.append("Step 12: Planet Strength Ranking included\n")
-            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\nStep 64: Core-Peeling Structural Stability Profile included\nStep 65: Core-Peeling Structural Boundary Analysis included\nStep 66: Boundary Connectivity & Boundary Influence Analysis included\nStep 67: Boundary Bridge & Structural Bottleneck Analysis included\nStep 68: Boundary Vulnerability & Shell Separation Analysis included\nStep 69: Shell Boundary Flow & Structural Interaction Analysis included\nStep 70: Global Shell Interaction Network Analysis included\nStep 71: Shell Interaction Intensity & Participation Analysis included\nStep 72: Shell Interaction Distribution & Balance Analysis included\nStep 73: Node Shell Interaction Centrality & Participation Analysis included\nStep 74: Node Cross-Shell Interaction Diversity Analysis included\nStep 75: Cross-Shell Edge Density & Occupancy Profile included\nStep 76: Shell Gap Connectivity Profile included\nStep 77: Shell Gap Link Share & Entropy Profile included\nStep 78: Shell Gap Weighted Distance Profile included\nStep 79: Shell Gap Cumulative Distribution Profile included\nStep 80: Shell Gap Dispersion and Shape Profile included\nStep 81: Shell Gap Quartile and Robust Spread Profile included\nStep 82: Shell Gap Outlier Detail Profile included\nStep 83: Shell Gap Frequency Concentration Profile included\nStep 84: Shell Gap Frequency Balance Profile included\nStep 85: Shell Gap Comparative Frequency Profile included\nStep 86: Shell Gap Frequency Rank & Relative Deviation Profile included\nStep 87: Shell Gap Comparative Frequency Ratio Profile included\nStep 88: Shell Gap Frequency Comparison Summary included\nStep 89: Shell Gap Frequency Trend Profile included\nStep 90: Shell Gap Trend Stability Profile included\nStep 91: Shell Gap Trend Acceleration Profile included\nStep 92: Shell Gap Trend Third-Difference Profile included\nStep 93: Shell Gap Frequency Turning-Point Profile included\nStep 94: Shell Gap Local Peak & Valley Profile included\nStep 95: Shell Gap Local Peak Prominence Profile included\nStep 96: Shell Gap Local Valley Prominence Profile included\nStep 97: Shell Gap Peak-Valley Contrast Profile included\nStep 98: Shell Gap Peak-Valley Separation Profile included\nStep 99: Shell Gap Peak-Valley Structure Comparison included\n")
+            result.append("Step 13: Integrated Horoscope Analysis included\nStep 14: Integrated Bhava Prediction Score included\nStep 15: Prediction Interpretation Layer included\nStep 16: Planet-specific Bhava Interpretation included\nStep 17: Planetary Influence Integration included\nStep 18: Badhaka Lord Analysis included\nStep 19: Tithi Sunya Analysis included\nStep 20: Experimental Mudakku Rasi Analysis included\nStep 21: Karana Calculation included\nStep 22: Combined Astrological Factor Summary included\nStep 23: 12 Bhava Factor Association included\nStep 24: Bhava Factor Consolidation included\nStep 25: Bhava Factor Context Matrix included\nStep 26: Bhava Lord Cross-Link Matrix included\nStep 27: Bhava Network Summary included\nStep 28: Bhava Network Pattern Analysis included\nStep 29: Bhava Network Connectivity Analysis included\nStep 30: Bhava Network Structural Classification included\nStep 31: Bhava Network Topology Analysis included\nStep 32: Bhava Network Path Analysis included\nStep 33: Bhava Network Influence Propagation included\nStep 34: Bhava Network Dependency Analysis included\nStep 35: Bhava Network Centrality Analysis included\nStep 36: Bhava Network Cluster Analysis included\nStep 37: Bhava Network Cluster Cohesion Analysis included\nStep 38: Bhava Network Articulation Node Analysis included\nStep 39: Bhava Network Bridge-Link Analysis included\nStep 40: Bhava Network Link Redundancy Analysis included\nStep 41: Bhava Network Biconnected Component Analysis included\nStep 42: Bhava Network Block-Cut Tree Analysis included\nStep 43: Bhava Block-Cut Representation Topology Metrics included\nStep 44: Block-Cut Graph Distance and Centrality Metrics included\nStep 45: Component Eccentricity, Radius, Center and Periphery included\nStep 46: Connected-Component Diameter and Distance Profile included\nStep 47: Component Distance Distribution and Global Efficiency included\nStep 48: Degree Distribution and Degree Assortativity included\nStep 49: Local Clustering Coefficient and Graph Transitivity included\nStep 50: K-Core Decomposition included\nStep 51: K-Core Structure Profile included\nStep 52: K-Core Shell and Inter-Shell Edge Profile included\nStep 53: Core-Shell Edge Assortativity included\nStep 54: Core-Shell Connected Component Profile included\nStep 55: Core-Shell Mixing Matrix included\nStep 56: Core-Shell Structural Cohesion included\nStep 57: Core-Shell Neighbor Composition Profile included\nStep 58: Core-Shell Hierarchy Transition Profile included\nStep 59: Core-Shell Retention Profile included\nStep 60: Core-Shell Node Importance Ranking included\nStep 61: Core-Peeling Order Analysis included\nStep 62: Core-Peeling Layer Statistics included\nStep 63: Core-Peeling Persistence & Layer Transition included\nStep 64: Core-Peeling Structural Stability Profile included\nStep 65: Core-Peeling Structural Boundary Analysis included\nStep 66: Boundary Connectivity & Boundary Influence Analysis included\nStep 67: Boundary Bridge & Structural Bottleneck Analysis included\nStep 68: Boundary Vulnerability & Shell Separation Analysis included\nStep 69: Shell Boundary Flow & Structural Interaction Analysis included\nStep 70: Global Shell Interaction Network Analysis included\nStep 71: Shell Interaction Intensity & Participation Analysis included\nStep 72: Shell Interaction Distribution & Balance Analysis included\nStep 73: Node Shell Interaction Centrality & Participation Analysis included\nStep 74: Node Cross-Shell Interaction Diversity Analysis included\nStep 75: Cross-Shell Edge Density & Occupancy Profile included\nStep 76: Shell Gap Connectivity Profile included\nStep 77: Shell Gap Link Share & Entropy Profile included\nStep 78: Shell Gap Weighted Distance Profile included\nStep 79: Shell Gap Cumulative Distribution Profile included\nStep 80: Shell Gap Dispersion and Shape Profile included\nStep 81: Shell Gap Quartile and Robust Spread Profile included\nStep 82: Shell Gap Outlier Detail Profile included\nStep 83: Shell Gap Frequency Concentration Profile included\nStep 84: Shell Gap Frequency Balance Profile included\nStep 85: Shell Gap Comparative Frequency Profile included\nStep 86: Shell Gap Frequency Rank & Relative Deviation Profile included\nStep 87: Shell Gap Comparative Frequency Ratio Profile included\nStep 88: Shell Gap Frequency Comparison Summary included\nStep 89: Shell Gap Frequency Trend Profile included\nStep 90: Shell Gap Trend Stability Profile included\nStep 91: Shell Gap Trend Acceleration Profile included\nStep 92: Shell Gap Trend Third-Difference Profile included\nStep 93: Shell Gap Frequency Turning-Point Profile included\nStep 94: Shell Gap Local Peak & Valley Profile included\nStep 95: Shell Gap Local Peak Prominence Profile included\nStep 96: Shell Gap Local Valley Prominence Profile included\nStep 97: Shell Gap Peak-Valley Contrast Profile included\nStep 98: Shell Gap Peak-Valley Separation Profile included\nStep 99: Shell Gap Peak-Valley Structure Comparison included\nStep 101: Shell Gap Frequency Leave-One-Link-Out Sensitivity included\nStep 102: Cross-Shell Gap Mean and Variance Jackknife Profile included\n")
 
         } catch (e: Exception) {
 
