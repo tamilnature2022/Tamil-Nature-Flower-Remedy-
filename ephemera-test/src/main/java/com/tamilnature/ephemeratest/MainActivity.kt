@@ -6021,6 +6021,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep132ScenarioBandSpread(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep133RobustnessTierSummary(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep134RobustnessIndex(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep135RobustnessAudit(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7002,6 +7003,48 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Maximum index: %.2f\n".format(indexValues134.maxOrNull() ?: 0.0))
         result.append("Index distribution (score : count): %s\n".format(distribution134.entries.joinToString(", ") { "${it.key}:${it.value}" }))
         result.append("Index is a descriptive encoding of band spread under the selected scenarios, not a predictive or scientifically validated score.\n")
+    }
+
+
+
+    private fun appendStep135RobustnessAudit(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 135: Robustness Audit Distribution ---\n")
+        val gaps135 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps135.isEmpty()) {
+            result.append("Audit unavailable: no valid observations.\n")
+            return
+        }
+        val maxGap135 = gaps135.maxOrNull() ?: 0.0
+        val normalized135 = gaps135.map { if (maxGap135 > 0.0) it / maxGap135 * 100.0 else 0.0 }
+        val shifts135 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band135(value: Double, shift: Double): Int {
+            val boundaries = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val found = boundaries.indexOfFirst { value <= it }
+            return if (found < 0) 4 else found
+        }
+        val scenarioBands135 = shifts135.map { shift -> normalized135.map { band135(it, shift) } }
+        val auditScores135 = normalized135.indices.map { idx ->
+            val bands = scenarioBands135.map { it[idx] }
+            val spread = (bands.maxOrNull() ?: 0) - (bands.minOrNull() ?: 0)
+            (100.0 - spread * 25.0).coerceIn(0.0, 100.0)
+        }
+        val tiers135 = listOf("High consistency (100)" to { v: Double -> v == 100.0 },
+            "Moderate consistency (75)" to { v: Double -> v == 75.0 },
+            "Lower consistency (50 or less)" to { v: Double -> v <= 50.0 })
+        result.append("Audit observations: %d\n".format(auditScores135.size))
+        tiers135.forEach { (label, predicate) ->
+            val count = auditScores135.count(predicate)
+            result.append("%s: %d (%.2f%%)\n".format(label, count, count.toDouble() / auditScores135.size * 100.0))
+        }
+        result.append("Audit summarizes score consistency under the selected boundary-shift scenarios; it is descriptive and not predictive or validation evidence.\n")
     }
 
 }
