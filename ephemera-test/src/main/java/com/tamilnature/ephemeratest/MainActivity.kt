@@ -6026,6 +6026,8 @@ private fun appendStep114RankAgreementRobustness(
             appendStep137GapIqrOutlierSummary(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep138GapOutlierDetail(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep139GapBandFrequency(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep140GapBandConcentration(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep141GapBandEntropy(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7196,6 +7198,86 @@ private fun appendStep114RankAgreementRobustness(
             result.append("Gap %s: %d (%.2f%%)\n".format(band, count, count * 100.0 / gaps139.size))
         }
         result.append("Bands summarize absolute score-gap frequency descriptively; they do not imply significance or prediction.\n")
+    }
+
+    private fun appendStep140GapBandConcentration(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 140: Gap Band Concentration Summary ---\n")
+        val gaps140 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps140.isEmpty()) {
+            result.append("Gap-band concentration unavailable: no valid observations.\n")
+            return
+        }
+        val bands140 = listOf("0–5", "6–10", "11–15", "16–20", "21+")
+        val counts140 = listOf(
+            gaps140.count { it in 0..5 },
+            gaps140.count { it in 6..10 },
+            gaps140.count { it in 11..15 },
+            gaps140.count { it in 16..20 },
+            gaps140.count { it >= 21 }
+        )
+        val total140 = counts140.sum()
+        val nonZero140 = counts140.count { it > 0 }
+        val largest140 = counts140.maxOrNull() ?: 0
+        val concentration140 = if (total140 > 0) largest140 * 100.0 / total140 else 0.0
+        val hhi140 = if (total140 > 0) counts140.sumOf { count ->
+            val share = count.toDouble() / total140
+            share * share
+        } else 0.0
+        result.append("Valid observations: %d\n".format(total140))
+        result.append("Occupied gap bands: %d of %d\n".format(nonZero140, bands140.size))
+        result.append("Largest band share: %.2f%%\n".format(concentration140))
+        result.append("Band concentration (HHI, 0–1): %.4f\n".format(hhi140))
+        bands140.forEachIndexed { index, band ->
+            result.append("%s: %d (%.2f%%)\n".format(band, counts140[index], counts140[index] * 100.0 / total140))
+        }
+        result.append("Concentration statistics describe the distribution across defined gap bands only; they are not inferential, predictive, or evidence of an astrological effect.\n")
+    }
+
+
+    private fun appendStep141GapBandEntropy(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 141: Gap Band Entropy Profile ---\n")
+        val gaps141 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps141.isEmpty()) {
+            result.append("Gap-band entropy unavailable: no valid observations.\n")
+            return
+        }
+        val bands141 = listOf("0–5", "6–10", "11–15", "16–20", "21+")
+        val counts141 = listOf(
+            gaps141.count { it in 0..5 },
+            gaps141.count { it in 6..10 },
+            gaps141.count { it in 11..15 },
+            gaps141.count { it in 16..20 },
+            gaps141.count { it >= 21 }
+        )
+        val total141 = counts141.sum()
+        val probabilities141 = counts141.filter { it > 0 }.map { it.toDouble() / total141 }
+        val entropy141 = probabilities141.sumOf { probability -> -probability * kotlin.math.ln(probability) }
+        val maxEntropy141 = kotlin.math.ln(bands141.size.toDouble())
+        val normalized141 = if (maxEntropy141 > 0.0) entropy141 / maxEntropy141 else 0.0
+        result.append("Valid observations: %d\n".format(total141))
+        result.append("Occupied bands: %d of %d\n".format(probabilities141.size, bands141.size))
+        result.append("Entropy (natural-log units): %.4f\n".format(entropy141))
+        result.append("Normalized entropy (0–1): %.4f\n".format(normalized141))
+        bands141.forEachIndexed { index, band ->
+            result.append("%s: %d (%.2f%%)\n".format(band, counts141[index], counts141[index] * 100.0 / total141))
+        }
+        result.append("Entropy summarizes spread across defined gap bands only; it is descriptive and not predictive or evidence of astrological effect.\n")
     }
 
 }
