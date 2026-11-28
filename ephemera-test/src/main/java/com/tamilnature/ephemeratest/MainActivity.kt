@@ -6010,6 +6010,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep121ConcentrationPatternPersistence(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep122ConcentrationTransitionAnalysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep123TransitionStabilityPersistence(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep124TransitionPatternDistribution(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6383,6 +6384,69 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Persistence summary: ")
         result.append(if (overallPersistence123 >= 0.80) "band assignments show high agreement across adjacent boundary-shift scenarios.\n" else "assignment changes are present across adjacent boundary-shift scenarios.\n")
         result.append("This descriptive sensitivity measure does not represent time-based persistence, causal change, or predictive/statistical validation.\n")
+    }
+
+
+    private fun appendStep124TransitionPatternDistribution(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 124 - TRANSITION PATTERN DISTRIBUTION & FREQUENCY PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps124 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps124.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Transition pattern distribution unavailable.\n")
+            return
+        }
+        val maxGap124 = gaps124.maxOrNull() ?: 0.0
+        val normalized124 = gaps124.map { if (maxGap124 > 0.0) it / maxGap124 * 100.0 else 0.0 }
+        val shifts124 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band124(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val ix = bounds.indexOfFirst { value <= it }
+            return if (ix < 0) 4 else ix
+        }
+        val scenarios124 = shifts124.map { shift -> normalized124.map { band124(it, shift) } }
+        val freq124 = Array(5) { IntArray(5) }
+        (0 until shifts124.size - 1).forEach { scenario ->
+            scenarios124[scenario].indices.forEach { item ->
+                freq124[scenarios124[scenario][item]][scenarios124[scenario + 1][item]]++
+            }
+        }
+        val transitions124 = mutableListOf<Pair<Pair<Int, Int>, Int>>()
+        for (from in 0..4) for (dest in 0..4) {
+            if (freq124[from][dest] > 0) transitions124.add(Pair(from, dest) to freq124[from][dest])
+        }
+        val total124 = freq124.sumOf { row -> row.sum() }
+        val distinct124 = transitions124.size
+        val ranked124 = transitions124.sortedByDescending { it.second }
+        result.append("Transition frequency matrix (rows=from band; columns=to band):\n")
+        result.append("Band | " + (1..5).joinToString(" | ") { "B$it" } + "\n")
+        for (row in 0..4) result.append("B${row + 1} | " + freq124[row].joinToString(" | ") + "\n")
+        result.append("\nObserved transition events: $total124\n")
+        result.append("Distinct transition patterns: $distinct124 / 25\n")
+        if (ranked124.isNotEmpty()) {
+            val most = ranked124.first()
+            result.append("Most frequent transition: B${most.first.first + 1} -> B${most.first.second + 1} (${most.second} events)\n")
+            val topShare124 = if (total124 > 0) most.second.toDouble() / total124 else 0.0
+            result.append("Most frequent transition share: %.4f\n".format(topShare124))
+            val rare124 = ranked124.filter { it.second == 1 }
+            result.append("Single-occurrence transition patterns: ${rare124.size}\n")
+            result.append("Rarity profile: ")
+            result.append(if (rare124.isEmpty()) "no observed pattern occurred only once in this scenario set.\n" else "${rare124.size} pattern(s) occurred once in this scenario set.\n")
+            val countBands124 = listOf(1, 2, 3, 4, 5).map { threshold -> ranked124.count { it.second >= threshold } }
+            result.append("Transition frequency bands (patterns occurring at least 1/2/3/4/5 times): ${countBands124.joinToString(" / ")}\n")
+            val concentration124 = if (total124 > 0) ranked124.take(3).sumOf { it.second }.toDouble() / total124 else 0.0
+            result.append("Top-3 pattern concentration: %.4f\n".format(concentration124))
+        }
+        result.append("Distribution summary: frequencies describe observed transitions across the boundary-shift scenarios only; they are not time-series events or evidence of predictive validity.\n")
     }
 
 }
