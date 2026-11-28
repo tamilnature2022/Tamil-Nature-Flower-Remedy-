@@ -6015,6 +6015,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep126TransitionPatternAssociation(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep127AssociationEntropyAndStrength(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep128AssociationBalanceAndReciprocity(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep129DirectionalAssociationAsymmetry(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6713,6 +6714,68 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Row totals: %s\n".format(rowTotals128.joinToString(" ")))
         result.append("Column totals: %s\n".format(colTotals128.joinToString(" ")))
         result.append("These balance and reciprocity metrics describe constructed boundary-shift scenarios only; they do not establish causal relationships or predictive validity.\n")
+    }
+
+
+    private fun appendStep129DirectionalAssociationAsymmetry(
+        result: StringBuilder,
+        step50CoreNumbers: Map<Int, Int>,
+        step67CrossShellEdges: List<Pair<Int, Int>>
+    ) {
+        result.append("\n--- Step 129: Directional Association Asymmetry Profile ---\n")
+        val gaps129 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps129.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Directional asymmetry profile unavailable.\n")
+            return
+        }
+        val maxGap129 = gaps129.maxOrNull() ?: 0.0
+        val norm129 = gaps129.map { if (maxGap129 > 0.0) it / maxGap129 * 100.0 else 0.0 }
+        val shifts129 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band129(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val ix = bounds.indexOfFirst { value <= it }
+            return if (ix < 0) 4 else ix
+        }
+        val scenarios129 = shifts129.map { sh -> norm129.map { band129(it, sh) } }
+        val matrix129 = Array(5) { IntArray(5) }
+        (0 until shifts129.size - 1).forEach { sc ->
+            scenarios129[sc].indices.forEach { ix ->
+                matrix129[scenarios129[sc][ix]][scenarios129[sc + 1][ix]]++
+            }
+        }
+        val total129 = matrix129.sumOf { row -> row.sum() }
+        if (total129 == 0) {
+            result.append("No adjacent-scenario transition observations counted.\n")
+            return
+        }
+        var forwardMass129 = 0
+        var reverseMass129 = 0
+        var upward129 = 0
+        var downward129 = 0
+        matrix129.indices.forEach { i ->
+            (i + 1 until matrix129.size).forEach { j ->
+                forwardMass129 += matrix129[i][j]
+                reverseMass129 += matrix129[j][i]
+                upward129 += matrix129[i][j]
+                downward129 += matrix129[j][i]
+            }
+        }
+        val signed129 = (upward129 - downward129).toDouble() / total129
+        val absolute129 = (upward129 + downward129).toDouble() / total129
+        val net129 = signed129.coerceIn(-1.0, 1.0)
+        val dominance129 = if (upward129 + downward129 > 0)
+            maxOf(upward129, downward129).toDouble() / (upward129 + downward129) else 0.0
+        result.append("Upward band transitions (higher destination band): %d\n".format(upward129))
+        result.append("Downward band transitions (lower destination band): %d\n".format(downward129))
+        result.append("Signed directional balance indicator: %.4f\n".format(net129))
+        result.append("Directional movement share: %.4f\n".format(absolute129.coerceIn(0.0, 1.0)))
+        result.append("Dominant direction share among off-diagonal transitions: %.4f\n".format(dominance129))
+        result.append("These indicators describe constructed adjacent boundary-shift scenarios only; they do not establish causality or predictive validity.\n")
     }
 
 }
