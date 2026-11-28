@@ -6861,7 +6861,7 @@ private fun appendStep114RankAgreementRobustness(
         val scenarioBands131 = shifts131.map { shift -> normalized131.map { band131(it, shift) } }
         val observations131 = normalized131.indices
         val persistent131 = observations131.count { index -> scenarioBands131.map { it[index] }.distinct().size == 1 }
-        val total131 = observations131.size
+        val total131 = observations131.count()
         val stability131 = if (total131 > 0) persistent131.toDouble() / total131 * 100.0 else 0.0
         val adjacentSame131 = mutableListOf<Boolean>()
         for (i in 0 until scenarioBands131.size - 1) {
