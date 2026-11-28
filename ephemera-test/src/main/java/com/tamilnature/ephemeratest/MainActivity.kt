@@ -1832,6 +1832,102 @@ class MainActivity : Activity() {
 
 
 
+
+    private fun appendStep112RankConsistency(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 112 - COMPOSITE STABILITY RANK CONSISTENCY\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 3) {
+            result.append("At least three valid cross-shell links are required.\n")
+            result.append("Rank consistency analysis unavailable.\n")
+            return
+        }
+        fun median(values: List<Double>): Double {
+            val sorted = values.sorted()
+            return if (sorted.size % 2 == 1) sorted[sorted.size / 2]
+            else (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0
+        }
+        fun metrics(sample: List<Int>): List<Double> {
+            val v = sample.map { it.toDouble() }
+            val med = median(v)
+            val sorted = v.sorted()
+            val lower = sorted.take(sorted.size / 2)
+            val upper = sorted.drop((sorted.size + 1) / 2)
+            val q1 = if (lower.isNotEmpty()) median(lower) else med
+            val q3 = if (upper.isNotEmpty()) median(upper) else med
+            val mad = median(v.map { kotlin.math.abs(it - med) })
+            return listOf(med, q3 - q1, mad, 1.4826 * mad)
+        }
+        val names = listOf("Median", "IQR", "MAD", "MAD-based robust scale")
+        val rng = java.util.Random(112L)
+        val componentScores = MutableList(4) { 0.0 }
+        repeat(4) { metricIndex ->
+            val batchScores = ArrayList<Double>()
+            repeat(10) {
+                val batchValues = ArrayList<Double>()
+                repeat(200) {
+                    val sample = List(gaps.size) { gaps[rng.nextInt(gaps.size)] }
+                    batchValues.add(metrics(sample)[metricIndex])
+                }
+                batchScores.add(batchValues.average())
+            }
+            val mean = batchScores.average()
+            val tolerance = kotlin.math.max(kotlin.math.abs(mean) * 0.05, 0.0001)
+            val deviation = batchScores.maxOf { kotlin.math.abs(it - mean) }
+            val trend = batchScores.drop(5).average() - batchScores.take(5).average()
+            val dScore = (100.0 * (1.0 - deviation / tolerance)).coerceIn(0.0, 100.0)
+            val tScore = (100.0 * (1.0 - kotlin.math.abs(trend) / tolerance)).coerceIn(0.0, 100.0)
+            componentScores[metricIndex] = (dScore + tScore) / 2.0
+        }
+        val scenarios = listOf(
+            "Equal weight" to listOf(0.25, 0.25, 0.25, 0.25),
+            "Median emphasis" to listOf(0.40, 0.20, 0.20, 0.20),
+            "IQR emphasis" to listOf(0.20, 0.40, 0.20, 0.20),
+            "MAD emphasis" to listOf(0.20, 0.20, 0.40, 0.20),
+            "Robust scale emphasis" to listOf(0.20, 0.20, 0.20, 0.40)
+        )
+        val rankTotals = MutableList(4) { 0.0 }
+        val rankLists = MutableList(4) { mutableListOf<Int>() }
+        result.append("Component scores used for ranking (heuristic):\n")
+        names.indices.forEach { i -> result.append("${names[i]} | %.2f / 100\n".format(componentScores[i])) }
+        result.append("\nScenario contribution ranks (1 = largest weighted contribution):\n")
+        scenarios.forEach { (scenario, weights) ->
+            val contributions = names.indices.map { i -> componentScores[i] * weights[i] }
+            val order = contributions.indices.sortedByDescending { contributions[it] }
+            val ranks = MutableList(4) { 0 }
+            order.forEachIndexed { rank, index -> ranks[index] = rank + 1 }
+            names.indices.forEach { i ->
+                rankTotals[i] += ranks[i]
+                rankLists[i].add(ranks[i])
+            }
+            result.append("$scenario | ")
+            result.append(names.indices.joinToString("; ") { "${names[it]}=${ranks[it]}" })
+            result.append("\n")
+        }
+        result.append("\nAverage rank and rank range across scenarios:\n")
+        names.indices.forEach { i ->
+            val averageRank = rankTotals[i] / scenarios.size
+            val minRank = rankLists[i].minOrNull() ?: 0
+            val maxRank = rankLists[i].maxOrNull() ?: 0
+            result.append("${names[i]} | average rank %.2f | range %d-%d\n".format(averageRank, minRank, maxRank))
+        }
+        val ranges = names.indices.map { (rankLists[it].maxOrNull() ?: 0) - (rankLists[it].minOrNull() ?: 0) }
+        result.append("\nRank consistency summary | ")
+        result.append(if (ranges.all { it == 0 }) "Ranks unchanged across tested scenarios."
+            else "Rank shifts occur under the tested weighting scenarios.")
+        result.append("\nInterpretation | Rank results describe relative weighted contributions within illustrative scenarios only.\n")
+        result.append("Limitations | Heuristic sensitivity analysis; ranks are not validated or predictive.\n")
+    }
+
     private fun appendStep111WeightSensitivity(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
@@ -5450,6 +5546,7 @@ class MainActivity : Activity() {
             appendStep109BootstrapConvergenceDiagnostics(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep110CompositeBootstrapStabilityIndex(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep111WeightSensitivity(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep112RankConsistency(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
