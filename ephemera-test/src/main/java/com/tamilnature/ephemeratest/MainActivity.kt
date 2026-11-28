@@ -1836,6 +1836,93 @@ class MainActivity : Activity() {
 
 
     
+    private fun appendStep116RankStabilityConsensusProfile(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 116 - RANK STABILITY CONSENSUS & CONFIDENCE PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 3) {
+            result.append("At least three valid cross-shell links are required.\n")
+            result.append("Consensus profile unavailable.\n")
+            return
+        }
+        fun median116(values: List<Double>): Double {
+            val sorted = values.sorted()
+            return if (sorted.size % 2 == 1) sorted[sorted.size / 2]
+            else (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0
+        }
+        fun metrics116(sample: List<Int>): List<Double> {
+            val values = sample.map { it.toDouble() }
+            val med = median116(values)
+            val sorted = values.sorted()
+            val lower = sorted.take(sorted.size / 2)
+            val upper = sorted.drop((sorted.size + 1) / 2)
+            val q1 = if (lower.isNotEmpty()) median116(lower) else med
+            val q3 = if (upper.isNotEmpty()) median116(upper) else med
+            val mad = median116(values.map { kotlin.math.abs(it - med) })
+            return listOf(med, q3 - q1, mad, 1.4826 * mad)
+        }
+        val names = listOf("Median", "IQR", "MAD", "MAD-based robust scale")
+        val scenarios = listOf(
+            listOf(0.25, 0.25, 0.25, 0.25),
+            listOf(0.40, 0.20, 0.20, 0.20),
+            listOf(0.20, 0.40, 0.20, 0.20),
+            listOf(0.20, 0.20, 0.40, 0.20),
+            listOf(0.20, 0.20, 0.20, 0.40)
+        )
+        val rng = java.util.Random(116L)
+        val scores = MutableList(4) { 0.0 }
+        for (k in 0..3) {
+            val batches = List(10) {
+                List(200) {
+                    val sample = List(gaps.size) { gaps[rng.nextInt(gaps.size)] }
+                    metrics116(sample)[k]
+                }.average()
+            }
+            val mean = batches.average()
+            val tolerance = kotlin.math.max(kotlin.math.abs(mean) * 0.05, 0.0001)
+            val maxDeviation = batches.maxOf { kotlin.math.abs(it - mean) }
+            val trend = batches.drop(5).average() - batches.take(5).average()
+            val deviationScore = (100.0 * (1.0 - maxDeviation / tolerance)).coerceIn(0.0, 100.0)
+            val trendScore = (100.0 * (1.0 - kotlin.math.abs(trend) / tolerance)).coerceIn(0.0, 100.0)
+            scores[k] = (deviationScore + trendScore) / 2.0
+        }
+        val scenarioRanks = scenarios.map { weights ->
+            val weighted = scores.indices.map { scores[it] * weights[it] }
+            val ordered = weighted.indices.sortedByDescending { weighted[it] }
+            val ranks = MutableList(4) { 0 }
+            ordered.forEachIndexed { rank, index -> ranks[index] = rank + 1 }
+            ranks
+        }
+        result.append("Consensus profile across five weighting scenarios\n")
+        result.append("Component | Mean rank | Rank range | Top-rank frequency | Top-3 frequency | Consensus score\n")
+        for (i in names.indices) {
+            val ranks = scenarioRanks.map { it[i] }
+            val meanRank = ranks.average()
+            val rankRange = (ranks.maxOrNull() ?: 0) - (ranks.minOrNull() ?: 0)
+            val top1 = ranks.count { it == 1 } / scenarios.size.toDouble() * 100.0
+            val top3 = ranks.count { it <= 3 } / scenarios.size.toDouble() * 100.0
+            val consensus = (top1 * 0.60 + top3 * 0.25 + (100.0 - rankRange * 25.0).coerceIn(0.0, 100.0) * 0.15)
+            val classification = when {
+                consensus >= 85.0 -> "High scenario consensus"
+                consensus >= 65.0 -> "Moderate scenario consensus"
+                else -> "Low scenario consensus"
+            }
+            result.append("${names[i]} | %.2f | %d | %.1f%% | %.1f%% | %.1f%% (%s)\n".format(meanRank, rankRange, top1, top3, consensus, classification))
+        }
+        result.append("\nConsensus score weights: top-rank frequency 60%, top-3 frequency 25%, rank-range stability 15%.\n")
+        result.append("Interpretation | Consensus reflects stability under these five selected weighting scenarios only.\n")
+        result.append("Limitations | This heuristic score is not a statistical confidence measure, validated prediction, or causal inference.\n")
+    }
+
     private fun appendStep115MultiScenarioRankStability(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
@@ -5867,6 +5954,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep113RankAgreementCorrelation(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep114RankAgreementRobustness(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep115MultiScenarioRankStability(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep116RankStabilityConsensusProfile(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
