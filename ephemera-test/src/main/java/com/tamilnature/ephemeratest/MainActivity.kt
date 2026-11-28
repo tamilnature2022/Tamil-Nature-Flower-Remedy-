@@ -1169,17 +1169,17 @@ class MainActivity : Activity() {
         step50CoreNumbers: Map<String, Int>,
         step67CrossShellEdges: List<Pair<String, String>>
     ) {
-        result.append("\\n=============================\\n")
-        result.append("STEP 87 - SHELL GAP COMPARATIVE FREQUENCY RATIO PROFILE\\n")
-        result.append("=============================\\n\\n")
+        result.append("\n=============================\n")
+        result.append("STEP 87 - SHELL GAP COMPARATIVE FREQUENCY RATIO PROFILE\n")
+        result.append("=============================\n\n")
         val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
             val sa = step50CoreNumbers[a]
             val sb = step50CoreNumbers[b]
             if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
         }
         if (gaps.isEmpty()) {
-            result.append("No cross-shell links available for comparative frequency analysis.\\n")
-            result.append("\\nStatistics are descriptive only, not causal or predictive.\\n")
+            result.append("No cross-shell links available for comparative frequency analysis.\n")
+            result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
         val freq = gaps.groupingBy { it }.eachCount().toSortedMap()
@@ -1187,16 +1187,16 @@ class MainActivity : Activity() {
         val mean = freq.values.map { it.toDouble() }.average()
         val highest = freq.maxByOrNull { it.value }
         val lowest = freq.minByOrNull { it.value }
-        result.append("Gap | Count | Share (%) | Ratio to mean frequency\\n")
+        result.append("Gap | Count | Share (%) | Ratio to mean frequency\n")
         freq.forEach { (gap, count) ->
             val share = count.toDouble() / total * 100.0
             val ratio = if (mean > 0.0) count.toDouble() / mean else 0.0
-            result.append("$gap | $count | ${String.format(Locale.US, "%.5f", share)} | ${String.format(Locale.US, "%.5f", ratio)}\\n")
+            result.append("$gap | $count | ${String.format(Locale.US, "%.5f", share)} | ${String.format(Locale.US, "%.5f", ratio)}\n")
         }
-        result.append("Mean frequency | ${String.format(Locale.US, "%.5f", mean)}\\n")
-        if (highest != null) result.append("Highest-frequency gap | ${highest.key} (count ${highest.value})\\n")
-        if (lowest != null) result.append("Lowest-frequency gap | ${lowest.key} (count ${lowest.value})\\n")
-        result.append("\\nRatios compare observed gap-category frequencies with their mean; descriptive, not causal or predictive.\\n")
+        result.append("Mean frequency | ${String.format(Locale.US, "%.5f", mean)}\n")
+        if (highest != null) result.append("Highest-frequency gap | ${highest.key} (count ${highest.value})\n")
+        if (lowest != null) result.append("Lowest-frequency gap | ${lowest.key} (count ${lowest.value})\n")
+        result.append("\nRatios compare observed gap-category frequencies with their mean; descriptive, not causal or predictive.\n")
     }
 
     private fun appendStep88Analysis(
@@ -1624,17 +1624,17 @@ class MainActivity : Activity() {
         step50CoreNumbers: Map<String, Int>,
         step67CrossShellEdges: List<Pair<String, String>>
     ) {
-        result.append("\\n=============================\\n")
-        result.append("STEP 98 - SHELL GAP PEAK-VALLEY SEPARATION PROFILE\\n")
-        result.append("=============================\\n\\n")
+        result.append("\n=============================\n")
+        result.append("STEP 98 - SHELL GAP PEAK-VALLEY SEPARATION PROFILE\n")
+        result.append("=============================\n\n")
         val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
             val sa = step50CoreNumbers[a]
             val sb = step50CoreNumbers[b]
             if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
         }
         if (gaps.isEmpty()) {
-            result.append("No cross-shell links available for Step 98 analysis.\\n")
-            result.append("\\nStatistics are descriptive only, not causal or predictive.\\n")
+            result.append("No cross-shell links available for Step 98 analysis.\n")
+            result.append("\nStatistics are descriptive only, not causal or predictive.\n")
             return
         }
         val observedFreq = gaps.groupingBy { it }.eachCount().toSortedMap()
@@ -1655,21 +1655,21 @@ class MainActivity : Activity() {
         val peakValleyPairs = peaks.flatMap { p -> valleys.map { v -> kotlin.math.abs(p - v) } }
         fun describe(name: String, values: List<Int>) {
             if (values.isEmpty()) {
-                result.append("$name | no pairs available\\n")
+                result.append("$name | no pairs available\n")
             } else {
                 val sorted = values.sorted()
                 val mean = sorted.average()
-                result.append("$name | count ${sorted.size}, mean separation %.2f, min %d, max %d\\n".format(mean, sorted.first(), sorted.last()))
+                result.append("$name | count ${sorted.size}, mean separation %.2f, min %d, max %d\n".format(mean, sorted.first(), sorted.last()))
             }
         }
-        result.append("Gap frequency | ${freq.entries.joinToString { "${it.key}:${it.value}" }}\\n")
-        result.append("Detected peak gaps | ${if (peaks.isEmpty()) "none" else peaks.joinToString()}\\n")
-        result.append("Detected valley gaps | ${if (valleys.isEmpty()) "none" else valleys.joinToString()}\\n")
+        result.append("Gap frequency | ${freq.entries.joinToString { "${it.key}:${it.value}" }}\n")
+        result.append("Detected peak gaps | ${if (peaks.isEmpty()) "none" else peaks.joinToString()}\n")
+        result.append("Detected valley gaps | ${if (valleys.isEmpty()) "none" else valleys.joinToString()}\n")
         describe("Peak-to-peak separation", peakPairs)
         describe("Valley-to-valley separation", valleyPairs)
         describe("Peak-valley separation", peakValleyPairs)
-        result.append("Separations use absolute differences between detected gap values.\\n")
-        result.append("\\nThis profile is descriptive and does not imply causation or prediction.\\n")
+        result.append("Separations use absolute differences between detected gap values.\n")
+        result.append("\nThis profile is descriptive and does not imply causation or prediction.\n")
     }
 
 
@@ -4325,10 +4325,10 @@ private fun appendStep114RankAgreementRobustness(
             result.append("Step 26 note: these are lord-placement relationships only; they are not strength, severity, or predictive scores.\n")
 
             // STEP 27: BHAVA NETWORK SUMMARY (DESCRIPTIVE)
-            result.append("\\n=============================\\n")
-            result.append("STEP 27 - BHAVA NETWORK SUMMARY\\n")
-            result.append("=============================\\n\\n")
-            result.append("Overview of house-lord links and factor associations as a descriptive network. No scoring or prediction is applied.\\n\\n")
+            result.append("\n=============================\n")
+            result.append("STEP 27 - BHAVA NETWORK SUMMARY\n")
+            result.append("=============================\n\n")
+            result.append("Overview of house-lord links and factor associations as a descriptive network. No scoring or prediction is applied.\n\n")
 
             for (house in 1..12) {
                 val signForNetwork = (lagnaSign + house - 1) % 12
@@ -4339,16 +4339,16 @@ private fun appendStep114RankAgreementRobustness(
                 val occupantsForNetwork = planetPositions.filter { houseNumber(it.value, lagnaSidereal) == house }.keys
                 val incomingForNetwork = step26LinksByDestination[house] ?: emptyList()
 
-                result.append("HOUSE $house NETWORK NODE\\n")
-                result.append("House sign: ${rasiNames[signForNetwork]}\\n")
-                result.append("Occupants: ${if (occupantsForNetwork.isEmpty()) "None" else occupantsForNetwork.joinToString()}\\n")
-                result.append("House lord: $lordForNetwork\\n")
-                result.append("Lord destination: ${destinationForNetwork?.let { "House $it" } ?: "Unavailable"}\\n")
-                result.append("Incoming lord-links from: ${if (incomingForNetwork.isEmpty()) "None" else incomingForNetwork.joinToString { "House $it" }}\\n")
-                result.append("Associated factors: ${if (factorsForNetwork.isEmpty()) "None" else factorsForNetwork.joinToString()}\\n")
-                result.append("Network description: House $house lord links to ${destinationForNetwork?.let { "House $it" } ?: "an unavailable destination"}; ${incomingForNetwork.size} incoming link(s).\\n\\n")
+                result.append("HOUSE $house NETWORK NODE\n")
+                result.append("House sign: ${rasiNames[signForNetwork]}\n")
+                result.append("Occupants: ${if (occupantsForNetwork.isEmpty()) "None" else occupantsForNetwork.joinToString()}\n")
+                result.append("House lord: $lordForNetwork\n")
+                result.append("Lord destination: ${destinationForNetwork?.let { "House $it" } ?: "Unavailable"}\n")
+                result.append("Incoming lord-links from: ${if (incomingForNetwork.isEmpty()) "None" else incomingForNetwork.joinToString { "House $it" }}\n")
+                result.append("Associated factors: ${if (factorsForNetwork.isEmpty()) "None" else factorsForNetwork.joinToString()}\n")
+                result.append("Network description: House $house lord links to ${destinationForNetwork?.let { "House $it" } ?: "an unavailable destination"}; ${incomingForNetwork.size} incoming link(s).\n\n")
             }
-            result.append("Step 27 note: this is a structural relationship summary only. It does not imply beneficial/adverse effects, severity, or predictive certainty.\\n")
+            result.append("Step 27 note: this is a structural relationship summary only. It does not imply beneficial/adverse effects, severity, or predictive certainty.\n")
 
             // STEP 28: BHAVA NETWORK PATTERN ANALYSIS (DESCRIPTIVE)
             result.append("\n=============================\n")
@@ -5669,9 +5669,9 @@ private fun appendStep114RankAgreementRobustness(
             result.append("Ranking rule: core number descending, then degree descending, then node name ascending.\n")
 
             // STEP 61: CORE-PEELING ORDER ANALYSIS (STRUCTURAL ONLY)
-            result.append("\\n=============================\\n")
-            result.append("STEP 61 - CORE-PEELING ORDER ANALYSIS\\n")
-            result.append("=============================\\n\\n")
+            result.append("\n=============================\n")
+            result.append("STEP 61 - CORE-PEELING ORDER ANALYSIS\n")
+            result.append("=============================\n\n")
             val step61Remaining = step50Graph.keys.toMutableSet()
             val step61PeelingOrder = mutableListOf<Triple<String, Int, Int>>()
             var step61Order = 1
@@ -5686,14 +5686,14 @@ private fun appendStep114RankAgreementRobustness(
                 step61Remaining.remove(step61Candidate)
                 step61Order++
             }
-            result.append("Order | Node | Degree-at-removal | Core shell\\n")
+            result.append("Order | Node | Degree-at-removal | Core shell\n")
             step61PeelingOrder.forEachIndexed { step61Index, step61Item ->
-                result.append("${step61Index + 1} | ${step61Item.first} | ${step61Item.second} | ${step61Item.third}\\n")
+                result.append("${step61Index + 1} | ${step61Item.first} | ${step61Item.second} | ${step61Item.third}\n")
             }
-            result.append("Total nodes peeled: ${step61PeelingOrder.size}\\n")
-            result.append("Peeling rule: minimum current degree, ties by node name ascending.\\n")
-            result.append("Core shell is the previously calculated k-core number.\\n")
-            result.append("Step 61 note: peeling order is a deterministic structural ordering, not an astrological prediction.\\n")
+            result.append("Total nodes peeled: ${step61PeelingOrder.size}\n")
+            result.append("Peeling rule: minimum current degree, ties by node name ascending.\n")
+            result.append("Core shell is the previously calculated k-core number.\n")
+            result.append("Step 61 note: peeling order is a deterministic structural ordering, not an astrological prediction.\n")
 
 
             // STEP 62: CORE-PEELING LAYER STATISTICS
@@ -6028,6 +6028,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep139GapBandFrequency(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep140GapBandConcentration(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep141GapBandEntropy(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep142GapBandCumulativeProfile(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7278,6 +7279,35 @@ private fun appendStep114RankAgreementRobustness(
             result.append("%s: %d (%.2f%%)\n".format(band, counts141[index], counts141[index] * 100.0 / total141))
         }
         result.append("Entropy summarizes spread across defined gap bands only; it is descriptive and not predictive or evidence of astrological effect.\n")
+    }
+
+
+    private fun appendStep142GapBandCumulativeProfile(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 142: Gap Band Cumulative Profile ---\n")
+        val gaps142 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps142.isEmpty()) {
+            result.append("Cumulative gap profile unavailable: no valid observations.\n")
+            return
+        }
+        val total142 = gaps142.size
+        val thresholds142 = listOf(5, 10, 15, 20)
+        result.append("Valid observations: %d\n".format(total142))
+        thresholds142.forEach { threshold ->
+            val count142 = gaps142.count { it <= threshold }
+            val pct142 = count142 * 100.0 / total142
+            result.append("Gap <= %d: %d (%.2f%%)\n".format(threshold, count142, pct142))
+        }
+        val above20Count142 = gaps142.count { it > 20 }
+        result.append("Gap > 20: %d (%.2f%%)\n".format(above20Count142, above20Count142 * 100.0 / total142))
+        result.append("Cumulative proportions summarize observed absolute gaps only; they are descriptive and not predictive or evidence of an astrological effect.\n")
     }
 
 }
