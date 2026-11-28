@@ -6018,6 +6018,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep129DirectionalAssociationAsymmetry(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep130DirectionalMagnitudeProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep131ScenarioBandPersistence(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep132ScenarioBandSpread(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6875,5 +6876,46 @@ private fun appendStep114RankAgreementRobustness(
         result.append("This is a descriptive robustness profile for the selected boundary-shift scenarios; it is not predictive or causal validation.\n")
     }
 
+
+
+    private fun appendStep132ScenarioBandSpread(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 132: Scenario Band Spread Profile ---\n")
+        val gaps132 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps132.isEmpty()) {
+            result.append("Scenario band spread profile unavailable.\n")
+            return
+        }
+        val maxGap132 = gaps132.maxOrNull() ?: 0.0
+        val normalized132 = gaps132.map { if (maxGap132 > 0.0) it / maxGap132 * 100.0 else 0.0 }
+        val shifts132 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band132(value: Double, shift: Double): Int {
+            val boundaries = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val found = boundaries.indexOfFirst { value <= it }
+            return if (found < 0) 4 else found
+        }
+        val scenarioBands132 = shifts132.map { shift -> normalized132.map { band132(it, shift) } }
+        val spread132 = normalized132.indices.map { idx ->
+            val bands = scenarioBands132.map { it[idx] }
+            (bands.maxOrNull() ?: 0) - (bands.minOrNull() ?: 0)
+        }
+        val zeroSpread132 = spread132.count { it == 0 }
+        val meanSpread132 = spread132.average()
+        val maxSpread132 = spread132.maxOrNull() ?: 0
+        val spreadGroups132 = spread132.groupingBy { it }.eachCount().toSortedMap()
+        result.append("Observations assessed: %d\n".format(spread132.size))
+        result.append("Zero band-spread observations: %d (%.2f%%)\n".format(zeroSpread132, zeroSpread132.toDouble() / spread132.size * 100.0))
+        result.append("Mean band spread across five scenarios: %.4f\n".format(meanSpread132))
+        result.append("Maximum band spread: %d\n".format(maxSpread132))
+        result.append("Spread distribution (spread : count): %s\n".format(spreadGroups132.entries.joinToString(", ") { "${it.key}:${it.value}" }))
+        result.append("This is a descriptive sensitivity summary of the selected boundary shifts, not predictive or causal validation.\n")
+    }
 
 }
