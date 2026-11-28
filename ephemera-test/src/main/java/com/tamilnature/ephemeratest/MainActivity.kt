@@ -6031,6 +6031,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep142GapBandCumulativeProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep143ExtendedGapThresholdProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep144GapIntervalDistribution(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep145GapIntervalStatistics(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7373,6 +7374,47 @@ private fun appendStep114RankAgreementRobustness(
             result.append("Gap %s: %d (%.2f%%)\n".format(label, count144, count144 * 100.0 / total144))
         }
         result.append("Interval counts partition observed absolute gaps; they are descriptive and not predictive or evidence of an astrological effect.\n")
+    }
+
+
+    private fun appendStep145GapIntervalStatistics(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 145: Gap Interval Statistics ---\n")
+        val gaps145 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps145.isEmpty()) {
+            result.append("Gap interval statistics unavailable: no valid observations.\n")
+            return
+        }
+        val intervals145 = listOf(
+            Pair("0-10", 0..10), Pair("11-20", 11..20), Pair("21-30", 21..30),
+            Pair("31-40", 31..40), Pair("41-50", 41..50), Pair("51+", 51..Int.MAX_VALUE)
+        )
+        result.append("Valid observations: %d\n".format(gaps145.size))
+        intervals145.forEach { (label, range) ->
+            val values = gaps145.filter { it in range }.sorted()
+            if (values.isEmpty()) {
+                result.append("Interval %s: no observations\n".format(label))
+            } else {
+                val mean = values.average()
+                val median = if (values.size % 2 == 1) values[values.size / 2].toDouble()
+                    else (values[values.size / 2 - 1] + values[values.size / 2]) / 2.0
+                result.append("Interval %s: count=%d, mean=%.2f, median=%.2f\n".format(label, values.size, mean, median))
+            }
+        }
+        val sorted145 = gaps145.sorted()
+        val overallMean = gaps145.average()
+        val overallMedian = if (sorted145.size % 2 == 1) sorted145[sorted145.size / 2].toDouble()
+            else (sorted145[sorted145.size / 2 - 1] + sorted145[sorted145.size / 2]) / 2.0
+        result.append("Overall mean absolute gap: %.2f\n".format(overallMean))
+        result.append("Overall median absolute gap: %.2f\n".format(overallMedian))
+        result.append("Interval mean and median summarize observed gaps descriptively; they do not imply prediction, causation, or astrological validity.\n")
     }
 
 }
