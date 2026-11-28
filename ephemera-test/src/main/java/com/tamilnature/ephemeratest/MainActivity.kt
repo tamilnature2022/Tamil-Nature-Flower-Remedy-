@@ -6032,6 +6032,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep143ExtendedGapThresholdProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep144GapIntervalDistribution(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep145GapIntervalStatistics(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep146GapIntervalDispersion(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7415,6 +7416,41 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Overall mean absolute gap: %.2f\n".format(overallMean))
         result.append("Overall median absolute gap: %.2f\n".format(overallMedian))
         result.append("Interval mean and median summarize observed gaps descriptively; they do not imply prediction, causation, or astrological validity.\n")
+    }
+
+
+    private fun appendStep146GapIntervalDispersion(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 146: Gap Interval Dispersion ---\n")
+        val gaps146 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps146.isEmpty()) {
+            result.append("Gap dispersion unavailable: no valid observations.\n")
+            return
+        }
+        val intervals146 = listOf(
+            Pair("0-10", 0..10), Pair("11-20", 11..20), Pair("21-30", 21..30),
+            Pair("31-40", 31..40), Pair("41-50", 41..50), Pair("51+", 51..Int.MAX_VALUE)
+        )
+        result.append("Valid observations: %d\n".format(gaps146.size))
+        intervals146.forEach { (label, range) ->
+            val values = gaps146.filter { it in range }
+            if (values.isEmpty()) {
+                result.append("Interval %s: no observations\n".format(label))
+            } else {
+                val mean146 = values.average()
+                val variance146 = values.map { (it - mean146) * (it - mean146) }.average()
+                val sd146 = kotlin.math.sqrt(variance146)
+                result.append("Interval %s: count=%d, variance=%.2f, standard deviation=%.2f\n".format(label, values.size, variance146, sd146))
+            }
+        }
+        result.append("Within-interval variance and standard deviation describe observed absolute-gap dispersion only; they do not establish prediction, causation, or astrological validity.\n")
     }
 
 }
