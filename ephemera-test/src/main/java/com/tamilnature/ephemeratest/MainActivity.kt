@@ -6017,6 +6017,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep128AssociationBalanceAndReciprocity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep129DirectionalAssociationAsymmetry(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep130DirectionalMagnitudeProfile(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep131ScenarioBandPersistence(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6829,6 +6830,49 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Mean absolute band-step movement: %.4f\n".format(meanAbs130))
         result.append("Maximum absolute band-step movement: %d\n".format(maxAbs130))
         result.append("These descriptive measures summarize adjacent boundary-shift scenarios only; they do not establish predictive validity or causality.\n")
+    }
+
+
+
+    private fun appendStep131ScenarioBandPersistence(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 131: Scenario Band Persistence Profile ---\n")
+        val gaps131 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps131.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Scenario persistence profile unavailable.\n")
+            return
+        }
+        val maxGap131 = gaps131.maxOrNull() ?: 0.0
+        val normalized131 = gaps131.map { if (maxGap131 > 0.0) it / maxGap131 * 100.0 else 0.0 }
+        val shifts131 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band131(value: Double, shift: Double): Int {
+            val boundaries = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val found = boundaries.indexOfFirst { value <= it }
+            return if (found < 0) 4 else found
+        }
+        val scenarioBands131 = shifts131.map { shift -> normalized131.map { band131(it, shift) } }
+        val observations131 = normalized131.indices
+        val persistent131 = observations131.count { index -> scenarioBands131.map { it[index] }.distinct().size == 1 }
+        val total131 = observations131.size
+        val stability131 = if (total131 > 0) persistent131.toDouble() / total131 * 100.0 else 0.0
+        val adjacentSame131 = mutableListOf<Boolean>()
+        for (i in 0 until scenarioBands131.size - 1) {
+            for (j in observations131) adjacentSame131.add(scenarioBands131[i][j] == scenarioBands131[i + 1][j])
+        }
+        val adjacentRate131 = if (adjacentSame131.isNotEmpty()) adjacentSame131.count { it }.toDouble() / adjacentSame131.size * 100.0 else 0.0
+        result.append("Cross-shell observations assessed: %d\n".format(total131))
+        result.append("Bands unchanged across all five scenarios: %d\n".format(persistent131))
+        result.append("Five-scenario persistence rate: %.2f%%\n".format(stability131))
+        result.append("Adjacent-scenario band retention rate: %.2f%%\n".format(adjacentRate131))
+        result.append("This is a descriptive robustness profile for the selected boundary-shift scenarios; it is not predictive or causal validation.\n")
     }
 
 
