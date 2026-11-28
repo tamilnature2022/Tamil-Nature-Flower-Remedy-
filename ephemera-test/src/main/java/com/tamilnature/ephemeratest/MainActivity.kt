@@ -6012,6 +6012,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep123TransitionStabilityPersistence(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep124TransitionPatternDistribution(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep125TransitionPatternConcentration(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep126TransitionPatternAssociation(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6511,5 +6512,67 @@ private fun appendStep114RankAgreementRobustness(
         result.append(if (normalizedEntropy125 >= 0.75) "observed patterns are relatively distributed across categories in this scenario set.\n" else "frequency is comparatively concentrated among the observed transition patterns.\n")
         result.append("These descriptive measures reflect the constructed boundary-shift scenarios only; they do not establish time-series behavior, causal effects, or predictive validity.\n")
     }
+
+    private fun appendStep126TransitionPatternAssociation(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 126 - TRANSITION PATTERN ASSOCIATION & CONDITIONAL PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps126 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps126.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Conditional transition association profile unavailable.\n")
+            return
+        }
+        val maxGap126 = gaps126.maxOrNull() ?: 0.0
+        val normalized126 = gaps126.map { if (maxGap126 > 0.0) it / maxGap126 * 100.0 else 0.0 }
+        val shifts126 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band126(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val index = bounds.indexOfFirst { value <= it }
+            return if (index < 0) 4 else index
+        }
+        val scenarios126 = shifts126.map { shift -> normalized126.map { band126(it, shift) } }
+        val matrix126 = Array(5) { IntArray(5) }
+        (0 until shifts126.size - 1).forEach { scenario ->
+            scenarios126[scenario].indices.forEach { item ->
+                matrix126[scenarios126[scenario][item]][scenarios126[scenario + 1][item]]++
+            }
+        }
+        val total126 = matrix126.sumOf { row -> row.sum() }
+        if (total126 <= 0) {
+            result.append("No conditional transition events counted.\n")
+            return
+        }
+        result.append("Association matrix counts (source band rows -> destination band columns):\n")
+        matrix126.indices.forEach { row ->
+            result.append("B${row + 1}: ")
+            result.append(matrix126[row].joinToString("  "))
+            result.append("\n")
+        }
+        var diagonal126 = 0
+        matrix126.indices.forEach { diagonal126 += matrix126[it][it] }
+        result.append("Total adjacent-scenario transition events: $total126\n")
+        result.append("Same-band retention share: %.4f\n".format(diagonal126.toDouble() / total126))
+        matrix126.indices.forEach { row ->
+            val rowTotal = matrix126[row].sum()
+            if (rowTotal > 0) {
+                val dominantCol = matrix126[row].indices.maxByOrNull { matrix126[row][it] } ?: 0
+                result.append("B${row + 1} conditional dominant destination: B${dominantCol + 1} ")
+                result.append("(row share %.4f; %d/%d)\n".format(matrix126[row][dominantCol].toDouble() / rowTotal, matrix126[row][dominantCol], rowTotal))
+            } else {
+                result.append("B${row + 1} conditional destination: no events\n")
+            }
+        }
+        result.append("This conditional association profile is descriptive of constructed boundary-shift scenarios; it does not establish causal relationships or predictive validity.\n")
+    }
+
 
 }
