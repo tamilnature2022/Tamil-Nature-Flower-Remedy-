@@ -6019,6 +6019,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep130DirectionalMagnitudeProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep131ScenarioBandPersistence(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep132ScenarioBandSpread(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep133RobustnessTierSummary(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6916,6 +6917,49 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Maximum band spread: %d\n".format(maxSpread132))
         result.append("Spread distribution (spread : count): %s\n".format(spreadGroups132.entries.joinToString(", ") { "${it.key}:${it.value}" }))
         result.append("This is a descriptive sensitivity summary of the selected boundary shifts, not predictive or causal validation.\n")
+    }
+
+
+
+    private fun appendStep133RobustnessTierSummary(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 133: Robustness Tier Summary ---\n")
+        val gaps133 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps133.isEmpty()) {
+            result.append("Robustness tier summary unavailable: no valid observations.\n")
+            return
+        }
+        val maxGap133 = gaps133.maxOrNull() ?: 0.0
+        val normalized133 = gaps133.map { if (maxGap133 > 0.0) it / maxGap133 * 100.0 else 0.0 }
+        val shifts133 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band133(value: Double, shift: Double): Int {
+            val boundaries = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val found = boundaries.indexOfFirst { value <= it }
+            return if (found < 0) 4 else found
+        }
+        val scenarioBands133 = shifts133.map { shift -> normalized133.map { band133(it, shift) } }
+        val spreads133 = normalized133.indices.map { idx ->
+            val bands = scenarioBands133.map { it[idx] }
+            (bands.maxOrNull() ?: 0) - (bands.minOrNull() ?: 0)
+        }
+        val tierCounts133 = mapOf(
+            "Robust (spread 0)" to spreads133.count { it == 0 },
+            "Low variation (spread 1)" to spreads133.count { it == 1 },
+            "Moderate variation (spread 2)" to spreads133.count { it == 2 },
+            "High variation (spread 3+)" to spreads133.count { it >= 3 }
+        )
+        result.append("Observations classified: %d\n".format(spreads133.size))
+        tierCounts133.forEach { (label, count) ->
+            result.append("%s: %d (%.2f%%)\n".format(label, count, count.toDouble() / spreads133.size * 100.0))
+        }
+        result.append("Tiering is a descriptive grouping of scenario band sensitivity, not predictive, causal, or scientific validation.\n")
     }
 
 }
