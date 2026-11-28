@@ -6011,6 +6011,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep122ConcentrationTransitionAnalysis(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep123TransitionStabilityPersistence(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep124TransitionPatternDistribution(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep125TransitionPatternConcentration(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6447,6 +6448,68 @@ private fun appendStep114RankAgreementRobustness(
             result.append("Top-3 pattern concentration: %.4f\n".format(concentration124))
         }
         result.append("Distribution summary: frequencies describe observed transitions across the boundary-shift scenarios only; they are not time-series events or evidence of predictive validity.\n")
+    }
+
+
+    private fun appendStep125TransitionPatternConcentration(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 125 - TRANSITION PATTERN CONCENTRATION & DOMINANCE ANALYSIS\n")
+        result.append("=============================\n\n")
+        val gaps125 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps125.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Transition concentration profile unavailable.\n")
+            return
+        }
+        val maxGap125 = gaps125.maxOrNull() ?: 0.0
+        val normalized125 = gaps125.map { if (maxGap125 > 0.0) it / maxGap125 * 100.0 else 0.0 }
+        val shifts125 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band125(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val idx = bounds.indexOfFirst { value <= it }
+            return if (idx < 0) 4 else idx
+        }
+        val scenarios125 = shifts125.map { shift -> normalized125.map { band125(it, shift) } }
+        val freq125 = Array(5) { IntArray(5) }
+        (0 until shifts125.size - 1).forEach { scenario ->
+            scenarios125[scenario].indices.forEach { item ->
+                freq125[scenarios125[scenario][item]][scenarios125[scenario + 1][item]]++
+            }
+        }
+        val counts125 = freq125.flatMap { row -> row.toList() }.filter { it > 0 }
+        val total125 = counts125.sum()
+        if (total125 == 0) {
+            result.append("No transition events counted.\n")
+            return
+        }
+        val sorted125 = counts125.sortedDescending()
+        val shares125 = counts125.map { it.toDouble() / total125 }
+        val hhi125 = shares125.sumOf { it * it }
+        val entropy125 = -shares125.sumOf { if (it > 0.0) it * kotlin.math.ln(it) else 0.0 }
+        val maxEntropy125 = if (shares125.size > 1) kotlin.math.ln(shares125.size.toDouble()) else 0.0
+        val normalizedEntropy125 = if (maxEntropy125 > 0.0) entropy125 / maxEntropy125 else 0.0
+        val dominant125 = freq125.indices.flatMap { from -> freq125[from].indices.map { to -> Pair(from to to, freq125[from][to]) } }.filter { it.second > 0 }.maxByOrNull { it.second }
+        result.append("Observed transition events: $total125\n")
+        result.append("Distinct observed patterns: ${counts125.size} / 25\n")
+        if (dominant125 != null) {
+            result.append("Dominant pattern: B${dominant125.first.first + 1} -> B${dominant125.first.second + 1} (${dominant125.second} events)\n")
+            result.append("Dominant-pattern share: %.4f\n".format(dominant125.second.toDouble() / total125))
+        }
+        result.append("Top-3 pattern share: %.4f\n".format(sorted125.take(3).sum().toDouble() / total125))
+        result.append("Pattern concentration (HHI): %.4f\n".format(hhi125))
+        result.append("Pattern entropy: %.4f\n".format(entropy125))
+        result.append("Normalized pattern entropy: %.4f\n".format(normalizedEntropy125))
+        result.append("Diversity summary: ")
+        result.append(if (normalizedEntropy125 >= 0.75) "observed patterns are relatively distributed across categories in this scenario set.\n" else "frequency is comparatively concentrated among the observed transition patterns.\n")
+        result.append("These descriptive measures reflect the constructed boundary-shift scenarios only; they do not establish time-series behavior, causal effects, or predictive validity.\n")
     }
 
 }
