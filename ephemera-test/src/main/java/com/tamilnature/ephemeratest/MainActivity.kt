@@ -6349,7 +6349,7 @@ private fun appendStep114RankAgreementRobustness(
         var totalTransitions123 = 0
         var totalUnchanged123 = 0
         var totalChanged123 = 0
-        shifts123.indices.dropLast(1).forEach { i ->
+        (0 until shifts123.size - 1).forEach { i ->
             val left = scenarioBands123[i]
             val right = scenarioBands123[i + 1]
             val unchanged = left.indices.count { left[it] == right[it] }
@@ -6365,7 +6365,7 @@ private fun appendStep114RankAgreementRobustness(
         result.append("\nAggregate adjacent-scenario assignment persistence: %.4f\n".format(overallPersistence123))
         result.append("Aggregate adjacent-scenario change proportion: %.4f\n".format(changePersistence123))
         val transitionFrequency123 = Array(5) { IntArray(5) }
-        shifts123.indices.dropLast(1).forEach { i ->
+        (0 until shifts123.size - 1).forEach { i ->
             scenarioBands123[i].indices.forEach { j -> transitionFrequency123[scenarioBands123[i][j]][scenarioBands123[i + 1][j]]++ }
         }
         result.append("\nAdjacent-scenario transition frequency matrix (rows=from; columns=to):\n")
