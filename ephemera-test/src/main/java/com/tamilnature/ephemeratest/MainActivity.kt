@@ -7498,6 +7498,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep147GapIntervalRangeProfile(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep148GapIntervalCoverage(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep149GapIntervalCoverageDetail(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep150GapIntervalBalance(result, step50CoreNumbers, step67CrossShellEdges)
 
     }
 
@@ -7566,5 +7567,42 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Total valid gap observations: ${gaps149.size}\n")
         result.append("This is a descriptive interval audit, not predictive or causal evidence.\n")
     }
+
+    private fun appendStep150GapIntervalBalance(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 150: Gap Interval Balance Summary ---\n")
+        val gaps150 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps150.isEmpty()) {
+            result.append("Balance summary unavailable: no valid observations.\n")
+            return
+        }
+        val intervals150 = listOf(
+            Pair("0-10", 0..10), Pair("11-20", 11..20), Pair("21-30", 21..30),
+            Pair("31-40", 31..40), Pair("41-50", 41..50), Pair("51+", 51..Int.MAX_VALUE)
+        )
+        val counts150 = intervals150.map { (_, range) -> gaps150.count { it in range } }
+        val maxCount150 = counts150.maxOrNull() ?: 0
+        val minCount150 = counts150.minOrNull() ?: 0
+        val meanCount150 = counts150.average()
+        result.append("Total observations: %d\n".format(gaps150.size))
+        result.append("Interval count mean: %.2f\n".format(meanCount150))
+        result.append("Highest interval count: %d\n".format(maxCount150))
+        result.append("Lowest interval count: %d\n".format(minCount150))
+        result.append("Count range across intervals: %d\n".format(maxCount150 - minCount150))
+        intervals150.forEachIndexed { index, (label, _) ->
+            val count = counts150[index]
+            val delta = count - meanCount150
+            result.append("%s | count=%d | deviation-from-mean=%.2f\n".format(label, count, delta))
+        }
+        result.append("This interval balance summary is descriptive only and does not imply prediction or causal/astrological validity.\n")
+    }
+
 
 }
