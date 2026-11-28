@@ -10,6 +10,7 @@ import io.github.intellecat.ephemera.*
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class MainActivity : Activity() {
 
@@ -1834,7 +1835,105 @@ class MainActivity : Activity() {
 
 
 
-    private fun appendStep114RankAgreementRobustness(
+    
+    private fun appendStep115MultiScenarioRankStability(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 115 - MULTI-SCENARIO RANK STABILITY SUMMARY\n")
+        result.append("=============================\n\n")
+        val gaps = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps.size < 3) {
+            result.append("At least three valid cross-shell links are required.\n")
+            result.append("Multi-scenario rank stability summary unavailable.\n")
+            return
+        }
+        fun median(values: List<Double>): Double {
+            val sorted = values.sorted()
+            return if (sorted.size % 2 == 1) sorted[sorted.size / 2]
+            else (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2.0
+        }
+        fun metric(sample: List<Int>): List<Double> {
+            val v = sample.map { it.toDouble() }
+            val med = median(v)
+            val sorted = v.sorted()
+            val lower = sorted.take(sorted.size / 2)
+            val upper = sorted.drop((sorted.size + 1) / 2)
+            val q1 = if (lower.isNotEmpty()) median(lower) else med
+            val q3 = if (upper.isNotEmpty()) median(upper) else med
+            val mad = median(v.map { kotlin.math.abs(it - med) })
+            return listOf(med, q3 - q1, mad, 1.4826 * mad)
+        }
+        val componentNames = listOf("Median", "IQR", "MAD", "MAD-based robust scale")
+        val scenarios = listOf(
+            "Equal weight" to listOf(0.25, 0.25, 0.25, 0.25),
+            "Median emphasis" to listOf(0.40, 0.20, 0.20, 0.20),
+            "IQR emphasis" to listOf(0.20, 0.40, 0.20, 0.20),
+            "MAD emphasis" to listOf(0.20, 0.20, 0.40, 0.20),
+            "Robust scale emphasis" to listOf(0.20, 0.20, 0.20, 0.40)
+        )
+        val rng = java.util.Random(115L)
+        val componentScores = MutableList(4) { 0.0 }
+        for (k in 0..3) {
+            val batches = List(10) {
+                List(200) {
+                    val sample = List(gaps.size) { gaps[rng.nextInt(gaps.size)] }
+                    metric(sample)[k]
+                }.average()
+            }
+            val mean = batches.average()
+            val tolerance = kotlin.math.max(kotlin.math.abs(mean) * 0.05, 0.0001)
+            val maxDeviation = batches.maxOf { kotlin.math.abs(it - mean) }
+            val trend = batches.drop(5).average() - batches.take(5).average()
+            val deviationScore = (100.0 * (1.0 - maxDeviation / tolerance)).coerceIn(0.0, 100.0)
+            val trendScore = (100.0 * (1.0 - kotlin.math.abs(trend) / tolerance)).coerceIn(0.0, 100.0)
+            componentScores[k] = (deviationScore + trendScore) / 2.0
+        }
+        val scenarioRanks = scenarios.map { (_, weights) ->
+            val weighted = componentScores.indices.map { componentScores[it] * weights[it] }
+            val sortedIndices = weighted.indices.sortedByDescending { weighted[it] }
+            val ranks = MutableList(4) { 0 }
+            sortedIndices.forEachIndexed { rank, idx -> ranks[idx] = rank + 1 }
+            ranks
+        }
+        val rankLists = componentNames.indices.map { idx -> scenarioRanks.map { it[idx] } }
+        result.append("Scenarios analyzed | ${scenarios.size}\n")
+        result.append("Components assessed | ${componentNames.size}\n\n")
+        result.append("Scenario agreement matrix | diagonal=100%, off-diagonal reports exact-position component agreement\n")
+        for (a in scenarios.indices) {
+            val row = scenarios.indices.map { b ->
+                if (a == b) 100.0 else {
+                    (0..3).count { scenarioRanks[a][it] == scenarioRanks[b][it] } / 4.0 * 100.0
+                }
+            }
+            result.append(scenarios[a].first + " | " + row.joinToString(" | ") { "%.1f%%".format(it) } + "\n")
+        }
+        result.append("\nComponent rank summary across scenarios\n")
+        for (i in componentNames.indices) {
+            val ranks = rankLists[i]
+            val avgRank = ranks.average()
+            val range = (ranks.maxOrNull() ?: 0) - (ranks.minOrNull() ?: 0)
+            val topFrequency = ranks.count { it == 1 } / scenarios.size.toDouble() * 100.0
+            val consistentFrequency = ranks.count { it == avgRank.roundToInt() } / scenarios.size.toDouble() * 100.0
+            result.append("${componentNames[i]} | average rank %.2f | rank range %d | top-rank frequency %.1f%% | rounded-average-rank frequency %.1f%%\n".format(avgRank, range, topFrequency, consistentFrequency))
+        }
+        val allPairAgreement = (scenarios.indices.flatMap { a ->
+            (a + 1 until scenarios.size).map { b ->
+                (0..3).count { scenarioRanks[a][it] == scenarioRanks[b][it] } / 4.0 * 100.0
+            }
+        }).average()
+        result.append("\nMean pairwise exact-position agreement | %.2f%%\n".format(allPairAgreement))
+        result.append("Interpretation | Summarizes ranking consistency across the defined weighting scenarios.\n")
+        result.append("Limitations | Heuristic, descriptive sensitivity summary; not validated inferential or predictive statistics.\n")
+    }
+
+private fun appendStep114RankAgreementRobustness(
         result: StringBuilder,
         step50CoreNumbers: Map<String, Int>,
         step67CrossShellEdges: List<Pair<String, String>>
@@ -5767,6 +5866,7 @@ class MainActivity : Activity() {
             appendStep112RankConsistency(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep113RankAgreementCorrelation(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep114RankAgreementRobustness(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep115MultiScenarioRankStability(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
