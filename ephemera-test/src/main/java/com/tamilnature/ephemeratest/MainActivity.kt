@@ -6023,6 +6023,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep134RobustnessIndex(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep135RobustnessAudit(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep136GapQuantileProfile(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep137GapIqrOutlierSummary(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7080,6 +7081,46 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Maximum gap: %.2f\n".format(values136.last()))
         result.append("Interquartile range (Q3-Q1): %.2f\n".format(quantile136(0.75) - quantile136(0.25)))
         result.append("Quantiles describe the distribution of absolute score gaps; they do not imply significance, prediction, or causal interpretation.\n")
+    }
+
+    private fun appendStep137GapIqrOutlierSummary(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 137: Gap IQR Outlier Summary ---\n")
+        val gaps137 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb).toDouble() else null
+        }.sorted()
+        if (gaps137.isEmpty()) {
+            result.append("IQR outlier summary unavailable: no valid observations.\n")
+            return
+        }
+        fun quantile137(p: Double): Double {
+            val pos = (gaps137.size - 1) * p
+            val lower = pos.toInt()
+            val upper = kotlin.math.ceil(pos).toInt()
+            if (lower == upper) return gaps137[lower]
+            val fraction = pos - lower
+            return gaps137[lower] * (1.0 - fraction) + gaps137[upper] * fraction
+        }
+        val q1 = quantile137(0.25)
+        val q3 = quantile137(0.75)
+        val iqr = q3 - q1
+        val lowerFence = q1 - 1.5 * iqr
+        val upperFence = q3 + 1.5 * iqr
+        val lowerCount = gaps137.count { it < lowerFence }
+        val upperCount = gaps137.count { it > upperFence }
+        result.append("Valid observations: %d\n".format(gaps137.size))
+        result.append("Q1: %.2f | Q3: %.2f | IQR: %.2f\n".format(q1, q3, iqr))
+        result.append("Lower Tukey fence: %.2f\n".format(lowerFence))
+        result.append("Upper Tukey fence: %.2f\n".format(upperFence))
+        result.append("Below lower fence: %d\n".format(lowerCount))
+        result.append("Above upper fence: %d\n".format(upperCount))
+        result.append("IQR-flagged observations: %d (%.2f%%)\n".format(lowerCount + upperCount, (lowerCount + upperCount) * 100.0 / gaps137.size))
+        result.append("Tukey fences are descriptive flags for unusually distant gap values, not evidence of error, significance, or prediction.\n")
     }
 
 }
