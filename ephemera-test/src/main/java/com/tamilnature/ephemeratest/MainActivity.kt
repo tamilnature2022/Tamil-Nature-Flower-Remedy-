@@ -6009,6 +6009,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep120ConcentrationStabilitySensitivity(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep121ConcentrationPatternPersistence(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep122ConcentrationTransitionAnalysis(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep123TransitionStabilityPersistence(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -6314,6 +6315,74 @@ private fun appendStep114RankAgreementRobustness(
         result.append("Structural-change summary: ")
         result.append(if (changeRate122 == 0.0 && absolutePopulationChange122 == 0) "band assignments and population counts were unchanged between these boundary scenarios.\n" else "band assignments or population counts changed between these boundary scenarios.\n")
         result.append("This is a descriptive boundary-scenario comparison only; it does not imply temporal change, causation, or predictive validity.\n")
+    }
+
+
+    private fun appendStep123TransitionStabilityPersistence(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n=============================\n")
+        result.append("STEP 123 - TRANSITION STABILITY & CHANGE PERSISTENCE PROFILE\n")
+        result.append("=============================\n\n")
+        val gaps123 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null && sa != sb) kotlin.math.abs(sa - sb).toDouble() else null
+        }
+        if (gaps123.isEmpty()) {
+            result.append("No valid cross-shell gap observations available.\n")
+            result.append("Transition stability profile unavailable.\n")
+            return
+        }
+        val maxGap123 = gaps123.maxOrNull() ?: 0.0
+        val values123 = gaps123.map { if (maxGap123 > 0.0) it / maxGap123 * 100.0 else 0.0 }
+        val shifts123 = listOf(0.0, 5.0, 10.0, 15.0, 20.0)
+        fun band123(value: Double, shift: Double): Int {
+            val bounds = listOf(20.0 + shift, 40.0 + shift, 60.0 + shift, 80.0 + shift).map { it.coerceAtMost(100.0) }
+            val idx = bounds.indexOfFirst { value <= it }
+            return if (idx < 0) 4 else idx
+        }
+        val scenarioBands123 = shifts123.map { shift -> values123.map { band123(it, shift) } }
+        result.append("Adjacent-scenario persistence (shift pair | unchanged | changed | persistence ratio):\n")
+        var totalTransitions123 = 0
+        var totalUnchanged123 = 0
+        var totalChanged123 = 0
+        shifts123.indices.dropLast(1).forEach { i ->
+            val left = scenarioBands123[i]
+            val right = scenarioBands123[i + 1]
+            val unchanged = left.indices.count { left[it] == right[it] }
+            val changed = left.size - unchanged
+            val ratio = if (left.isNotEmpty()) unchanged.toDouble() / left.size else 0.0
+            totalTransitions123 += left.size
+            totalUnchanged123 += unchanged
+            totalChanged123 += changed
+            result.append("%.0f -> %.0f | %d | %d | %.4f\n".format(shifts123[i], shifts123[i + 1], unchanged, changed, ratio))
+        }
+        val overallPersistence123 = if (totalTransitions123 > 0) totalUnchanged123.toDouble() / totalTransitions123 else 0.0
+        val changePersistence123 = if (totalTransitions123 > 0) totalChanged123.toDouble() / totalTransitions123 else 0.0
+        result.append("\nAggregate adjacent-scenario assignment persistence: %.4f\n".format(overallPersistence123))
+        result.append("Aggregate adjacent-scenario change proportion: %.4f\n".format(changePersistence123))
+        val transitionFrequency123 = Array(5) { IntArray(5) }
+        shifts123.indices.dropLast(1).forEach { i ->
+            scenarioBands123[i].indices.forEach { j -> transitionFrequency123[scenarioBands123[i][j]][scenarioBands123[i + 1][j]]++ }
+        }
+        result.append("\nAdjacent-scenario transition frequency matrix (rows=from; columns=to):\n")
+        result.append("Band | " + (1..5).joinToString(" | ") { "B$it" } + "\n")
+        for (row in 0..4) result.append("B${row + 1} | " + transitionFrequency123[row].joinToString(" | ") + "\n")
+        val scenarioProfileAgreement123 = shifts123.indices.map { i ->
+            val profile = IntArray(5)
+            scenarioBands123[i].forEach { profile[it]++ }
+            profile
+        }
+        val profileDeviation123 = scenarioProfileAgreement123.first().indices.sumOf { band ->
+            scenarioProfileAgreement123.drop(1).sumOf { kotlin.math.abs(it[band] - scenarioProfileAgreement123.first()[band]) }
+        }
+        result.append("Total band-population deviation from baseline across shifts: $profileDeviation123\n")
+        result.append("Persistence summary: ")
+        result.append(if (overallPersistence123 >= 0.80) "band assignments show high agreement across adjacent boundary-shift scenarios.\n" else "assignment changes are present across adjacent boundary-shift scenarios.\n")
+        result.append("This descriptive sensitivity measure does not represent time-based persistence, causal change, or predictive/statistical validation.\n")
     }
 
 }
