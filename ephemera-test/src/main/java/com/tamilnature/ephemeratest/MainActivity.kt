@@ -6033,6 +6033,7 @@ private fun appendStep114RankAgreementRobustness(
             appendStep144GapIntervalDistribution(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep145GapIntervalStatistics(result, step50CoreNumbers, step67CrossShellEdges)
             appendStep146GapIntervalDispersion(result, step50CoreNumbers, step67CrossShellEdges)
+            appendStep147GapIntervalRangeProfile(result, step50CoreNumbers, step67CrossShellEdges)
 
             // COMPLETION
 
@@ -7451,6 +7452,41 @@ private fun appendStep114RankAgreementRobustness(
             }
         }
         result.append("Within-interval variance and standard deviation describe observed absolute-gap dispersion only; they do not establish prediction, causation, or astrological validity.\n")
+    }
+
+
+
+    private fun appendStep147GapIntervalRangeProfile(
+        result: StringBuilder,
+        step50CoreNumbers: Map<String, Int>,
+        step67CrossShellEdges: List<Pair<String, String>>
+    ) {
+        result.append("\n--- Step 147: Gap Interval Range Profile ---\n")
+        val gaps147 = step67CrossShellEdges.mapNotNull { (a, b) ->
+            val sa = step50CoreNumbers[a]
+            val sb = step50CoreNumbers[b]
+            if (sa != null && sb != null) kotlin.math.abs(sa - sb) else null
+        }
+        if (gaps147.isEmpty()) {
+            result.append("Gap range profile unavailable: no valid observations.\n")
+            return
+        }
+        val intervals147 = listOf(
+            Pair("0-10", 0..10), Pair("11-20", 11..20), Pair("21-30", 21..30),
+            Pair("31-40", 31..40), Pair("41-50", 41..50), Pair("51+", 51..Int.MAX_VALUE)
+        )
+        result.append("Valid observations: %d\n".format(gaps147.size))
+        intervals147.forEach { (label, range) ->
+            val values = gaps147.filter { it in range }
+            if (values.isEmpty()) {
+                result.append("Interval %s: no observations\n".format(label))
+            } else {
+                val min147 = values.minOrNull() ?: 0
+                val max147 = values.maxOrNull() ?: 0
+                result.append("Interval %s: count=%d, min=%d, max=%d, range=%d\n".format(label, values.size, min147, max147, max147 - min147))
+            }
+        }
+        result.append("Interval ranges summarize observed values within each band only; they do not establish prediction, causation, or astrological validity.\n")
     }
 
 }
